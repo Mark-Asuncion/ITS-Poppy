@@ -15,7 +15,6 @@ cargo install tauri-cli
 ```
 cargo tauri dev
 ```
-***will be available in 'src-tauri/target/debug/'***
 ## Build release
 ```
 cargo tauri build
