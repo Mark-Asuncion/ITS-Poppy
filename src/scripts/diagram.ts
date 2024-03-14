@@ -3,18 +3,15 @@ import diagramBackground from "/assets/diagram-background.png";
 import { Rect, RectConfig } from "konva/lib/shapes/Rect";
 import { TextConfig } from "konva/lib/shapes/Text";
 import { Group } from "konva/lib/Group";
+import { Theme } from "../themes/diagram";
 
-const Theme = {
-    Diagram: {
-        cornerRadius: 5,
-        stroke: "#6F6F6F",
-        fill: "#F9F9F9",
-        textPadding: 10,
-        textBg: "#FFFFFF",
-        textStroke: "#6F6F6F",
-        fontSize: 16,
-    }
-};
+function isPointIntersectRect(
+    point: { x: number, y: number },
+    rect: { x: number, y: number, width: number, height: number }
+) {
+    return point.x > rect.x && point.x < ( rect.x + rect.width )
+        && point.y > rect.y && point.y < ( rect.y + rect.height );
+}
 
 class TextBox extends Group {
     text: Konva.Text;
@@ -24,6 +21,7 @@ class TextBox extends Group {
 
         this.text = new Konva.Text({
             padding: Theme.Diagram.textPadding,
+            wrap: "none",
             ...textConfig
         });
 
@@ -48,7 +46,7 @@ class TextBox extends Group {
 
     handleEdit() {
         // TODO: Change to click instead
-        this.on("dblclick dbltap", (e) => {
+        this.on("mousedown", (e) => {
             e.cancelBubble = true;
             this.text.hide();
             const input = document.createElement("textarea");
@@ -63,21 +61,29 @@ class TextBox extends Group {
             input.style.textAlign = `${ this.text.align() }`;
             input.style.color = `${ this.text.fill() }`;
             input.value = this.text.text();
-            input.addEventListener("focusout", () => {
-                this.text.text(input.value);
-                input.remove();
-                this.text.show();
-            });
+            const ref = this;
+            input.addEventListener("focusin", () => {
+                input.addEventListener("focusout", () => {
+                    ref.text.text(input.value);
+                    input.remove();
+                    ref.text.show();
+                    ref.fire("texteditdone", {}, true);
+                });
+            })
             input.addEventListener("keydown", (e) => {
                 if (e.key == "Enter") {
                     input.blur();
                 }
                 else if (e.key == "Escape") {
+                    // FIX: don't update content
                     input.remove();
                 }
+                // ref.fire("textchanged", { value: input.value },true);
+                ref.fire("textedit", {}, true);
             });
             document.body.appendChild(input);
-            input.focus();
+            // tmp
+            setTimeout(() => input.focus(), 300);
         });
     }
 
@@ -142,10 +148,13 @@ class Diagram extends Group {
         this.add(text);
         this.add(this.attachRect);
         this.handleClick();
+        this.on("textchanged", (e: any) => {
+            console.log("textchanged", e);
+        });
     }
 
     handleClick() {
-        this.on("pointerdown", (e) => {
+        this.getRect().on("mousedown", (e) => {
             console.log("Show Arrow Button", e.target);
         });
     }
@@ -193,18 +202,106 @@ class DiagramGroup extends Konva.Group {
     nodes: Diagram[] = [];
     attachedTo: { v: DiagramGroup, i: number } | null = null;
     constructor(opts: Konva.ContainerConfig = {}) {
-        super({
-            ...opts,
-            draggable: true
-        });
+        super(opts);
         this.handleDragEvent();
         this.handleSelect();
     }
 
     handleSelect() {
-        this.on("pointerdown", () => {
-            // console.log(e.target);
+        this.on("mouseup", () => {
+            this.stopDrag();
         });
+
+        this.on("mousedown", (e) => {
+            function intersectNode(mousePos: { x: number, y: number }, diagram: Diagram[]) {
+                for (let i=0;i<diagram.length;i++) {
+                    const nodeR = diagram[i].getRect();
+                    const rect = {
+                        x: nodeR.getAbsolutePosition().x,
+                        y: nodeR.getAbsolutePosition().y,
+                        width: nodeR.width(),
+                        height: nodeR.height()
+                    };
+                    if ( isPointIntersectRect(mousePos, rect) ) {
+                        return diagram[i];
+                    }
+                }
+                return null;
+            }
+            const mousePos = { x: e.evt.x, y: e.evt.y };
+            if (e.evt.button === 0){
+                const node = intersectNode(mousePos, this.nodes);
+                const append = e.evt.shiftKey;
+                if (node == null) {
+                    this.fire("stateactivenode", {
+                        diagramGroup: this,
+                        append
+                    }, true);
+                    return;
+                }
+                if (node === this.nodes[0] && !append) {
+                    this.startDrag();
+                }
+                this.fire("stateactivenode", {
+                    diagramGroup: this,
+                    diagram: node,
+                    append
+                }, true);
+            }
+        });
+    }
+
+    detachNodes(diagrams: Diagram[]) {
+        let idxDiagrams = 0;
+        const included: Diagram[] = [];
+        let delRangeS = -1;
+        for (let i=0;i<this.nodes.length;i++) {
+            if (this.nodes[i] === diagrams[idxDiagrams]) {
+                if (delRangeS === -1) {
+                    delRangeS = i;
+                }
+                included.push(this.nodes[i]);
+            }
+            else {
+                if (included.length !== 0) {
+                    break;
+                }
+            }
+            idxDiagrams++;
+        }
+        // let idx = 0;
+        // this.nodes = this.nodes.filter((v, i) => {
+        //     if (v !== diagram) {
+        //         return true;
+        //     }
+        //     idx = i - 1;
+        //     return false;
+        // });
+        // if (idx < this.nodes.length && idx >= 0) {
+        //     const nodeRef = this.nodes[idx];
+        //     const slice = this.nodes.slice(idx+1);
+        //     if (nodeRef != null && slice != null) {
+        //         const rectRef = nodeRef.getRect();
+        //         this.setNodesRelativePosition(
+        //             rectRef.x(),
+        //             rectRef.y(),
+        //             rectRef.height(),
+        //             slice
+        //         );
+        //     }
+        // }
+        // diagram.remove();
+        // if (this.parent != null) {
+        //     const dg = new DiagramGroup();
+        //     const on = this.parent.getRelativePointerPosition();
+        //     if (on == null) {
+        //         return;
+        //     }
+        //     diagram.setPos(on.x, on.y);
+        //     dg.addDiagram(diagram);
+        //     console.log("detach:parent", this.parent);
+        //     this.parent.add(dg);
+        // }
     }
 
     handleDragEvent() {
@@ -229,7 +326,7 @@ class DiagramGroup extends Konva.Group {
         })
         this.on("dragend", (e) => {
             e.cancelBubble = true;
-            const parent = this.parent as Background;
+            const parent = this.parent as BaseGroup;
             const children = parent.cGetChildren();
             for (let i=0;i<children.length;i++) {
                 if (!( children[i] instanceof DiagramGroup ))
@@ -246,7 +343,7 @@ class DiagramGroup extends Konva.Group {
     }
 
     removeNode(diagram: Diagram) {
-        console.log("newnodes", this.nodes, this.children);
+        // console.log("newnodes", this.nodes, this.children);
         let idx = 0;
         this.nodes = this.nodes.filter((v, i) => {
             if (v !== diagram) {
@@ -255,23 +352,19 @@ class DiagramGroup extends Konva.Group {
             idx = i - 1;
             return false;
         });
-        console.log("newnodes", this.nodes, this.nodes.length);
+        // console.log("newnodes", this.nodes, this.nodes.length);
         if (idx < this.nodes.length && idx >= 0) {
             const nodeRef = this.nodes[idx];
-            if (nodeRef === null) {
-                return;
-            }
-            const rectRef = nodeRef.getRect();
             const slice = this.nodes.slice(idx+1);
-            if (slice === null) {
-                return;
+            if (nodeRef != null && slice != null) {
+                const rectRef = nodeRef.getRect();
+                this.setNodesRelativePosition(
+                    rectRef.x(),
+                    rectRef.y(),
+                    rectRef.height(),
+                    slice
+                );
             }
-            this.setNodesPosition(
-                rectRef.x(),
-                rectRef.y(),
-                rectRef.height(),
-                slice
-            );
         }
         if (this.nodes.length === 0) {
             this.remove();
@@ -279,9 +372,9 @@ class DiagramGroup extends Konva.Group {
         }
     }
 
-    setNodesPosition(x: number, y: number, height: number, nodes: Diagram[]) {
+    setNodesRelativePosition(x: number, y: number, height: number, nodes: Diagram[]) {
         let ypos = y + height;
-        console.log("setpos[]", nodes, x, y);
+        // console.log("setpos[]", nodes, x, y);
         for (let i=0;i<nodes.length;i++) {
             const child = nodes[i];
             child.setPos(x, ypos);
@@ -290,12 +383,11 @@ class DiagramGroup extends Konva.Group {
     }
 
     insert(index: number, other: DiagramGroup) {
-        // TODO Fix
         const node = this.nodes[index].getRect();
-        this.setNodesPosition(node.x(),node.y(),node.height()+1, other.nodes);
+        this.setNodesRelativePosition(node.x(),node.y(),node.height()+1, other.nodes);
         if (index !== this.nodes.length - 1) {
-            const otherNode = other.nodes[0].getRect();
-            this.setNodesPosition(otherNode.x(), otherNode.y(), otherNode.height()+1, this.nodes.slice(index+1))
+            const otherNode = other.nodes[ other.nodes.length-1 ].getRect();
+            this.setNodesRelativePosition(otherNode.x(), otherNode.y(), otherNode.height()+1, this.nodes.slice(index+1))
         }
         this.nodes.splice(index+1,0,...other.nodes);
 
@@ -305,16 +397,20 @@ class DiagramGroup extends Konva.Group {
     }
 
     isAttachedTo(other: DiagramGroup) {
-        console.log(this.nodes);
+        // console.log(this.nodes);
         const { x, y } = this.nodes[0].getRect().getAbsolutePosition();
         const len = other.nodes.length;
         for (let i=0;i<len;i++) {
             const orect = other.nodes[i].attachRect;
             const otherPos = orect.getAbsolutePosition();
             // console.log(x, y, otherPos.x, otherPos.y);
-            if (x > otherPos.x && x < otherPos.x + orect.width()
-                && y > otherPos.y && y < otherPos.y + orect.height()) {
-                // console.log("attached to", orect);
+            const r = {
+                x: otherPos.x,
+                y: otherPos.y,
+                width: orect.width(),
+                height: orect. height()
+            };
+            if ( isPointIntersectRect({x,y}, r) ) {
                 this.attachedTo = {
                     v: other,
                     i: i
@@ -333,13 +429,29 @@ class DiagramGroup extends Konva.Group {
     }
 }
 
-class Background extends Group {
+class BaseGroup extends Group {
     selecting: {
         isSelecting: boolean,
         rect: Rect | null
     } = {
         isSelecting: false,
         rect: null
+    };
+    activeNode: {
+        diagramGroup: DiagramGroup[],
+        diagram: Diagram[],
+        clear: () => void,
+        empty: () => boolean
+    } = {
+        diagramGroup: [],
+        diagram: [],
+        clear: function() {
+            this.diagram = [];
+            this.diagramGroup = [];
+        },
+        empty: function() {
+            return ( this.diagram.length + this.diagram.length ) === 0;
+        }
     };
     constructor(opts: Konva.ContainerConfig, size: number = 5) {
         super(opts);
@@ -354,18 +466,11 @@ class Background extends Group {
             x: -( width / 2 ),
             y: -( height / 2)
         });
-        console.log("Bg", this.position());
 
         const im = new Image();
         im.onload = () => backgroundRect.fillPatternImage(im);
         im.src = diagramBackground;
         this.add(backgroundRect);
-
-        this.on("mousedown", (e) => {
-            if (e.evt.button === 1) {
-                this.startDrag();
-            }
-        });
 
         this.on("dragmove", (e) => {
             // console.log("move");
@@ -378,10 +483,50 @@ class Background extends Group {
     }
 
     selection() {
-        this.on("pointerdown", (e) => {
+        this.on("stateactivenode", (e: any) => {
+            if (e.append) {
+                let append = true;
+                if (e.diagramGroup != null) {
+                    this.activeNode.diagramGroup.forEach((v) => {
+                        if (v === e.diagramGroup) {
+                            append = false;
+                        }
+                    });
+                    if (append) {
+                        this.activeNode.diagramGroup.push(e.diagramGroup);
+                    }
+                }
+                append = true;
+                if (e.diagram != null) {
+                    this.activeNode.diagram.forEach((v) => {
+                        if (v === e.diagram) {
+                            append = false;
+                        }
+                    });
+                    if (append) {
+                        this.activeNode.diagram.push(e.diagram);
+                    }
+                }
+            }
+            else {
+                if (e.diagramGroup != null) {
+                    this.activeNode.diagramGroup = [e.diagramGroup];
+                }
+                if (e.diagram != null) {
+                    this.activeNode.diagram = [e.diagram];
+                }
+            }
+            console.log("changed active node", this.activeNode);
+        });
+
+        this.on("mousedown", (e) => {
+            if (e.evt.button === 1) {
+                this.startDrag();
+            }
             if (e.target !== this.children[0]) {
                 return;
             }
+            this.activeNode.clear();
             if (e.evt.button === 0) {
                 this.selecting.isSelecting = true
                 const stPos = this.getRelativePointerPosition();
@@ -395,12 +540,9 @@ class Background extends Group {
                         id: "selector",
                         x: stPos.x,
                         y: stPos.y,
-                        fill: "#6388eb",
-                        stroke: "#1A4BCC",
-                        strokeWidth: 1,
-                        opacity: .5,
                         width: 0,
-                        height: 0
+                        height: 0,
+                        ...Theme.Selection
                     });
                 }
                 else {
@@ -412,7 +554,7 @@ class Background extends Group {
                 this.add(this.selecting.rect);
             }
         });
-        this.on("pointermove", (_) => {
+        this.on("mousemove", (e) => {
             if (this.selecting.isSelecting && this.selecting.rect !== null) {
                 const cPos = this.getRelativePointerPosition();
                 if (cPos === null) {
@@ -424,8 +566,19 @@ class Background extends Group {
                 this.selecting.rect.width(diffx);
                 this.selecting.rect.height(diffy);
             }
+
+            // detaching logic
+            if (e.evt.button === 0 && !this.activeNode.empty()) {
+                // take the first diagramGroup and detach nodes in the diagram[]
+                // do not include nodes that are not next to each other
+                // for example
+                // 1 -> 2 -> 5 -> 6
+                // 1 and 2 will be included but 5 and 6 will not
+                this.activeNode.diagramGroup[0].detachNodes(this.activeNode.diagram);
+            }
+
         });
-        this.on("pointerup", (_) => {
+        this.on("mouseup", (_) => {
             if (this.selecting.isSelecting) {
                 this.selecting.isSelecting = false
                 this.selecting.rect?.remove();
@@ -446,9 +599,9 @@ class Background extends Group {
     }
 }
 
-function createDiagramAt(position: { x: number, y:number }): DiagramGroup {
+function createDiagramAt(rect: RectConfig): DiagramGroup {
     const diagGroup = new DiagramGroup();
-    const diagram = new Diagram(position);
+    const diagram = new Diagram(rect);
     diagGroup.addDiagram(diagram);
     return diagGroup;
 }
@@ -463,7 +616,7 @@ export function init() {
 
     stage.on("mousedown", (e) => {
         if (e.evt.button === 0 && e.evt.ctrlKey) {
-            const bg = (stage.children[0].children[0] as Background)
+            const bg = (stage.children[0].children[0] as BaseGroup)
             const pos = bg.getRelativePointerPosition()
             if (pos === null) {
                 return;
@@ -471,7 +624,7 @@ export function init() {
             const diagram = createDiagramAt(pos);
             bg.add(diagram);
         }
-        else if (e.evt.button === 0 && e.evt.shiftKey) {
+        else if (e.evt.button === 0 && e.evt.shiftKey && e.evt.ctrlKey) {
 
             console.log(e.target.parent instanceof Diagram);
             if (e.target.parent instanceof Diagram) {
@@ -481,7 +634,7 @@ export function init() {
     })
 
     const layer = new Konva.Layer();
-    const baseGroup = new Background({
+    const baseGroup = new BaseGroup({
         width: stage.width(),
         height: stage.height(),
     });
