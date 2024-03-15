@@ -1,0 +1,44 @@
+:root {
+    --background: #EDEDED;
+    --forground: #1D1B1B;
+    --accent: #E31C17;
+    --secondary: #11A960;
+    --error: #DDCA1E;
+    --warning: #F51313;
+
+    font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 400;
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    background-color: var(--background);
+    padding: 0;
+    margin: 0;
+}
+
+div#diagram-container {
+    margin: 0;
+    padding: 0;
+    width: 100svw;
+    height: 100svh;
+}
+
+input.canvas-edit, textarea.canvas-edit {
+    position: absolute;
+    border: none;
+    padding: 0px;
+    margin: 0px;
+    overflow: hidden;
+    background: none;
+    outline: none;
+    resize: none;
+    transform-origin: left top;
+}
