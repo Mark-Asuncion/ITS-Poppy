@@ -4,6 +4,16 @@ import { Rect } from "konva/lib/shapes/Rect";
 import { Group } from "konva/lib/Group";
 import { Theme } from "../../themes/diagram";
 import { Diagram, DiagramGroup } from "./diagram";
+import { KonvaEventObject } from "konva/lib/Node";
+import { Transformer } from "konva/lib/shapes/Transformer";
+
+export interface OnStateEvent extends KonvaEventObject<any> {
+    diagram?: Diagram[],
+    diagramGroup?: DiagramGroup[],
+    append?: boolean,
+    select?: "diagram" | "diagramgroup",
+
+};
 
 export class BaseGroup extends Group {
     selecting: {
@@ -22,6 +32,7 @@ export class BaseGroup extends Group {
         diagramGroup: [],
         diagram: [],
         clear: function() {
+            this.diagram.forEach((v) => v.fire("onstartactivestop", {}, true));
             this.diagram = [];
             this.diagramGroup = [];
         },
@@ -29,6 +40,7 @@ export class BaseGroup extends Group {
             return ( this.diagram.length + this.diagram.length ) === 0;
         }
     };
+    transformer: Transformer;
     constructor(opts: Konva.ContainerConfig, size: number = 5) {
         super(opts);
 
@@ -55,53 +67,62 @@ export class BaseGroup extends Group {
             e.target.x( Math.max( Math.min(0, e.target.x()), maxLeftX ) );
             e.target.y( Math.max( Math.min(0, e.target.y()), maxUpY ) );
         })
-        this.selection();
+
+        this.registerEvents();
+
+        this.transformer = new Transformer(Theme.Transformer);
+        this.add(this.transformer);
     }
 
-    selection() {
-        this.on("stateactivenode", (e: any) => {
-            if (e.append) {
-                let append = true;
-                if (e.diagramGroup != null) {
-                    this.activeNode.diagramGroup.forEach((v) => {
-                        if (v === e.diagramGroup) {
-                            append = false;
-                        }
-                    });
-                    if (append) {
-                        this.activeNode.diagramGroup.push(e.diagramGroup);
-                    }
+    registerEvents() {
+        this.on("onstateremove", (e: OnStateEvent) => {
+            console.log("onstateremove", e);
+            if (e.diagramGroup && e.diagramGroup?.length >= 1) {
+                const nNodes = this.transformer.nodes().filter((v) => {
+                    console.log("tryremove");
+                    return v !== e.diagramGroup![0]
+                });
+                this.transformer.nodes(nNodes);
+            }
+        });
+
+        this.on("onstateactive", (e: OnStateEvent) => {
+            this.transformer.moveToTop();
+            if (e.select === "diagramgroup" && e.diagramGroup) {
+                // handle append
+                if (e.append) {
+                    e.diagramGroup?.forEach((v) =>
+                        this.transformer.nodes([ ...this.transformer.nodes(),
+                            v])
+                    );
                 }
-                append = true;
-                if (e.diagram != null) {
-                    this.activeNode.diagram.forEach((v) => {
-                        if (v === e.diagram) {
-                            append = false;
-                        }
-                    });
-                    if (append) {
-                        this.activeNode.diagram.push(e.diagram);
-                    }
+                else {
+                    this.transformer.nodes(e.diagramGroup);
                 }
             }
             else {
-                if (e.diagramGroup != null) {
-                    this.activeNode.diagramGroup = [e.diagramGroup];
+                if (e.append && e.diagram) {
+                    this.transformer.nodes([ ...this.transformer.nodes(), ...e.diagram ]);
                 }
-                if (e.diagram != null) {
-                    this.activeNode.diagram = [e.diagram];
+                else if(e.diagram != undefined) {
+                    this.transformer.nodes(e.diagram);
                 }
             }
-            console.log("changed active node", this.activeNode);
+            this.transformer.nodes().forEach((v) => {
+                console.log(v._id, v.name(), v.draggable());
+            })
         });
 
         this.on("mousedown", (e) => {
             if (e.evt.button === 1) {
                 this.startDrag();
+                return;
             }
             if (e.target !== this.children[0]) {
                 return;
             }
+            // TODO: handle clearing
+            this.transformer.nodes([]);
             this.activeNode.clear();
             if (e.evt.button === 0) {
                 this.selecting.isSelecting = true
@@ -150,7 +171,9 @@ export class BaseGroup extends Group {
                 // for example
                 // 1 -> 2 -> 5 -> 6
                 // 1 and 2 will be included but 5 and 6 will not
-                this.activeNode.diagramGroup[0].detachNodes(this.activeNode.diagram);
+                // this.activeNode.diagramGroup[0].fire("ondetachnodes", {
+                //     nodes: this.activeNode.diagram
+                // }, false);
             }
 
         });
@@ -164,12 +187,17 @@ export class BaseGroup extends Group {
         });
     }
 
-    cGetChildren() {
-        let ret: any[] = [];
+    getDiagramGroups(): DiagramGroup[]  {
+        let ret: DiagramGroup[] = [];
         for (let i = 0; i<this.children.length;i++) {
-            if (this.children[i].id() === "background")
-            continue;
-            ret.push(this.children[i]);
+            const child = this.children[i];
+            if (child.id() === "background") { 
+                continue;
+            }
+            if ( !(child instanceof DiagramGroup) ) {
+                continue;
+            }
+            ret.push(child);
         }
         return ret;
     }

@@ -7,8 +7,15 @@ import { Group } from "konva/lib/Group";
 export class TextBox extends Group {
     text: Text;
     bg: Rect;
+    isEditing = false;
     constructor(textConfig: TextConfig) {
-        super();
+        super({
+            x: textConfig.x,
+            y: textConfig.y
+        });
+
+        delete textConfig.x;
+        delete textConfig.y;
 
         this.text = new Text({
             padding: Theme.Diagram.textPadding,
@@ -16,8 +23,8 @@ export class TextBox extends Group {
             ...textConfig
         });
 
-        this.text.x(this.text.x() - (this.text.width() / 2));
-        this.text.y(this.text.y() - (this.text.height() / 2));
+        this.x(this.x() - (this.text.width() / 2));
+        this.y(this.y() - (this.text.height() / 2));
         this.text.height(this.text.fontSize() + this.text.padding())
 
         this.bg = new Rect({
@@ -30,65 +37,82 @@ export class TextBox extends Group {
             width: this.text.width(),
             height: this.text.height() + this.text.padding(),
         });
-        this.handleEdit();
+        this.registerEvents();
         this.add(this.bg);
         this.add(this.text);
     }
 
-    handleEdit() {
-        // TODO: Change to click instead
+    createInput() {
+        this.isEditing = true;
+        this.text.hide();
+        const input = document.createElement("textarea");
+        input.classList.add("canvas-edit");
+        input.style.left = `${ this.text.getAbsolutePosition().x + this.text.padding() }px`;
+        input.style.top = `${ this.text.getAbsolutePosition().y + this.text.padding() }px`;
+        input.style.width = `${ this.text.width() }px`;
+        input.style.height = `${ this.text.height() }px`;
+        input.style.fontSize = `${ this.text.fontSize() }px`;
+        input.style.lineHeight = `${ this.text.lineHeight() }`;
+        input.style.fontFamily = `${ this.text.fontFamily() }`;
+        input.style.textAlign = `${ this.text.align() }`;
+        input.style.color = `${ this.text.fill() }`;
+        input.value = this.text.text();
+
+        input.addEventListener("focusout", () => {
+            this.text.text(input.value);
+            input.remove();
+            this.text.show();
+            this.fire("texteditdone", {}, true);
+            this.isEditing = false;
+        });
+
+        input.addEventListener("keydown", (e) => {
+            if (e.key == "Enter") {
+                input.blur();
+            }
+            else if (e.key == "Escape") {
+                input.value = this.text.text();
+                input.blur();
+            }
+            this.fire("textbeforechanged", { value: input.value },true);
+        });
+
+        input.addEventListener("keyup", () => {
+            this.fire("textchanged", { value: input.value }, true);
+        });
+
+        document.body.appendChild(input);
+
+        // tmp
+        setTimeout(() => input.focus(), 300);
+    }
+
+    registerEvents() {
         this.on("mousedown", (e) => {
+            this.fire("onstateactive", {}, true);
             e.cancelBubble = true;
-            this.text.hide();
-            const input = document.createElement("textarea");
-            input.classList.add("canvas-edit");
-            input.style.left = `${ this.text.getAbsolutePosition().x + this.text.padding() }px`;
-            input.style.top = `${ this.text.getAbsolutePosition().y + this.text.padding() }px`;
-            input.style.width = `${ this.text.width() }px`;
-            input.style.height = `${ this.text.height() }px`;
-            input.style.fontSize = `${ this.text.fontSize() }px`;
-            input.style.lineHeight = `${ this.text.lineHeight() }`;
-            input.style.fontFamily = `${ this.text.fontFamily() }`;
-            input.style.textAlign = `${ this.text.align() }`;
-            input.style.color = `${ this.text.fill() }`;
-            input.value = this.text.text();
-            const ref = this;
-            input.addEventListener("focusin", () => {
-                input.addEventListener("focusout", () => {
-                    ref.text.text(input.value);
-                    input.remove();
-                    ref.text.show();
-                    ref.fire("texteditdone", {}, true);
-                });
-            })
-            input.addEventListener("keydown", (e) => {
-                if (e.key == "Enter") {
-                    input.blur();
-                }
-                else if (e.key == "Escape") {
-                    // FIX: don't update content
-                    input.remove();
-                }
-                // ref.fire("textchanged", { value: input.value },true);
-                ref.fire("textedit", {}, true);
-            });
-            document.body.appendChild(input);
-            // tmp
-            setTimeout(() => input.focus(), 300);
+            if (this.isEditing) {
+                return;
+            }
+            this.createInput();
         });
     }
 
     setPosition(pos: Konva.Vector2d): this {
-        console.log("TextBox", this.text.position(),this.text.size());
-        const posX = pos.x - (this.text.width() / 2);
+        const posX = pos.x - this.text.width() / 2;
         const posY = (pos.y - (this.text.height() / 2))
-                    - (this.text.padding() / 2);
-        this.text.x(posX);
-        this.text.y(posY);
-        console.log("TextBox", this.text.position(),this.text.size());
-        this.bg.setPosition({
+            - (this.text.padding() / 2);
+        super.setPosition({
             x: posX,
             y: posY
+        });
+        this.text.setPosition({
+            x: 0,
+            y: 0
+        })
+        this.bg.setPosition({
+            x: 0,
+            y: 0
         });
         return this;
     }
