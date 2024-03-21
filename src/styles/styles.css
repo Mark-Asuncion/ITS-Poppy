@@ -18,27 +18,37 @@
     -webkit-text-size-adjust: 100%;
 }
 
+.fs-24 {
+    font-size: 24px;
+}
+
 body {
     background-color: var(--background);
     padding: 0;
     margin: 0;
 }
 
-div#diagram-container {
-    margin: 0;
-    padding: 0;
-    width: 100svw;
-    height: 100svh;
+.d-flex {
+    display: flex;
 }
 
-input.canvas-edit, textarea.canvas-edit {
-    position: absolute;
-    border: none;
-    padding: 0px;
-    margin: 0px;
-    overflow: hidden;
+.input-no-indicator {
     background: none;
+    border: none;
     outline: none;
-    resize: none;
-    transform-origin: left top;
+}
+
+.fill-content {
+    width: 100%;
+    height: max-content;
+}
+
+.align-end {
+    align-items: end;
+}
+
+.header {
+    background-color: white;
+    padding: 10px;
+    border-bottom: 1px solid gray;
 }

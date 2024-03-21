@@ -1,5 +1,6 @@
-import { Diagram, DiagramGroup } from "./diagram";
+import { DiagramGroup } from "./diagramgroup";
 import { RectConfig } from "konva/lib/shapes/Rect";
+import { Statement } from "./statement";
 
 export function isPointIntersectRect(
     point: { x: number, y: number },
@@ -11,7 +12,7 @@ export function isPointIntersectRect(
 
 export function createDiagramAt(rect: RectConfig): DiagramGroup {
     const diagGroup = new DiagramGroup();
-    const diagram = new Diagram(rect);
+    const diagram = new Statement(rect);
     diagGroup.addDiagram(diagram);
     return diagGroup;
 }

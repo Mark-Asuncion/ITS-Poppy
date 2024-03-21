@@ -1,12 +1,14 @@
 export const Theme = {
     Diagram: {
-        cornerRadius: 5,
+        cornerRadius: 10,
         stroke: "#6F6F6F",
+        strokeActive: "#E31C17",
         fill: "#F9F9F9",
         textPadding: 10,
         textBg: "#FFFFFF",
         textStroke: "#6F6F6F",
-        fontSize: 16
+        fontSize: 16,
+        strokeWidth: 2
     },
     DiagramActive: {
         stroke: "#E31C17",
@@ -25,12 +27,17 @@ export const Theme = {
         resizeEnabled: false,
         rotateEnabled: false,
         flipEnabled: false,
-        borderEnabled: true,
-        // borderDash: [6, 6],
+        borderEnabled: false,
+        borderDash: [6, 6],
         borderStroke: "#E31C17",
-        borderStrokeWidth: 2,
+        borderStrokeWidth: 1,
         padding: 1,
         anchorSize: 5,
-        // enabledAnchors: ["top-left"]
+    },
+    Button: {
+        fill: "#6F6F6F",
+        hover: "#E8E8E8",
+        arrow_left: "M560-280 360-480l200-200v400Z",
+        arrow_right: "M400-280v-400l200 200-200 200Z"
     }
 };

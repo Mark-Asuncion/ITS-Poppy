@@ -1,7 +1,20 @@
 import Konva from "konva";
 import { BaseGroup } from "./canvas/basegroup";
-import { Diagram, DiagramGroup } from "./canvas/diagram";
+// import { DiagramGroup } from "./canvas/diagramgroup";
 import { createDiagramAt } from "./canvas/utils";
+// import { Statement } from "./canvas/statement";
+import { Module } from "./backendconnector";
+
+export function diagramToModules(stage: Konva.Stage) {
+    const basegroup = (stage.children[0]
+                        .children[0] as BaseGroup);
+    let ret = new Array<Module>();
+    basegroup.getDiagramGroups()
+        .forEach((v) => {
+            ret.push(v.getContent());
+        });
+    return ret;
+}
 
 export function init() {
     const domContainer = document.querySelector("#diagram-container")!;
@@ -23,9 +36,9 @@ export function init() {
         }
         else if (e.evt.button === 0 && e.evt.shiftKey && e.evt.ctrlKey) {
 
-            console.log(e.target.parent instanceof Diagram);
-            if (e.target.parent instanceof Diagram) {
-                e.target.parent.removeNodeFromParent();
+            console.log(e.target.parent instanceof BaseGroup);
+            if (e.target.parent instanceof BaseGroup) {
+                console.assert(false, "Remove NOT IMPPLEMENTED");
             }
         }
     })
@@ -36,28 +49,29 @@ export function init() {
         height: stage.height(),
     });
 
-    const diagGroup = new DiagramGroup();
-    const diagGroup2 = new DiagramGroup();
-    const diagGroup3 = new DiagramGroup();
-    const diagram = new Diagram({
-        x: 70,
-        y: 70,
-    });
-    const diagram2 = new Diagram( {
-        x: 600,
-        y: 70,
-    });
-
-    diagGroup.addDiagram(diagram);
-    diagGroup2.addDiagram(diagram2);
-    diagGroup3.addDiagram(new Diagram({
-        x: 800,
-        y: 100
-    }))
-
-    baseGroup.add(diagGroup);
-    baseGroup.add(diagGroup2);
-    baseGroup.add(diagGroup3);
+    // const diagGroup = new DiagramGroup();
+    // const diagGroup2 = new DiagramGroup();
+    // const diagGroup3 = new DiagramGroup();
+    // const diagram = new Statement({
+    //     x: 70,
+    //     y: 70,
+    // });
+    // const diagram2 = new Statement( {
+    //     x: 600,
+    //     y: 70,
+    // });
+    //
+    // diagGroup.addDiagram(diagram);
+    // diagGroup2.addDiagram(diagram2);
+    // diagGroup3.addDiagram(new Statement({
+    //     x: 800,
+    //     y: 100
+    // }))
+    //
+    // baseGroup.add(diagGroup);
+    // baseGroup.add(diagGroup2);
+    // baseGroup.add(diagGroup3);
     layer.add(baseGroup);
     stage.add(layer);
+    return stage;
 }

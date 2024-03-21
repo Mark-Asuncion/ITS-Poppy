@@ -1,13 +1,10 @@
 import Konva from "konva";
-import { Rect } from "konva/lib/shapes/Rect";
 import { TextConfig, Text } from "konva/lib/shapes/Text";
 import { Theme } from "../../themes/diagram";
-import { Group } from "konva/lib/Group";
+import { BaseText } from "./basetext";
+import { BaseDiagram } from "./basediagram";
 
-export class TextBox extends Group {
-    text: Text;
-    bg: Rect;
-    isEditing = false;
+export class TextBox extends BaseText {
     constructor(textConfig: TextConfig) {
         super({
             x: textConfig.x,
@@ -27,43 +24,49 @@ export class TextBox extends Group {
         this.y(this.y() - (this.text.height() / 2));
         this.text.height(this.text.fontSize() + this.text.padding())
 
-        this.bg = new Rect({
-            cornerRadius: Theme.Diagram.cornerRadius,
-            fill: Theme.Diagram.textBg,
-            stroke: Theme.Diagram.textStroke,
-            strokeWidth: 1,
-            x: this.text.x(),
-            y: this.text.y(),
+        this.width(this.text.width());
+        this.height(this.text.height());
+
+
+        this.bg.setSize({
             width: this.text.width(),
             height: this.text.height() + this.text.padding(),
         });
+
         this.registerEvents();
-        this.add(this.bg);
         this.add(this.text);
     }
 
     createInput() {
         this.isEditing = true;
-        this.text.hide();
+        const text = this.text as Text;
+        text.hide();
+        const ctBox = this.getStage()!.container().getBoundingClientRect();
+        const textAbsPos = {
+            x: text.getAbsolutePosition().x,
+            y: text.getAbsolutePosition().y
+        };
         const input = document.createElement("textarea");
         input.classList.add("canvas-edit");
-        input.style.left = `${ this.text.getAbsolutePosition().x + this.text.padding() }px`;
-        input.style.top = `${ this.text.getAbsolutePosition().y + this.text.padding() }px`;
-        input.style.width = `${ this.text.width() }px`;
-        input.style.height = `${ this.text.height() }px`;
-        input.style.fontSize = `${ this.text.fontSize() }px`;
-        input.style.lineHeight = `${ this.text.lineHeight() }`;
-        input.style.fontFamily = `${ this.text.fontFamily() }`;
-        input.style.textAlign = `${ this.text.align() }`;
-        input.style.color = `${ this.text.fill() }`;
-        input.value = this.text.text();
+        input.style.left = `${ ctBox.x + textAbsPos.x + text.padding() }px`;
+        input.style.top = `${ ctBox.y + textAbsPos.y + text.padding() }px`;
+        input.style.width = "auto";
+        input.style.height = `${ text.height() }px`;
+        input.style.fontSize = `${ text.fontSize() }px`;
+        input.style.lineHeight = `${ text.lineHeight() }`;
+        input.style.fontFamily = `${ text.fontFamily() }`;
+        input.style.textAlign = `${ text.align() }`;
+        input.style.color = `${ text.fill() }`;
+        input.style.whiteSpace = "nowrap";
+        input.value = text.text();
 
         input.addEventListener("focusout", () => {
-            this.text.text(input.value);
+            text.text(input.value);
             input.remove();
-            this.text.show();
+            text.show();
             this.fire("texteditdone", {}, true);
             this.isEditing = false;
+            this.fire("onstateremove", {}, true);
         });
 
         input.addEventListener("keydown", (e) => {
@@ -71,7 +74,7 @@ export class TextBox extends Group {
                 input.blur();
             }
             else if (e.key == "Escape") {
-                input.value = this.text.text();
+                input.value = text.text();
                 input.blur();
             }
             this.fire("textbeforechanged", { value: input.value },true);
@@ -79,6 +82,8 @@ export class TextBox extends Group {
 
         input.addEventListener("keyup", () => {
             this.fire("textchanged", { value: input.value }, true);
+            const nWidth = this.textResize(input.value);
+            input.style.width = `${ nWidth }px`;
         });
 
         document.body.appendChild(input);
@@ -99,14 +104,15 @@ export class TextBox extends Group {
     }
 
     setPosition(pos: Konva.Vector2d): this {
-        const posX = pos.x - this.text.width() / 2;
-        const posY = (pos.y - (this.text.height() / 2))
-            - (this.text.padding() / 2);
+        const text = this.text as Text;
+        const posX = pos.x - text.width() / 2;
+        const posY = (pos.y - (text.height() / 2))
+            - (text.padding() / 2);
         super.setPosition({
             x: posX,
             y: posY
         });
-        this.text.setPosition({
+        text.setPosition({
             x: 0,
             y: 0
         })
@@ -117,7 +123,47 @@ export class TextBox extends Group {
         return this;
     }
 
-    getContent() {
-        return this.text.text();
+    textResize(str: string): number {
+        const div = document.createElement("div");
+        div.innerText = str;
+        div.style.visibility = "none";
+        div.style.float = "left";
+        document.body.appendChild(div);
+        const max = this.width();
+        console.log(max, div.clientWidth);
+        const tWidth = Math.max(max, div.clientWidth + this.padding() * 2);
+        this.resize({
+            width: tWidth
+        })
+        if (this.parent instanceof BaseDiagram) {
+            this.parent.resize({ width: tWidth + ( this.padding() * 2 ) });
+        }
+        console.log(this.width());
+        div.remove();
+        return tWidth;
+    }
+
+    resize(size: {
+        width?: number,
+        height?: number
+    }) {
+        if (size.width) {
+            this.width(size.width);
+            ( this.text! as Text ).width(size.width);
+            this.bg.width(size.width);
+        }
+        if (size.height) {
+            this.height(size.height);
+            ( this.text! as Text ).height(size.height);
+            this.bg.height(size.height);
+        }
+    }
+
+    getContent(): string {
+        return (this.text! as Text).text();
+    }
+
+    padding(): number {
+        return (this.text! as Text).padding();
     }
 }
