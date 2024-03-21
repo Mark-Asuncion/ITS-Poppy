@@ -1,9 +1,20 @@
 import Konva from "konva";
 import { BaseGroup } from "./canvas/basegroup";
-// import { DiagramGroup } from "./canvas/diagramgroup";
-import { createDiagramAt } from "./canvas/utils";
-// import { Statement } from "./canvas/statement";
+import { createElifDiagramAt, createElseDiagramAt, createIfDiagramAt, createStatementDiagramAt, createForDiagramAt } from "./canvas/utils";
 import { Module } from "./backendconnector";
+
+function getPlacementPos(stage: Konva.Stage): Konva.Vector2d {
+    const basegroup = stage.getChildren()[0].getChildren()[0] as BaseGroup;
+    const container = stage.container().getBoundingClientRect();
+    const containerCenter = {
+        x: container.width,
+        y: container.height,
+    };
+    return {
+        x: Math.abs( basegroup.x() + (basegroup.x() / 2 + containerCenter.x) ),
+        y: Math.abs( basegroup.y() + (basegroup.y() / 2 + containerCenter.y) ),
+    };
+}
 
 export function diagramToModules(stage: Konva.Stage) {
     const basegroup = (stage.children[0]
@@ -16,13 +27,53 @@ export function diagramToModules(stage: Konva.Stage) {
     return ret;
 }
 
+// export function createStageForDiagramImage(container: HTMLDivElement) {
+//     const size = container.getBoundingClientRect();
+//     const stage = new Konva.Stage({
+//         container: container,
+//         width: size.width,
+//         height: size.height,
+//     });
+//     return stage;
+// }
+//
 export function init() {
-    const domContainer = document.querySelector("#diagram-container")!;
+    const domContainer = document.querySelector("#diagram-container")! as HTMLDivElement;
+    const size = domContainer.getBoundingClientRect();
+
     const stage = new Konva.Stage({
-        container: "diagram-container",
-        width: domContainer.clientWidth,
-        height: domContainer.clientHeight,
+        container: domContainer,
+        width: size.width,
+        height: size.height,
     });
+
+    document.addEventListener("diagramdrop", ((e: any) => {
+        const type = e.detail;
+        if (!type) {
+            return;
+        }
+        const bg = stage.children[0].children[0] as BaseGroup;
+        const pos = getPlacementPos(stage);
+        switch (type) {
+            case "statement":
+                bg.add(createStatementDiagramAt(pos));
+                break;
+            case "control-if":
+                bg.add(createIfDiagramAt(pos));
+                break;
+            case "control-elif":
+                bg.add(createElifDiagramAt(pos));
+                break;
+            case "control-else":
+                bg.add(createElseDiagramAt(pos));
+                break;
+            case "loop-for":
+                bg.add(createForDiagramAt(pos));
+                break;
+            default:
+                break;
+        }
+    }) as EventListener);
 
     stage.on("mousedown", (e) => {
         if (e.evt.button === 0 && e.evt.ctrlKey) {
@@ -31,8 +82,7 @@ export function init() {
             if (pos === null) {
                 return;
             }
-            const diagram = createDiagramAt(pos);
-            bg.add(diagram);
+            console.log(pos)
         }
         else if (e.evt.button === 0 && e.evt.shiftKey && e.evt.ctrlKey) {
 
@@ -49,28 +99,6 @@ export function init() {
         height: stage.height(),
     });
 
-    // const diagGroup = new DiagramGroup();
-    // const diagGroup2 = new DiagramGroup();
-    // const diagGroup3 = new DiagramGroup();
-    // const diagram = new Statement({
-    //     x: 70,
-    //     y: 70,
-    // });
-    // const diagram2 = new Statement( {
-    //     x: 600,
-    //     y: 70,
-    // });
-    //
-    // diagGroup.addDiagram(diagram);
-    // diagGroup2.addDiagram(diagram2);
-    // diagGroup3.addDiagram(new Statement({
-    //     x: 800,
-    //     y: 100
-    // }))
-    //
-    // baseGroup.add(diagGroup);
-    // baseGroup.add(diagGroup2);
-    // baseGroup.add(diagGroup3);
     layer.add(baseGroup);
     stage.add(layer);
     return stage;

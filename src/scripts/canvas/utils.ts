@@ -1,6 +1,8 @@
+import Konva from "konva";
 import { DiagramGroup } from "./diagramgroup";
-import { RectConfig } from "konva/lib/shapes/Rect";
-import { Statement } from "./statement";
+import { Statement } from "./blocks/statement";
+import { If, Elif, Else } from "./blocks/control";
+import { For } from "./blocks/loop";
 
 export function isPointIntersectRect(
     point: { x: number, y: number },
@@ -10,9 +12,37 @@ export function isPointIntersectRect(
         && point.y > rect.y && point.y < ( rect.y + rect.height );
 }
 
-export function createDiagramAt(rect: RectConfig): DiagramGroup {
-    const diagGroup = new DiagramGroup();
-    const diagram = new Statement(rect);
+export function createStatementDiagramAt(pos: Konva.Vector2d): DiagramGroup {
+    const diagGroup = new DiagramGroup(pos);
+    const diagram = new Statement();
+    diagGroup.addDiagram(diagram);
+    return diagGroup;
+}
+
+export function createIfDiagramAt(pos: Konva.Vector2d): DiagramGroup {
+    const diagGroup = new DiagramGroup(pos);
+    const diagram = new If();
+    diagGroup.addDiagram(diagram);
+    return diagGroup;
+}
+
+export function createElifDiagramAt(pos: Konva.Vector2d): DiagramGroup {
+    const diagGroup = new DiagramGroup(pos);
+    const diagram = new Elif();
+    diagGroup.addDiagram(diagram);
+    return diagGroup;
+}
+
+export function createElseDiagramAt(pos: Konva.Vector2d): DiagramGroup {
+    const diagGroup = new DiagramGroup(pos);
+    const diagram = new Else();
+    diagGroup.addDiagram(diagram);
+    return diagGroup;
+}
+
+export function createForDiagramAt(pos: Konva.Vector2d): DiagramGroup {
+    const diagGroup = new DiagramGroup(pos);
+    const diagram = new For();
     diagGroup.addDiagram(diagram);
     return diagGroup;
 }

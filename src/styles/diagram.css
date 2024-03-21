@@ -1,0 +1,41 @@
+:root {
+    --dg-border: #6F6F6F;
+    --dg-statement: #F9F9F9;
+    --dg-control: #1AC673;
+    --dg-loop: #ED9227;
+}
+
+.diagram-emblem {
+    width: 20%;
+    aspect-ratio: 1 / 1;
+    border: 2px solid var(--dg-border);
+    border-radius: 100px;
+}
+
+.diagram-statement {
+    background-color: var(--dg-statement);
+}
+
+.diagram-control {
+    background-color: var(--dg-control);
+}
+
+.diagram-loop {
+    background-color: var(--dg-loop);
+}
+
+.diagram-title {
+    font-weight: bold;
+    vertical-align: middle;
+    margin: auto 0 auto 10px;
+}
+
+.d-flex.diagram-title-container {
+    margin-bottom: 1em;
+}
+
+img[aria-diagram="true"] {
+    width: 100%;
+    height: 95px;
+    object-fit: contain;
+}

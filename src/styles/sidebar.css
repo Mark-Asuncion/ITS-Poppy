@@ -1,0 +1,33 @@
+.sidebar {
+    background-color: white;
+    width: max-content;
+    border-right: 1px solid lightgray;
+}
+
+.sidebar > button {
+    padding: 1.5em;
+}
+
+#sidebar-container {
+    position: relative;
+    width: max-content;
+}
+
+.sidebar-content {
+    position: relative;
+    width: 200px;
+    background-color: white;
+    z-index: 99;
+    border-right: 1px solid lightgray;
+}
+
+button[aria-role="sidebar-button"] {
+    background-color: rgba(0,0,0,0);
+}
+
+
+button[aria-role="sidebar-button"]:hover,
+button[aria-role="sidebar-button"].active {
+    background-color: #D9D9D9FF;
+    color: black;
+}

@@ -1,8 +1,8 @@
 div#diagram-container {
     margin: 0;
     padding: 0;
-    width: 100svw;
-    height: 100svh;
+    width: 100%;
+    height: auto;
 }
 
 input.canvas-edit, textarea.canvas-edit {
