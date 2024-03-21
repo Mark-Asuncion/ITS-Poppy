@@ -152,25 +152,28 @@ export class BaseGroup extends Group {
             }
 
             this.selection.clearSelected();
-            this.selection.eDown(this, e);
-            if (this.selection.rect) {
-                this.add(this.selection.rect);
-            }
-        });
-        this.on("mousemove", () => {
-            this.selection.eMove(this)
-        });
-        this.on("mouseup", () => {
-            this.selection.eUp();
-        });
 
-        this.on("dragmove", (e) => {
-            const maxLeftX = -(this.width() * this.mtpSize - this.width());
-            const maxUpY = -(this.height() * this.mtpSize - this.height());
-            e.target.x( Math.max( Math.min(0, e.target.x()), maxLeftX ) );
-            e.target.y( Math.max( Math.min(0, e.target.y()), maxUpY ) );
-        })
+            // Disable selection box indicator
+            // re-enable when 2 or more elements can be selected
 
+            // this.selection.eDown(this, e);
+            // if (this.selection.rect) {
+            //     this.add(this.selection.rect);
+            // }
+        });
+        // this.on("mousemove", () => {
+            // this.selection.eMove(this)
+        // });
+        // this.on("mouseup", () => {
+            // this.selection.eUp();
+        // });
+
+        // this.on("dragmove", (e) => {
+        //     const maxLeftX = -(this.width() * this.mtpSize - this.width());
+        //     const maxUpY = -(this.height() * this.mtpSize - this.height());
+        //     e.target.x( Math.max( Math.min(0, e.target.x()), maxLeftX ) );
+        //     e.target.y( Math.max( Math.min(0, e.target.y()), maxUpY ) );
+        // })
     }
 
     getDiagramGroups(): DiagramGroup[]  {
@@ -188,4 +191,3 @@ export class BaseGroup extends Group {
         return ret;
     }
 }
-

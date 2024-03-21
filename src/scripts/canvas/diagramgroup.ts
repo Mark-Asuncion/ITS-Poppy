@@ -1,7 +1,7 @@
 import Konva from "konva";
 import { isPointIntersectRect } from "./utils";
 import { BaseGroup, OnStateEvent } from "./basegroup";
-import { AttachRect, BaseDiagram } from "./basediagram";
+import { BaseDiagram } from "./basediagram";
 import { Module } from "../backendconnector";
 
 export interface AttachedTo {
@@ -80,16 +80,7 @@ export class DiagramGroup extends Konva.Group {
             }
             return true;
         });
-        if (idx <= this.nodes.length - 1) {
-            const ref = this.nodes[idx];
-            const refPos = {
-                x: ref.x(),
-                y: ref.y(),
-                height: ref.height(),
-                width: 0
-            };
-            this.setNodesRelativePosition(refPos, this.nodes.slice(idx+1));
-        }
+        this.setNodesRelativePosition();
         diagrams.remove();
         diagrams.indent(0);
 
@@ -102,35 +93,35 @@ export class DiagramGroup extends Konva.Group {
         this.parent!.add(dg);
     }
 
-    setNodesRelativePosition(startPos: AttachRect, nodes: BaseDiagram[]) {
-        const { x, y, height } = startPos;
-        let ypos = y + height;
-        nodes.forEach((v) => {
+    setNodesRelativePosition() {
+        const y = 0;
+        let ypos = y;
+        let prev = this.nodes[0];
+        this.nodes.forEach((v) => {
+            if (v === this.nodes[0]) {
+                ypos += v.height();
+                return;
+            }
+            const x = this.nodes[0].getIndentPosition(v.indent());
             v.setPosition({x, y: ypos });
-            ypos += height;
+            if (prev.x() + prev.width() < v.x()) {
+                prev.resize({
+                    width: this.nodes[0].width()
+                });
+            }
+            ypos += v.height();
+            prev = v;
+
         })
     }
 
     attach(attachTo: AttachedTo) {
         const { v, i } = attachTo;
-        const refNode = v.nodes[i];
         const otherNodes = this.nodes;
-        const rectInfo = {
-            x: refNode.x(),
-            y: refNode.y(),
-            width: 0,
-            height: refNode.height()
-        };
-        v.setNodesRelativePosition(rectInfo, otherNodes);
-        if (i !== v.nodes.length - 1) {
-            const ref = otherNodes[otherNodes.length-1];
-            rectInfo.x = ref.x();
-            rectInfo.y = ref.y();
-            rectInfo.height = ref.height();
-            v.setNodesRelativePosition(rectInfo, v.nodes.slice(i+1));
-        }
         v.nodes.splice(i+1, 0, ...otherNodes);
         v.add(...otherNodes);
+        v.setNodesRelativePosition();
+        console.log(v.nodes);
 
         this.fire("onstateremove", {
             diagramGroup: [ this ],

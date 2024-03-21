@@ -53,8 +53,8 @@ pub struct Module {
 
 impl Module {
 async fn write(&self, mut cwd: PathBuf) -> io::Result<()> {
-if cwd.exists() && cwd.is_file() {
-return Err(io::Error::new(io::ErrorKind::Other, "Path must be a directory"));
+        if cwd.exists() && cwd.is_file() {
+            return Err(io::Error::new(io::ErrorKind::Other, "Path must be a directory"));
         }
         cwd.push(self.name.as_str());
         cwd.set_extension("py");

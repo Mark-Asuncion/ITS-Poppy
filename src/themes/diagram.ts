@@ -1,19 +1,33 @@
 export const Theme = {
-    Diagram: {
+    BaseDiagram: {
         cornerRadius: 10,
-        stroke: "#6F6F6F",
-        strokeActive: "#E31C17",
-        fill: "#F9F9F9",
-        textPadding: 10,
-        textBg: "#FFFFFF",
-        textStroke: "#6F6F6F",
-        fontSize: 16,
         strokeWidth: 2
     },
-    DiagramActive: {
-        stroke: "#E31C17",
-        strokeWidth: 5,
-        cornerRadius: 5
+    Diagram: {
+        Active: {
+            stroke: "#E31C17",
+        },
+        Statement: {
+            stroke: "#6F6F6F",
+            fill: "#F9F9F9",
+        },
+        Control: {
+            stroke: "#6F6F6F",
+            fill: "#1AC673",
+        },
+        Loop: {
+            stroke: "#6F6F6F",
+            fill: "#ED9227",
+        }
+    },
+    TextBox: {
+        padding: 10,
+        wrap: "none",
+        fill: "#FFFFFF",
+        stroke: "#6F6F6F",
+    },
+    Text: {
+        fontSize: 16,
     },
     Selection: {
         fill: "#6388eb",
