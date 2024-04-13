@@ -43,8 +43,6 @@ pub fn write_with_temp_to(p: String, content: String) {
                 dbg!(e);
                 return;
             }
-
-
         },
         Err(e) => {
             dbg!(e);
