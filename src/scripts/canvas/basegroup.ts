@@ -3,46 +3,90 @@ import diagramBackground from "/assets/diagram-background.png";
 import { Rect } from "konva/lib/shapes/Rect";
 import { Group } from "konva/lib/Group";
 import { Theme } from "../../themes/diagram";
-import { Diagram, DiagramGroup } from "./diagram";
+import { BaseDiagram } from "./basediagram";
+import { DiagramGroup } from "./diagramgroup";
 import { KonvaEventObject } from "konva/lib/Node";
 import { Transformer } from "konva/lib/shapes/Transformer";
 
 export interface OnStateEvent extends KonvaEventObject<any> {
-    diagram?: Diagram[],
+    diagram?: BaseDiagram[],
     diagramGroup?: DiagramGroup[],
     append?: boolean,
     select?: "diagram" | "diagramgroup",
-
+    borderOnly?: boolean
 };
 
-export class BaseGroup extends Group {
-    selecting: {
-        isSelecting: boolean,
-        rect: Rect | null
-    } = {
-        isSelecting: false,
-        rect: null
-    };
-    activeNode: {
-        diagramGroup: DiagramGroup[],
-        diagram: Diagram[],
-        clear: () => void,
-        empty: () => boolean
-    } = {
-        diagramGroup: [],
-        diagram: [],
-        clear: function() {
-            this.diagram.forEach((v) => v.fire("onstartactivestop", {}, true));
-            this.diagram = [];
-            this.diagramGroup = [];
-        },
-        empty: function() {
-            return ( this.diagram.length + this.diagram.length ) === 0;
+interface _Selection {
+    enabled: boolean,
+    rect?: Rect,
+    eDown: (ref: BaseGroup, e: KonvaEventObject<MouseEvent>) => void,
+    eMove: (ref: BaseGroup) => void,
+    eUp: () => void,
+    selected?: Transformer,
+    clearSelected: () => void
+};
+
+const Selection: _Selection = {
+    enabled: false,
+    eDown: function(ref, e) {
+        if (e.evt.button === 0) {
+            this.enabled = true
+            const stPos = ref.getRelativePointerPosition();
+            if (stPos === null) {
+                this.enabled = false;
+                return;
+            }
+            if (this.rect == undefined) {
+                this.rect = new Rect({
+                    id: "selector",
+                    x: stPos.x,
+                    y: stPos.y,
+                    width: 0,
+                    height: 0,
+                    ...Theme.Selection
+                });
+            }
+            else {
+                this.rect.x(stPos.x);
+                this.rect.y(stPos.y);
+                this.rect.width(0);
+                this.rect.height(0);
+            }
         }
-    };
-    transformer: Transformer;
+    },
+    eMove: function(ref) {
+        if (this.enabled && this.rect !== null) {
+            const cPos = ref.getRelativePointerPosition();
+            if (cPos === null) {
+                this.enabled = false;
+                return;
+            }
+            const diffx =  cPos.x - this.rect!.x();
+            const diffy =  cPos.y - this.rect!.y();
+            this.rect!.width(diffx);
+            this.rect!.height(diffy);
+        }
+    },
+    eUp: function() {
+        if (this.enabled) {
+            this.enabled = false
+            this.rect?.remove();
+        }
+    },
+    clearSelected: function() {
+        this.selected?.nodes().forEach((v) => {
+            v.fire("onstateremove", {}, false);
+        })
+        this.selected?.nodes([]);
+    }
+}
+
+export class BaseGroup extends Group {
+    selection = Selection;
+    mtpSize: number ;
     constructor(opts: Konva.ContainerConfig, size: number = 5) {
         super(opts);
+        this.mtpSize = size;
 
         const backgroundRect = new Rect({
             id: "background",
@@ -60,57 +104,42 @@ export class BaseGroup extends Group {
         im.src = diagramBackground;
         this.add(backgroundRect);
 
-        this.on("dragmove", (e) => {
-            // console.log("move");
-            const maxLeftX = -(this.width() * size - this.width());
-            const maxUpY = -(this.height() * size - this.height());
-            e.target.x( Math.max( Math.min(0, e.target.x()), maxLeftX ) );
-            e.target.y( Math.max( Math.min(0, e.target.y()), maxUpY ) );
-        })
-
         this.registerEvents();
 
-        this.transformer = new Transformer(Theme.Transformer);
-        this.add(this.transformer);
+        this.selection.selected = new Transformer(Theme.Transformer);
+        this.add(this.selection.selected);
     }
 
     registerEvents() {
         this.on("onstateremove", (e: OnStateEvent) => {
-            console.log("onstateremove", e);
-            if (e.diagramGroup && e.diagramGroup?.length >= 1) {
-                const nNodes = this.transformer.nodes().filter((v) => {
-                    console.log("tryremove");
-                    return v !== e.diagramGroup![0]
-                });
-                this.transformer.nodes(nNodes);
+            const n = this.selection.selected?.nodes().filter((v) => {
+                return v !== e.target;
+            });
+            e.target.fire("onstateremove", {}, false);
+            if (n) {
+                this.selection.selected?.nodes(n);
             }
         });
 
-        this.on("onstateactive", (e: OnStateEvent) => {
-            this.transformer.moveToTop();
-            if (e.select === "diagramgroup" && e.diagramGroup) {
-                // handle append
-                if (e.append) {
-                    e.diagramGroup?.forEach((v) =>
-                        this.transformer.nodes([ ...this.transformer.nodes(),
-                            v])
-                    );
-                }
-                else {
-                    this.transformer.nodes(e.diagramGroup);
+        this.on("onstateselect", (e: OnStateEvent) => {
+            this.selection.selected?.nodes().forEach((v) => {
+                v.fire("onstateremove", {}, false);
+            });
+
+            this.selection.selected?.moveToTop();
+            if (e.select === "diagramgroup") {
+                if (e.diagramGroup) {
+                    this.selection.selected?.nodes(e.diagramGroup);
                 }
             }
             else {
-                if (e.append && e.diagram) {
-                    this.transformer.nodes([ ...this.transformer.nodes(), ...e.diagram ]);
-                }
-                else if(e.diagram != undefined) {
-                    this.transformer.nodes(e.diagram);
+                if (e.diagram) {
+                    this.selection.selected?.nodes(e.diagram);
                 }
             }
-            this.transformer.nodes().forEach((v) => {
-                console.log(v._id, v.name(), v.draggable());
-            })
+            this.selection.selected?.nodes().forEach((v) => {
+                v.fire("onstateactive", {}, false);
+            });
         });
 
         this.on("mousedown", (e) => {
@@ -121,70 +150,27 @@ export class BaseGroup extends Group {
             if (e.target !== this.children[0]) {
                 return;
             }
-            // TODO: handle clearing
-            this.transformer.nodes([]);
-            this.activeNode.clear();
-            if (e.evt.button === 0) {
-                this.selecting.isSelecting = true
-                const stPos = this.getRelativePointerPosition();
-                if (stPos === null) {
-                    this.selecting.isSelecting = false;
-                    return;
-                }
-                // console.log("down", this.selecting);
-                if (this.selecting.rect === null) {
-                    this.selecting.rect = new Rect({
-                        id: "selector",
-                        x: stPos.x,
-                        y: stPos.y,
-                        width: 0,
-                        height: 0,
-                        ...Theme.Selection
-                    });
-                }
-                else {
-                    this.selecting.rect.x(stPos.x);
-                    this.selecting.rect.y(stPos.y);
-                    this.selecting.rect.width(0);
-                    this.selecting.rect.height(0);
-                }
-                this.add(this.selecting.rect);
-            }
-        });
-        this.on("mousemove", (e) => {
-            if (this.selecting.isSelecting && this.selecting.rect !== null) {
-                const cPos = this.getRelativePointerPosition();
-                if (cPos === null) {
-                    this.selecting.isSelecting = false;
-                    return;
-                }
-                const diffx =  cPos.x - this.selecting.rect.x();
-                const diffy =  cPos.y - this.selecting.rect.y();
-                this.selecting.rect.width(diffx);
-                this.selecting.rect.height(diffy);
-            }
 
-            // detaching logic
-            if (e.evt.button === 0 && !this.activeNode.empty()) {
-                // take the first diagramGroup and detach nodes in the diagram[]
-                // do not include nodes that are not next to each other
-                // for example
-                // 1 -> 2 -> 5 -> 6
-                // 1 and 2 will be included but 5 and 6 will not
-                // this.activeNode.diagramGroup[0].fire("ondetachnodes", {
-                //     nodes: this.activeNode.diagram
-                // }, false);
+            this.selection.clearSelected();
+            this.selection.eDown(this, e);
+            if (this.selection.rect) {
+                this.add(this.selection.rect);
             }
+        });
+        this.on("mousemove", () => {
+            this.selection.eMove(this)
+        });
+        this.on("mouseup", () => {
+            this.selection.eUp();
+        });
 
-        });
-        this.on("mouseup", (_) => {
-            if (this.selecting.isSelecting) {
-                this.selecting.isSelecting = false
-                this.selecting.rect?.remove();
-                // console.log("up", this.selecting);
-                // TODO select inside box and transform them
-            }
-        });
+        this.on("dragmove", (e) => {
+            const maxLeftX = -(this.width() * this.mtpSize - this.width());
+            const maxUpY = -(this.height() * this.mtpSize - this.height());
+            e.target.x( Math.max( Math.min(0, e.target.x()), maxLeftX ) );
+            e.target.y( Math.max( Math.min(0, e.target.y()), maxUpY ) );
+        })
+
     }
 
     getDiagramGroups(): DiagramGroup[]  {
