@@ -67,3 +67,36 @@ export async function dialog_one_dir(title: string): Promise<string> {
     return "";
 }
 
+export interface ProjectInfo {
+    path: string,
+    projectName: string,
+}
+
+export async function load_projects(): Promise<ProjectInfo[]> {
+    try {
+        const linfo = await invoke("load_projects") as string;
+        return JSON.parse(linfo) as ProjectInfo[];
+    }
+    catch (e) {
+        console.error(e);
+    }
+    return [];
+}
+
+export function new_project(name: string, path: string) {
+    try {
+        invoke("new_project", { name, path });
+    }
+    catch (e) {
+        console.error(e);
+    }
+}
+
+export function load_open_project(path: string) {
+    try {
+        invoke("load_open_project", { path });
+    }
+    catch (e) {
+        console.error(e);
+    }
+}

@@ -1,12 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title></title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="css/style.css" rel="stylesheet">
-    </head>
-    <body>
-        <h1>hello</h1>
-    </body>
+<head>
+    <title>Starting Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="styles/styles.css" rel="stylesheet">
+    <link href="styles/startingpage.css" rel="stylesheet">
+    <script type="module" src="scripts/index.ts" defer></script>
+    <script src="https://kit.fontawesome.com/75227f5090.js" crossorigin="anonymous"></script>
+    <script type="module" async>
+        import { getVersion } from '@tauri-apps/api/app';
+        document.querySelector(".version").innerText = `Version ${ await getVersion() }`;
+    </script>
+</head>
+
+<body>
+    <div class="grid-container">
+        <div class="left-container">
+            <div class="app-info-container">
+                <img class="logo" src="" alt="">
+                <div class="appinfo">
+                    <div class="app-name">Poppy</div>
+                    <div class="version">Version x.x.x</div>
+                </div>
+            </div>
+
+            <div class="side-menu">
+                <div class="projects">
+                    <p>Projects</p>
+                </div>
+                <div class="aboutus">
+                    <p>About Us</p>
+                </div>
+            </div>
+        </div>
+        <div class="right-container">
+            <div class="uppersection">
+                <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+                <input type="text" id="search-bar" class="search-bar" placeholder="Search Projects">
+                <button id="npbutton" class="new-project-button">New Project</button>
+                <button id="open-button" class="open-button">Open</button>
+            </div>
+            <hr>
+            <div class="projects-list">
+            </div>
+        </div>
+    </div>
+    <div id="npmodal" class="modal">
+        <div class="npmodal-content">
+            <div class="header">
+                <p>Create New Project</p>
+                <span class="close">&times;</span>
+            </div>
+            <div class="proj-details">
+                <div class="name-section">
+                    <label for="name" class="name">Name</label>
+                    <div class="name-icon-input">
+                        <i class="fa-regular fa-folder-open"></i>
+                        <input type="text" id="name" class="name-input">
+                    </div>
+                </div>
+                <div class="folder-section">
+                    <label for="folder" class="folder">Folder</label>
+                    <div class="folder-icon-input">
+                        <a href="#" class="folder-link">
+                            <i class="fa-regular fa-folder-open c-black"></i>
+                        </a>
+                        <input type="text" id="folder" class="folder-input">
+                    </div>
+                </div>
+            </div>
+            <div class="npmodal-buttons">
+                <button class="back-button">Back</button>
+                <button id="create" class="create-button">+ Create</button>
+            </div>
+        </div>
+    </div>
+</body>
 </html>

@@ -13,6 +13,7 @@ export default defineConfig(async () => ({
         port: 1420,
         strictPort: true,
     },
+    assetsInclude: ["**/*.html"],
     build: {
         outDir: '../dist',
         rollupOptions: {

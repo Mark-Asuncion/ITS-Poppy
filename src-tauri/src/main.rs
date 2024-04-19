@@ -4,27 +4,40 @@
 mod file;
 mod state;
 mod config;
+mod tests;
 
-use tauri::api::path;
+use std::fs::create_dir_all;
 
 fn main() {
     tauri::Builder::default()
         .manage(state::GlobalState {
-            config: Default::default(),
             work_path: Default::default(),
         })
         .setup(|app| {
-            dbg!(path::app_config_dir(app.config().as_ref()));
-            use std::path::PathBuf;
-            let p = PathBuf::from("C:/Users/marka");
-            dbg!(&p, p.exists());
+            let conf_path = app.path_resolver().app_data_dir();
+            if let None = conf_path {
+                panic!("Error Occured acquiring data dir");
+            }
+            let conf_path = conf_path.unwrap();
+            if !conf_path.exists() {
+                if let Err(e) = create_dir_all(&conf_path) {
+                    dbg!(e);
+                    panic!("Error occured creating data dir");
+                }
+            }
+            dbg!(&conf_path);
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
             file::write_diagrams_to_modules,
             state::set_cwd,
             state::get_cwd,
-            state::get_cwd_name
+            state::get_cwd_name,
+            config::load_projects,
+            config::new_project,
+            config::open_project,
+            config::del_project,
+            config::load_open_project,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
