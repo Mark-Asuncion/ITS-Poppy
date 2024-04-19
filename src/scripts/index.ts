@@ -1,8 +1,8 @@
 import { ProjectInfo, load_projects, dialog_one_dir, new_project, load_open_project } from "./backendconnector";
 import editorHTML from "../editor.html";
-const btn = document.getElementById("npbutton")!;
+const btn = document.querySelector("#npbutton")! as HTMLButtonElement;
 const span = document.getElementsByClassName("close")[0]! as HTMLSpanElement;
-const projectsList = document.querySelector(".projects-list")! as HTMLDivElement;
+const projectsList = document.querySelector("#projects-list")! as HTMLDivElement;
 const searchbar = document.querySelector("#search-bar")! as HTMLInputElement;
 
 function registerSearchBarEvents(searchbar: HTMLInputElement) {
@@ -65,7 +65,9 @@ registerNewProjectDialogEvents(modal);
 
 function createProjectInfoElement(info: ProjectInfo) {
     const root = document.createElement("div");
-    root.classList.add("project-info");
+    root.classList.add("info-container");
+    root.classList.add("d-flex");
+    root.classList.add("project-container");
     root.addEventListener("click", (e) => {
         e.stopPropagation();
         localStorage.setItem("info", JSON.stringify(info));
@@ -77,23 +79,25 @@ function createProjectInfoElement(info: ProjectInfo) {
     root.appendChild(emblem);
 
     const projectDetails = document.createElement("div");
-    projectDetails.classList.add("project-details");
+    projectDetails.classList.add("info-project");
+    projectDetails.classList.add("d-flex");
     root.appendChild(projectDetails);
 
-    const projectName = document.createElement("div");
+    const projectName = document.createElement("p");
     projectName.classList.add("project-name");
     projectName.innerText = info.projectName;
     projectDetails.appendChild(projectName);
 
-    const projectPath = document.createElement("div");
-    projectPath.classList.add("path");
+    const projectPath = document.createElement("p");
+    projectPath.classList.add("p-small");
+    projectPath.classList.add("p-small-hover");
     projectPath.innerText = info.path;
     projectDetails.appendChild(projectPath);
 
     const gear = document.createElement("i");
     gear.classList.add("fa-solid");
     gear.classList.add("fa-gear");
-    gear.classList.add("fa-2xl");
+    gear.classList.add("fa-xl");
     // TODO add click listener
     root.appendChild(gear);
 

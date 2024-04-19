@@ -2,165 +2,168 @@
     background-color: white;
     padding: 0;
     margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
+}
+
+.d-grid {
+    display: grid;
 }
 
 .grid-container {
-    display: grid;
     grid-template-columns: 25% 75%;
     height: 100vh;
+}
+
+.d-flex {
+    display: flex;
+    /* outline: auto; */
+}
+
+.logo {
+    background-color: gray;
+    padding: 35px;
+    border-radius: 100%;
+}
+
+.info-container {
+    padding-left: 30px;
+    padding-top: 40px;
+}
+
+.info-container > .info-details, .info-details > p {
+    background-color: #e2e2e2;
+}
+
+.info-details {
+    flex-direction: column;
+    flex: 1;
+    margin-left: 10px;
+    justify-content: center;
+}
+
+.info-details > .app-name {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.info-details > .p-small {
+    font-size: small;
+}
+
+.links {
+    flex-direction: column;
+    font-size: 20px;
+    padding: 40px 15px 15px 15px;
+}
+
+.links > #Projects, #AboutUs {
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.highlight-red {
+    background-color: red;
+    color: white;
+}
+
+#AboutUs { 
+    color: black;
+    transition: background-color 0.3s;
+    background-color: #e2e2e2;
+}
+
+#AboutUs:hover {
+    background-color: lightgray;
+    color: black;
+
+}
+
+.links > a {
+    text-decoration: none;
+    margin-bottom: 7px;
 }
 
 .left-container {
     background-color: #e2e2e2;
 }
 
-.app-info-container {
-    background-color: #e2e2e2;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: left;
-    text-align: left;
-    padding: 70px 0px 50px 45px;
-    /* margin-left: 45px;
-    margin-top: 70px;
-    margin-bottom: 50px; */
-}
-
-.logo {
-    width: 60px;
-    height: 60px;
-    border-radius: 100%;
-    background-color: gray;
-    margin-right: 5px;
-}
-
-.appinfo > div{
+.left-container > div {
     background-color: #e2e2e2;
 }
 
-.app-name {
-    font-size: 22px;
-    font-weight: bold;
-}
-
-.version {
-    font-size: 15px;
-}
-
-.side-menu {
-    background-color: #e2e2e2;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 10px;
-    /* margin-left: 10px;
-    margin-right: 10px; */
-}
-
-.projects,
-.projects > p {
-    font-size: 25px;
-    text-align: left;
-    color: #f9f9f9;
-    background-color: #C51A15;
-    border-radius: 5px;
-    padding: 5px 5px 5px 15px;
-}
-
-.aboutus,
-.aboutus>p {
-    background-color: #e2e2e2;
-    color: black;
-    font-size: 25px;
-    text-align: left;
-    padding: 5px 5px 5px 15px;
-}
-
-.right-container>.uppersection {
-    background-color: white;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 50px 25px 0px 25px;
+.search {
+    padding: 40px 20px 0px 20px;
 }
 
 .search-bar {
+    justify-content: center;
+    font-size: 24px;
     flex: 1;
-    font-size: 20px;
-    margin-right: 20px;
+    text-decoration: none;
+    padding: 5px;
     border: none;
 }
 
-.new-project-button,
-.open-button {
-    font-size: 16px;
-    padding: 10px 20px;
-    border: 1px solid #5A5A5A;
-    border-radius: 5px;
+.search-bar:focus {
     outline: none;
-    cursor: pointer;
-}
-
-.new-project-button {
-    margin-right: 10px;
-}
-
-.open-button {
-    margin-right: 0;
 }
 
 .fa-magnifying-glass {
+    padding: 20px;
+    font-size: 30px;
+    cursor: pointer;
+
+}
+
+.btn-container {
+    float: right;
+    justify-content: center;
+    align-items: center;
     padding: 10px;
 }
 
-hr {
-    margin: 35px 25px;
-    height: 2px;
+.btn-container > .btn {
+    padding: 10px;
+    font-size: 17px;
+    margin: 4px;
+    cursor: pointer;
+    border-radius: 5px;
+    border: 2px solid #e2e2e2;
+    /* transition: background-color 0.1s; */
+}
+
+.btn:hover, .btn:hover p {
+    background-color: #e2e2e2;
+}
+
+hr{
+    margin: 30px 35px 30px 35px;
+    height: 4px;
     background-color: #e2e2e2;
     border: none;
 }
 
-.project-info {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: left;
-    text-align: left;
-    padding: 15px 20px 20px 70px;
-    transition: background-color 0.3s;
-    border-radius: 5px;
-    margin: 0px 25px 0px 25px;
-}
-
 .project-emblem {
-    border-radius: 10px;
-    width: 40px;
-    height: 40px;
     background-color: #e2e2e2;
-    margin-right: 25px;
-    transition: background-color 0.3s;
-}
-
-.project-details>.project-name {
-    font-size: 20px;
-    font-weight: bold;
-    transition: background-color 0.3s;
-}
-
-.project-details>.path {
-    font-size: 13px;
-    color: #5c5c5c;
-    transition: background-color 0.3s;
-}
-
-.project-details {
-    flex: 1;
+    padding: 30px;
+    border-radius: 10px;
 }
 
 .fa-gear {
-    padding: 20px;
+    padding: 30px;
+    transition: background-color 0.3s;
+}
+
+.info-project {
+    flex-direction: column;
+    flex: 1;
+    margin-left: 10px;
+    justify-content: center;
+    transition: background-color 0.3s;
+}
+
+.info-project > .project-name {
+    font-size: 18px;
+    font-weight: bold;
     transition: background-color 0.3s;
 }
 
@@ -190,21 +193,24 @@ hr {
     display: block;
 }
 
-.project-info:hover,
-.project-info:hover .project-emblem,
-.project-info:hover .project-details,
-.project-info:hover .project-details .project-name,
-.project-info:hover .project-details .path,
-.project-info:hover .fa-gear {
-    background-color: #f6c8c7;
-    cursor: pointer;
+.project-container {
+    transition: background-color 0.3s;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-radius: 10px;
+    margin: 0px 20px 0px 20px;
 }
 
-.new-project-button:hover,
-.open-button:hover {
-    background-color: #C51A15;
-    border-color: #C51A15;
-    color: white;
+.p-small-hover {
+    transition: background-color 0.3s;
+}
+
+.project-container:hover,
+.project-container:hover .info-project,
+.project-container:hover .info-project p,
+.project-container:hover .fa-gear{
+    background-color: #f6c8c7;
+    cursor: pointer;
 }
 
 .modal {
@@ -346,4 +352,8 @@ hr {
 
 .c-black {
     color: black;
+}
+
+.project-container:hover {
+    cursor: pointer;
 }
