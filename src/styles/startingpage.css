@@ -1,0 +1,349 @@
+* {
+    background-color: white;
+    padding: 0;
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: 25% 75%;
+    height: 100vh;
+}
+
+.left-container {
+    background-color: #e2e2e2;
+}
+
+.app-info-container {
+    background-color: #e2e2e2;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: left;
+    text-align: left;
+    padding: 70px 0px 50px 45px;
+    /* margin-left: 45px;
+    margin-top: 70px;
+    margin-bottom: 50px; */
+}
+
+.logo {
+    width: 60px;
+    height: 60px;
+    border-radius: 100%;
+    background-color: gray;
+    margin-right: 5px;
+}
+
+.appinfo > div{
+    background-color: #e2e2e2;
+}
+
+.app-name {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.version {
+    font-size: 15px;
+}
+
+.side-menu {
+    background-color: #e2e2e2;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    /* margin-left: 10px;
+    margin-right: 10px; */
+}
+
+.projects,
+.projects > p {
+    font-size: 25px;
+    text-align: left;
+    color: #f9f9f9;
+    background-color: #C51A15;
+    border-radius: 5px;
+    padding: 5px 5px 5px 15px;
+}
+
+.aboutus,
+.aboutus>p {
+    background-color: #e2e2e2;
+    color: black;
+    font-size: 25px;
+    text-align: left;
+    padding: 5px 5px 5px 15px;
+}
+
+.right-container>.uppersection {
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 50px 25px 0px 25px;
+}
+
+.search-bar {
+    flex: 1;
+    font-size: 20px;
+    margin-right: 20px;
+    border: none;
+}
+
+.new-project-button,
+.open-button {
+    font-size: 16px;
+    padding: 10px 20px;
+    border: 1px solid #5A5A5A;
+    border-radius: 5px;
+    outline: none;
+    cursor: pointer;
+}
+
+.new-project-button {
+    margin-right: 10px;
+}
+
+.open-button {
+    margin-right: 0;
+}
+
+.fa-magnifying-glass {
+    padding: 10px;
+}
+
+hr {
+    margin: 35px 25px;
+    height: 2px;
+    background-color: #e2e2e2;
+    border: none;
+}
+
+.project-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: left;
+    text-align: left;
+    padding: 15px 20px 20px 70px;
+    transition: background-color 0.3s;
+    border-radius: 5px;
+    margin: 0px 25px 0px 25px;
+}
+
+.project-emblem {
+    border-radius: 10px;
+    width: 40px;
+    height: 40px;
+    background-color: #e2e2e2;
+    margin-right: 25px;
+    transition: background-color 0.3s;
+}
+
+.project-details>.project-name {
+    font-size: 20px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.project-details>.path {
+    font-size: 13px;
+    color: #5c5c5c;
+    transition: background-color 0.3s;
+}
+
+.project-details {
+    flex: 1;
+}
+
+.fa-gear {
+    padding: 20px;
+    transition: background-color 0.3s;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    margin-top: 200px;
+    margin-right: 50px;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    right: 0;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1
+}
+
+.fa-gear:hover+.dropdown-content {
+    display: block;
+}
+
+.project-info:hover,
+.project-info:hover .project-emblem,
+.project-info:hover .project-details,
+.project-info:hover .project-details .project-name,
+.project-info:hover .project-details .path,
+.project-info:hover .fa-gear {
+    background-color: #f6c8c7;
+    cursor: pointer;
+}
+
+.new-project-button:hover,
+.open-button:hover {
+    background-color: #C51A15;
+    border-color: #C51A15;
+    color: white;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.npmodal-content {
+    background-color: #fefefe;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border-radius: 10px;
+    width: 33%;
+    min-height: 250px;
+}
+
+.npmodal-content>.header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header>p {
+    font-size: 25px;
+    margin: 0;
+    text-align: center;
+    flex-grow: 1;
+    margin-bottom: 10px;
+}
+
+.close {
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.proj-details {
+    width: 100%;
+    position: relative;
+    top: 7%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #fefefe;
+    padding: 20px;
+}
+
+.name-section,
+.folder-section {
+    width: auto;
+    margin-bottom: 20px;
+    margin-top: 10px;
+    margin-left: 35px;
+    margin-right: 15px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.name,
+.folder {
+    font-size: 25px;
+}
+
+.name-input,
+.folder-input {
+    width: calc(80% - 20px);
+    padding: 5px;
+    font-size: 25px;
+    border-radius: 10px;
+    border: 1px solid #aaaaaa;
+}
+
+.folder-icon-input,
+.name-icon-input {
+    display: flex;
+}
+
+.folder-icon-input i,
+.name-icon-input i {
+    margin-right: 10px;
+    margin-left: 20px;
+    margin-top: 12px;
+}
+
+.name-icon-input i {
+    visibility: hidden;
+}
+
+.folder-link {
+    cursor: pointer;
+}
+
+.npmodal-buttons {
+    width: 100%;
+    position: relative;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.back-button,
+.create-button {
+    width: 45%;
+    height: 40px;
+    margin-bottom: 10px;
+    font-size: 20px;
+    border-radius: 5px;
+}
+
+.create-button {
+    background-color: red;
+    color: white;
+    border: none;
+}
+
+.create-button:hover {
+    background-color: black;
+}
+
+.back-button:hover {
+    background-color: red;
+    color: white;
+    border: none;
+}
+
+.c-black {
+    color: black;
+}

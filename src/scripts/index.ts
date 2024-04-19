@@ -1,32 +1,127 @@
-// import { invoke } from "@tauri-apps/api/tauri";
-import { diagramToModules, init } from "./canvasinit";
-import { dialog_one_dir, get_cwd_name, set_cwd, write_diagrams_to_modules } from "./backendconnector";
+import { ProjectInfo, load_projects, dialog_one_dir, new_project, load_open_project } from "./backendconnector";
+import editorHTML from "../editor.html";
+const btn = document.getElementById("npbutton")!;
+const span = document.getElementsByClassName("close")[0]! as HTMLSpanElement;
+const projectsList = document.querySelector(".projects-list")! as HTMLDivElement;
+const searchbar = document.querySelector("#search-bar")! as HTMLInputElement;
 
-async function set_project_name(input_element: HTMLInputElement) {
-    const isUntitled = input_element.value.toLowerCase() === "untitled project";
-    if (isUntitled) {
-        const folder = await dialog_one_dir("Pick the Project Folder");
-        console.log("Picked Folder", folder);
-        set_cwd(folder);
-        input_element.value = await get_cwd_name();
+function registerSearchBarEvents(searchbar: HTMLInputElement) {
+    searchbar.addEventListener("input", (e) => {
+        e.stopPropagation();
+        projectsList.replaceChildren();
+        const filter = searchbar.value.trim();
+        listProjects(projectsList, (filter.length != 0)? filter:undefined);
+    });
+}
+registerSearchBarEvents(searchbar);
+
+//---- Open And Load Project ------
+const openBtn = document.querySelector("#open-button")! as HTMLButtonElement;
+openBtn.addEventListener("click", async (e) => {
+    e.stopPropagation();
+    const folder = await dialog_one_dir("Pick A Project Folder");
+    if (folder) {
+        load_open_project(folder);
+        window.location.reload();
     }
+});
 
+function registerModalEvents(modal: HTMLElement) {
+    btn.onclick = function () {
+        modal.style.display = "block";
+    }
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+    window.onclick = function (event: Event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
 }
 
-window.addEventListener("DOMContentLoaded", () => {
-    const canvasStage = init();
-    const inpProjName = document.querySelector("#project-name") as HTMLInputElement;
-    const playBtn = document.querySelector("#play-btn") as HTMLButtonElement;
-
-    if (inpProjName) {
-        inpProjName.addEventListener("focus", async () => {
-            set_project_name(inpProjName);
-        });
-    }
-
-    playBtn?.addEventListener("click", async () => {
-        await set_project_name(inpProjName);
-        const contents = diagramToModules(canvasStage);
-        write_diagrams_to_modules(contents);
+function registerNewProjectDialogEvents(modal: HTMLElement) {
+    const createBtn = modal.querySelector("#create")!;
+    const folderInp = modal.querySelector("#folder")! as HTMLInputElement;
+    folderInp.addEventListener("focusin", async (e) => {
+        e.stopPropagation();
+        folderInp.blur();
+        const folder = await dialog_one_dir("Pick A Folder");
+        folderInp.value = folder;
     });
-});
+
+    createBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const name = (modal.querySelector("#name")! as HTMLInputElement).value;
+        const path = (modal.querySelector("#folder")! as HTMLInputElement).value;
+        new_project(name, path);
+        window.location.reload();
+    });
+}
+
+const modal = document.getElementById("npmodal")!;
+registerModalEvents(modal);
+registerNewProjectDialogEvents(modal);
+
+function createProjectInfoElement(info: ProjectInfo) {
+    const root = document.createElement("div");
+    root.classList.add("project-info");
+    root.addEventListener("click", (e) => {
+        e.stopPropagation();
+        localStorage.setItem("info", JSON.stringify(info));
+        window.open(editorHTML, "_self");
+    });
+
+    const emblem = document.createElement("div");
+    emblem.classList.add("project-emblem");
+    root.appendChild(emblem);
+
+    const projectDetails = document.createElement("div");
+    projectDetails.classList.add("project-details");
+    root.appendChild(projectDetails);
+
+    const projectName = document.createElement("div");
+    projectName.classList.add("project-name");
+    projectName.innerText = info.projectName;
+    projectDetails.appendChild(projectName);
+
+    const projectPath = document.createElement("div");
+    projectPath.classList.add("path");
+    projectPath.innerText = info.path;
+    projectDetails.appendChild(projectPath);
+
+    const gear = document.createElement("i");
+    gear.classList.add("fa-solid");
+    gear.classList.add("fa-gear");
+    gear.classList.add("fa-2xl");
+    // TODO add click listener
+    root.appendChild(gear);
+
+    const dropdown = document.createElement("div");
+    dropdown.classList.add("dropdown-content");
+    const remove = document.createElement("a");
+    remove.innerText = "remove";
+    remove.addEventListener("click", (e) => {
+        e.stopPropagation();
+        console.error("NOT IMPLEMENTED");
+    })
+    dropdown.appendChild(remove);
+    root.appendChild(dropdown);
+    return root;
+}
+
+async function listProjects(root: HTMLElement, filter?: string) {
+    const projects = await load_projects();
+    for (let i = 0; i < projects.length; i++) {
+        const project = projects[i];
+        if (filter) {
+            const regRes = project.projectName.match(filter+".\\+*");
+            if (regRes == null || (regRes && regRes[0] == project.projectName)) {
+                continue;
+            }
+        }
+        root.appendChild(createProjectInfoElement(project));
+    }
+}
+
+listProjects(projectsList);
