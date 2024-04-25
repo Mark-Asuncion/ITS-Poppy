@@ -72,6 +72,7 @@ export class DiagramGroup extends Konva.Group {
             console.assert(false, "detaching multiple diagrams NOT IMPLEMENTED");
             return;
         }
+        // @ts-ignore
         let idx = -1;
         this.nodes = this.nodes.filter((v, i) => {
             if (v === diagrams) {

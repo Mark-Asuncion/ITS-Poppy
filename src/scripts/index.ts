@@ -1,5 +1,4 @@
 import { ProjectInfo, load_projects, dialog_one_dir, new_project, load_open_project } from "./backendconnector";
-import editorHTML from "../editor.html";
 const btn = document.querySelector("#npbutton")! as HTMLButtonElement;
 const span = document.getElementsByClassName("close")[0]! as HTMLSpanElement;
 const projectsList = document.querySelector("#projects-list")! as HTMLDivElement;
@@ -71,7 +70,7 @@ function createProjectInfoElement(info: ProjectInfo) {
     root.addEventListener("click", (e) => {
         e.stopPropagation();
         localStorage.setItem("info", JSON.stringify(info));
-        window.open(editorHTML, "_self");
+        window.open("../editor.html", "_self");
     });
 
     const emblem = document.createElement("div");

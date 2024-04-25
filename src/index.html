@@ -8,9 +8,11 @@
         <link href="styles/startingpage.css" rel="stylesheet">
         <script type="module" src="scripts/index.ts" defer></script>
         <script src="https://kit.fontawesome.com/75227f5090.js" crossorigin="anonymous"></script>
-        <script type="module" async>
+        <script type="module">
             import { getVersion } from '@tauri-apps/api/app';
-            document.querySelector("#version").innerText = `Version ${ await getVersion() }`;
+            async function setVersion() {
+                document.querySelector("#version").innerText = `Version ${ await getVersion() }`;
+            }
         </script>
     </head>
     <body>
