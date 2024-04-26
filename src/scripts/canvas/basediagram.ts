@@ -14,6 +14,11 @@ export interface OnResizeEvent extends KonvaEventObject<any> {
     }
 };
 
+export interface BaseDiagramConfig extends ContainerConfig {
+    theme?: any,
+    rect?: RectConfig
+}
+
 export interface AttachRect {
     x: number,
     y: number,
@@ -29,16 +34,25 @@ export class BaseDiagram extends Group {
         r: ArrowButton
     };
     _nsep = 5;
-    constructor(config: ContainerConfig, rectConfig: RectConfig, theme: any) {
+    constructor(config: BaseDiagramConfig) {
+        let rectConfig = config.rect;
+        if (rectConfig == undefined) {
+            rectConfig = {};
+        }
+        let theme = config.theme;
+        if (theme == undefined) {
+            theme = {};
+        }
+
+        delete config.theme;
+        delete config.rect;
         super(config);
 
-        delete rectConfig.x;
-        delete rectConfig.y;
         this.rect = new Rect({
             width: this.width(),
             height: this.height(),
-            ...theme,
             ...Theme.BaseDiagram,
+            ...theme,
             ...rectConfig,
         });
 
@@ -190,11 +204,29 @@ export class BaseDiagram extends Group {
             console.log("textchanged", e);
         });
 
+
+        this.on("dragstart", (e) => {
+            e.cancelBubble = true;
+            this.fire("onstateselect", {
+                diagram: [ this ]
+            }, true);
+        });
+
         this.on("dragend", (e) => {
             e.cancelBubble = true;
             // console.log("dragend");
-            ( this.parent! as DiagramGroup ).detach(this);
-            this.draggable(false);
+            const parent = this.parent! as DiagramGroup;
+            const relPoinPos = this.getRelativePointerPosition()!;
+            const dg = parent.detach(this);
+            const at = parent.parent!.getRelativePointerPosition();
+            if (at && dg) {
+                dg.setPosition({
+                    x: at.x - relPoinPos.x,
+                    y: at.y - relPoinPos.y,
+                });
+                parent.parent!.add(dg);
+                this.draggable(false);
+            }
         });
 
         this.on("onstateactive", (e: OnStateEvent) => {
@@ -228,5 +260,9 @@ export class BaseDiagram extends Group {
 
     getContent() {
         return "";
+    }
+
+    static deserialize(_data: string): BaseDiagram {
+        return new BaseDiagram({});
     }
 }

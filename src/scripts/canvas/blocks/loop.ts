@@ -1,21 +1,20 @@
-import { RectConfig } from "konva/lib/shapes/Rect";
 import { Text } from "konva/lib/shapes/Text";
 import { Theme } from "../../../themes/diagram";
 import { TextBox } from "../textbox";
 import { BaseText } from "../basetext";
-import { AttachRect, BaseDiagram, OnResizeEvent } from "../basediagram";
+import { AttachRect, BaseDiagram, BaseDiagramConfig, OnResizeEvent } from "../basediagram";
 
 export class For extends BaseDiagram {
     text: BaseText[] = [];
     _ifT: Text[] = [];
-    constructor(rectConfig: RectConfig = {}) {
+    constructor(config: BaseDiagramConfig = {}) {
         super({
             name: "for",
             width: 220,
             height: 95,
-            x: rectConfig.x,
-            y: rectConfig.y
-        }, rectConfig, Theme.Diagram.Loop);
+            ...config,
+            theme: Theme.Diagram.Loop
+        });
 
         const padding = Theme.TextBox.padding;
         const pos = {

@@ -1,20 +1,19 @@
-import { RectConfig } from "konva/lib/shapes/Rect";
 import { Theme } from "../../../themes/diagram";
 import { TextBox } from "../textbox";
 import { BaseText } from "../basetext";
-import { AttachRect, BaseDiagram, OnResizeEvent } from "../basediagram";
+import { AttachRect, BaseDiagram, BaseDiagramConfig, OnResizeEvent } from "../basediagram";
 
 export class Statement extends BaseDiagram {
     text: BaseText;
-    constructor(rectConfig: RectConfig = {}) {
+    constructor(config: BaseDiagramConfig = {}) {
         super({
             name: "Statement",
             // draggable: true,
             width: 200,
             height: 100,
-            x: rectConfig.x,
-            y: rectConfig.y
-        }, rectConfig, Theme.Diagram.Statement);
+            ...config,
+            theme: Theme.Diagram.Statement
+        });
 
         const padding = Theme.TextBox.padding;
         const w = this.rect.width() - padding * 2;

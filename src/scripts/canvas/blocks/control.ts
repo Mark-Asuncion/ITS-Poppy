@@ -1,22 +1,21 @@
 import Konva from "konva";
-import { RectConfig } from "konva/lib/shapes/Rect";
 import { Text } from "konva/lib/shapes/Text";
 import { Theme } from "../../../themes/diagram";
 import { TextBox } from "../textbox";
 import { BaseText } from "../basetext";
-import { AttachRect, BaseDiagram, OnResizeEvent } from "../basediagram";
+import { AttachRect, BaseDiagram, BaseDiagramConfig, OnResizeEvent } from "../basediagram";
 
 export class If extends BaseDiagram {
     text: BaseText;
     _ifT: Text[] = [];
-    constructor(rectConfig: RectConfig = {}) {
+    constructor(config: BaseDiagramConfig = {}) {
         super({
             name: "If",
             width: 200,
             height: 95,
-            x: rectConfig.x,
-            y: rectConfig.y
-        }, rectConfig, Theme.Diagram.Control);
+            ...config,
+            theme: Theme.Diagram.Control,
+        });
 
         const padding = Theme.TextBox.padding;
         const pos = {
@@ -148,14 +147,14 @@ export class If extends BaseDiagram {
 export class Elif extends BaseDiagram {
     text: BaseText;
     _ifT: Text[] = [];
-    constructor(rectConfig: RectConfig = {}) {
+    constructor(config: BaseDiagramConfig = {}) {
         super({
             name: "Elif",
             width: 200,
             height: 95,
-            x: rectConfig.x,
-            y: rectConfig.y
-        }, rectConfig, Theme.Diagram.Control);
+            ...config,
+            theme: Theme.Diagram.Control,
+        });
 
         const padding = Theme.TextBox.padding;
         const pos = {
@@ -293,14 +292,14 @@ export class Elif extends BaseDiagram {
 
 export class Else extends BaseDiagram {
     _ifT: Text;
-    constructor(rectConfig: RectConfig = {}) {
+    constructor(config: BaseDiagramConfig = {}) {
         super({
             name: "Else",
             width: 200,
             height: 80,
-            x: rectConfig.x,
-            y: rectConfig.y
-        }, rectConfig, Theme.Diagram.Control);
+            ...config,
+            theme: Theme.Diagram.Control,
+        });
 
         this._ifT = new Text({
             x: Theme.TextBox.padding,

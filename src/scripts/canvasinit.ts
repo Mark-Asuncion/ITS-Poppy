@@ -59,7 +59,13 @@ export function init() {
                 bg.add(createStatementDiagramAt(pos));
                 break;
             case "control-if":
-                bg.add(createIfDiagramAt(pos));
+                const dg = createIfDiagramAt(pos);
+                const dgElse = createElseDiagramAt(pos);
+                dgElse.attach({
+                    v: dg,
+                    i: 0
+                });
+                bg.add(dg);
                 break;
             case "control-elif":
                 bg.add(createElifDiagramAt(pos));

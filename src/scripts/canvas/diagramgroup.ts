@@ -13,7 +13,7 @@ export class DiagramGroup extends Konva.Group {
     nodes: BaseDiagram[] = [];
     constructor(opts: Konva.ContainerConfig = {}) {
         super({
-            name: "DiagramGroup",
+            name: "main",
             draggable: true,
             ...opts
         });
@@ -22,7 +22,6 @@ export class DiagramGroup extends Konva.Group {
 
     registerEvents() {
         this.on("onstateremove", () => {
-            this.nodes[0].removeActive();
             this.removeActive();
         });
 
@@ -32,7 +31,7 @@ export class DiagramGroup extends Konva.Group {
 
         this.on("onstateselect", (e: OnStateEvent) => {
             e.diagramGroup = [ this ];
-            if (e.diagram![0] === this.nodes[0]) {
+            if (e.diagram && e.diagram[0] === this.nodes[0]) {
                 e.select = "diagramgroup";
             }
             else {
@@ -43,13 +42,16 @@ export class DiagramGroup extends Konva.Group {
         this.on("dragstart", (e) => {
             e.cancelBubble = true;
             e.target.moveToTop();
-        })
+            this.fire("onstateselect", {
+                diagramGroup: [ this ],
+                select: "diagramgroup"
+            }, true);
+        });
+
         this.on("dragmove", (e) => {
             e.cancelBubble = true;
-            // console.log(e.target.name(), e.target.position());
-            // console.log(this.name(), this.position());
-            // console.log(e.target.name(), e.target._id);
         })
+
         this.on("dragend", (e) => {
             e.cancelBubble = true;
             const children = ( this.parent as BaseGroup ).getDiagramGroups();
@@ -67,10 +69,10 @@ export class DiagramGroup extends Konva.Group {
         })
     }
 
-    detach(diagrams: BaseDiagram | BaseDiagram[]) {
+    detach(diagrams: BaseDiagram | BaseDiagram[]): DiagramGroup | null {
         if (Array.isArray(diagrams)) {
             console.assert(false, "detaching multiple diagrams NOT IMPLEMENTED");
-            return;
+            return null;
         }
         // @ts-ignore
         let idx = -1;
@@ -83,15 +85,12 @@ export class DiagramGroup extends Konva.Group {
         });
         this.setNodesRelativePosition();
         diagrams.remove();
-        diagrams.indent(0);
 
-        const { x, y } = this.parent!.getRelativePointerPosition()!;
-        // console.log(x, y, this.getRelativePointerPosition());
-        const dg = new DiagramGroup({ x, y });
+        const dg = new DiagramGroup();
         diagrams.setPosition({ x: 0, y: 0 });
+        diagrams.indent(0);
         dg.addDiagram(diagrams);
-        // console.log(dg.name(), dg._id, dg.children);
-        this.parent!.add(dg);
+        return dg;
     }
 
     setNodesRelativePosition() {
@@ -199,5 +198,17 @@ export class DiagramGroup extends Konva.Group {
             name: this.name(),
             content
         };
+    }
+
+    serialize(): string {
+        let res = "";
+        this.nodes.forEach((v) => {
+            res += v.getContent();
+        })
+        return res;
+    }
+
+    static deserialize(data: any): DiagramGroup {
+        return new DiagramGroup(data.pos);
     }
 }
