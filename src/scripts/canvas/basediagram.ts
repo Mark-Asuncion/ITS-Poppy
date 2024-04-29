@@ -16,7 +16,8 @@ export interface OnResizeEvent extends KonvaEventObject<any> {
 
 export interface BaseDiagramConfig extends ContainerConfig {
     theme?: any,
-    rect?: RectConfig
+    rect?: RectConfig,
+    content?: string
 }
 
 export interface AttachRect {
@@ -156,7 +157,7 @@ export class BaseDiagram extends Group {
         this.indent(-1);
         const parent = this.parent! as DiagramGroup;
         const pos = parent
-            .getRootDiagram(this)?.getIndentPosition(this.indent());
+            .getRootDiagram()?.getIndentPosition(this.indent());
         console.log(parent.position(), this.position(), pos);
         if (pos != undefined) {
             this.setPosition({ x: pos, y: this.y() });
@@ -168,7 +169,7 @@ export class BaseDiagram extends Group {
         this.indent(1);
         const parent = this.parent! as DiagramGroup;
         const pos = parent
-            .getRootDiagram(this)?.getIndentPosition(this.indent());
+            .getRootDiagram()?.getIndentPosition(this.indent());
         if (pos != undefined) {
             this.setPosition({ x: pos, y: this.y() });
         }
@@ -195,7 +196,8 @@ export class BaseDiagram extends Group {
         this.on("mouseup", (e) => {
             if (e.evt.button === 0) {
                 this.fire("onstateselect", {
-                    diagram: [ this ]
+                    diagram: [ this ],
+                    delete: e.evt.shiftKey
                 }, true);
             }
         });
@@ -260,9 +262,5 @@ export class BaseDiagram extends Group {
 
     getContent() {
         return "";
-    }
-
-    static deserialize(_data: string): BaseDiagram {
-        return new BaseDiagram({});
     }
 }

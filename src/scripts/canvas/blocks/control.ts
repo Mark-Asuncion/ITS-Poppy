@@ -9,6 +9,8 @@ export class If extends BaseDiagram {
     text: BaseText;
     _ifT: Text[] = [];
     constructor(config: BaseDiagramConfig = {}) {
+        let content = (config.content)? config.content:"";
+        delete config.content;
         super({
             name: "If",
             width: 200,
@@ -34,7 +36,7 @@ export class If extends BaseDiagram {
 
         pos.x += n.width() + padding;
         this.text = new TextBox({
-            text: "",
+            text: content,
             width: this.width() * .7,
             fill: "#00",
             ...Theme.Text,
@@ -148,6 +150,8 @@ export class Elif extends BaseDiagram {
     text: BaseText;
     _ifT: Text[] = [];
     constructor(config: BaseDiagramConfig = {}) {
+        let content = (config.content)? config.content:"";
+        delete config.content;
         super({
             name: "Elif",
             width: 200,
@@ -173,7 +177,7 @@ export class Elif extends BaseDiagram {
 
         pos.x += this._ifT[0].width() + padding;
         this.text = new TextBox({
-            text: "",
+            text: content,
             width: this.width() * .6,
             fill: "#00",
             ...Theme.Text,
@@ -293,6 +297,7 @@ export class Elif extends BaseDiagram {
 export class Else extends BaseDiagram {
     _ifT: Text;
     constructor(config: BaseDiagramConfig = {}) {
+        delete config.content;
         super({
             name: "Else",
             width: 200,

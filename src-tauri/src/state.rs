@@ -18,7 +18,7 @@ impl GlobalState {
             .expect(errors::FAIL_ACQ_STATE_CWD)) = p.to_owned()
     }
 
-    fn get_work_refpath(&self) -> PathBuf {
+    pub fn get_work_path_clone(&self) -> PathBuf {
         (*self.work_path
             .lock()
             .expect(errors::FAIL_ACQ_STATE_CWD))
@@ -48,7 +48,7 @@ pub fn get_cwd(gs: State<GlobalState>) -> String {
 
 #[tauri::command]
 pub fn get_cwd_name(gs: State<GlobalState>) -> String {
-    let cwd = gs.get_work_refpath();
+    let cwd = gs.get_work_path_clone();
     cwd.file_name()
         .unwrap_or_default()
         .to_string_lossy()

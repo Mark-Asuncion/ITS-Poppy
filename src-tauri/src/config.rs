@@ -1,13 +1,14 @@
 use serde::{ Serialize, Deserialize, ser::SerializeStruct };
-use std::{path::{ Path, PathBuf }, io::{Read, self}, fs::create_dir};
+use std::{path::PathBuf, io::{Read, self}, fs::create_dir};
 use tauri::{ State, AppHandle };
 
-use crate::{file::{open_read, self}, state::{GlobalState, errors}};
+use crate::{file::{open_read, self}, state::GlobalState};
 
 pub mod constants {
     pub const PROJECT_CONFIG_NAME: &str = "project-info.json";
     pub const F_DATA: &str = "poppy.projects";
     pub const FORMAT_DATETIME: &str = "%m/%d/%Y %H:%M";
+    pub const DOTPOPPY: &str = ".poppy";
 }
 
 pub mod data {
@@ -169,7 +170,7 @@ impl ProjectConfig {
     }
 }
 #[tauri::command]
-pub fn load_projects(app_handle: AppHandle) -> String {
+pub fn load_projects(app_handle: AppHandle) -> Vec<ProjectInfo> {
     let data_dir = app_handle.path_resolver().app_data_dir().unwrap();
     let projects_path = data::load(data_dir);
     if let Err(e) = projects_path {
@@ -188,11 +189,11 @@ pub fn load_projects(app_handle: AppHandle) -> String {
         let info = ProjectInfo::new(&project_path_str, proj_conf);
         projects_config.push(info);
     }
-    serde_json::to_string(&projects_config).unwrap_or_default()
+    projects_config
 }
 
 #[tauri::command]
-pub fn new_project(name: String, path: String, gs: State<GlobalState>, app_handle: AppHandle) {
+pub fn new_project(name: String, path: String, app_handle: AppHandle) {
     let path_to_proj = PathBuf::from(path.clone());
     if !path_to_proj.exists() {
         if let Err(e) = create_dir(&path_to_proj) {
@@ -246,7 +247,6 @@ pub fn del_project(path: String, app_handle: AppHandle) -> u8 {
     if let Err(e) = data::delete(data_path, vec![path]) {
         dbg!(e);
         todo!("err message");
-        return 1;
     }
     0
 }

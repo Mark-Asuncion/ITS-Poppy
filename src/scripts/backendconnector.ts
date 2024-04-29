@@ -5,6 +5,12 @@ export interface Module {
     name: string,
     content: string
 };
+
+export interface ProjectInfo {
+    path: string,
+    projectName: string,
+}
+
 // export function write_with_temp_to(path: string, content: String) {
 //     try {
 //         invoke("write_with_temp_to", { p: path, content });
@@ -23,13 +29,14 @@ export function set_cwd(path: string) {
     }
 }
 
-export async function get_cwd() {
+export async function get_cwd(): Promise<string> {
     try {
         return await invoke("get_cwd");
     }
     catch (e) {
         console.error(e);
     }
+    return "";
 }
 
 export async function get_cwd_name(): Promise<string> {
@@ -54,6 +61,16 @@ export function write_diagrams_to_modules(arrContents: Array<Module>) {
     }
 }
 
+export async function load_modules(): Promise<Module[]> {
+    try {
+        return await invoke("load_modules") as Module[];
+    }
+    catch (e) {
+        console.error(e);
+    }
+    return [];
+}
+
 export async function dialog_one_dir(title: string): Promise<string> {
     try {
         return await open({
@@ -67,15 +84,10 @@ export async function dialog_one_dir(title: string): Promise<string> {
     return "";
 }
 
-export interface ProjectInfo {
-    path: string,
-    projectName: string,
-}
-
 export async function load_projects(): Promise<ProjectInfo[]> {
     try {
-        const linfo = await invoke("load_projects") as string;
-        return JSON.parse(linfo) as ProjectInfo[];
+        const linfo = await invoke("load_projects") as ProjectInfo[];
+        return linfo;
     }
     catch (e) {
         console.error(e);

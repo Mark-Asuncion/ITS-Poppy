@@ -8,6 +8,8 @@ export class For extends BaseDiagram {
     text: BaseText[] = [];
     _ifT: Text[] = [];
     constructor(config: BaseDiagramConfig = {}) {
+        let content = config.content?.split(' ');
+        delete config.content;
         super({
             name: "for",
             width: 220,
@@ -34,7 +36,7 @@ export class For extends BaseDiagram {
         pos.x += this._ifT[0].width() + padding;
         this.text.push(
             new TextBox({
-                text: "",
+                text: (content)? content[0]:'',
                 width: this.width() * .2,
                 fill: "#00",
                 ...Theme.Text,
@@ -58,7 +60,7 @@ export class For extends BaseDiagram {
         pos.x += this._ifT[1].width() + padding;
         this.text.push(
             new TextBox({
-                text: "",
+                text: (content)? content[1]:'',
                 width: this.width() * .3,
                 fill: "#00",
                 ...Theme.Text,

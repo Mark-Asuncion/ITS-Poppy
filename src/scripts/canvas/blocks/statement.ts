@@ -6,6 +6,8 @@ import { AttachRect, BaseDiagram, BaseDiagramConfig, OnResizeEvent } from "../ba
 export class Statement extends BaseDiagram {
     text: BaseText;
     constructor(config: BaseDiagramConfig = {}) {
+        let content = (config.content)? config.content:"";
+        delete config.content;
         super({
             name: "Statement",
             // draggable: true,
@@ -22,7 +24,7 @@ export class Statement extends BaseDiagram {
             y: this.height() / 2
         };
         this.text = new TextBox({
-            text: "",
+            text: content,
             width: w,
             fill: "#00",
             ...Theme.Text,

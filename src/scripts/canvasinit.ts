@@ -1,7 +1,8 @@
 import Konva from "konva";
 import { BaseGroup } from "./canvas/basegroup";
-import { createElifDiagramAt, createElseDiagramAt, createIfDiagramAt, createStatementDiagramAt, createForDiagramAt } from "./canvas/utils";
-import { Module } from "./backendconnector";
+import { createElifDiagramAt, createElseDiagramAt, createIfDiagramAt, createStatementDiagramAt, createForDiagramAt, isPointIntersectRect } from "./canvas/utils";
+import { Module, get_cwd, load_modules } from "./backendconnector";
+import { DiagramGroup } from "./canvas/diagramgroup";
 
 function getPlacementPos(stage: Konva.Stage): Konva.Vector2d {
     const basegroup = stage.getChildren()[0].getChildren()[0] as BaseGroup;
@@ -16,9 +17,24 @@ function getPlacementPos(stage: Konva.Stage): Konva.Vector2d {
     };
 }
 
+async function __loadModules(): Promise<DiagramGroup[]> {
+    const cwd = await get_cwd();
+    if (cwd.length == 0) {
+        return [];
+    }
+    const modules = await load_modules();
+    let list: DiagramGroup[] = [];
+    modules.forEach((module) => {
+        // console.log("__loadModules", module);
+        const dg = DiagramGroup.deserialize(module);
+        list.push(dg);
+    });
+    return list;
+}
+
 export function diagramToModules(stage: Konva.Stage) {
     const basegroup = (stage.children[0]
-                        .children[0] as BaseGroup);
+        .children[0] as BaseGroup);
     let ret = new Array<Module>();
     basegroup.getDiagramGroups()
         .forEach((v) => {
@@ -36,7 +52,7 @@ export function diagramToModules(stage: Konva.Stage) {
 //     });
 //     return stage;
 // }
-//
+
 export function init() {
     const domContainer = document.querySelector("#diagram-container")! as HTMLDivElement;
     const size = domContainer.getBoundingClientRect();
@@ -90,20 +106,46 @@ export function init() {
             }
             console.log(pos)
         }
-        else if (e.evt.button === 0 && e.evt.shiftKey && e.evt.ctrlKey) {
+        else if (e.evt.button === 0 && e.evt.shiftKey) {
+            if (e.target.parent instanceof BaseGroup &&
+                e.target instanceof DiagramGroup) {
+                const pointerPos = e.target.parent!.getRelativePointerPosition()!;
+                const target = e.target as DiagramGroup;
+                target.nodes.forEach((v) => {
+                    const pos = v.getAbsolutePosition();
+                    const size = v.getSize();
+                    const isIntersect = isPointIntersectRect(pointerPos, {
+                        x: pos.x, y: pos.y,
+                        width: size.width, height: size.height
+                    });
 
-            console.log(e.target.parent instanceof BaseGroup);
-            if (e.target.parent instanceof BaseGroup) {
-                console.assert(false, "Remove NOT IMPPLEMENTED");
+                    if (isIntersect) {
+                        const bd = target.detach(v);
+                        bd?.remove();
+                        bd?.destroy();
+                    }
+                });
+                // console.assert(false, "Remove NOT IMPPLEMENTED");
             }
         }
-    })
+        })
 
     const layer = new Konva.Layer();
     const baseGroup = new BaseGroup({
         width: stage.width(),
         height: stage.height(),
     });
+
+    __loadModules()
+        .then((loaded) => {
+            const pos = getPlacementPos(stage);
+            loaded.forEach((v) => {
+                v.setPosition(pos);
+                baseGroup.add(v);
+                pos.x += 100;
+                pos.y += 100;
+            });
+        });
 
     layer.add(baseGroup);
     stage.add(layer);
