@@ -207,7 +207,8 @@ export class DiagramGroup extends Konva.Group {
 
         return {
             name: this.name(),
-            content
+            content,
+            position: [this.x(), this.y()]
         };
     }
 

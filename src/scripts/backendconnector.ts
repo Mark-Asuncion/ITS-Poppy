@@ -3,7 +3,8 @@ import { open } from '@tauri-apps/api/dialog';
 
 export interface Module {
     name: string,
-    content: string
+    content: string,
+    position?: number[]
 };
 
 export interface ProjectInfo {

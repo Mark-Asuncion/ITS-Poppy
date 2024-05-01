@@ -17,16 +17,29 @@ function getPlacementPos(stage: Konva.Stage): Konva.Vector2d {
     };
 }
 
-async function __loadModules(): Promise<DiagramGroup[]> {
+async function __loadModules(stage: Konva.Stage): Promise<DiagramGroup[]> {
     const cwd = await get_cwd();
     if (cwd.length == 0) {
         return [];
     }
     const modules = await load_modules();
+    // console.log("__loadModules", modules);
+    const pos = getPlacementPos(stage);
     let list: DiagramGroup[] = [];
     modules.forEach((module) => {
         // console.log("__loadModules", module);
         const dg = DiagramGroup.deserialize(module);
+        if (module.position) {
+            dg.setPosition({
+                x: module.position[0],
+                y: module.position[1]
+            });
+        }
+        else {
+            dg.setPosition(pos);
+            pos.x += 100;
+            pos.y += 100;
+        }
         list.push(dg);
     });
     return list;
@@ -136,14 +149,10 @@ export function init() {
         height: stage.height(),
     });
 
-    __loadModules()
-        .then((loaded) => {
-            const pos = getPlacementPos(stage);
-            loaded.forEach((v) => {
-                v.setPosition(pos);
+    __loadModules(stage)
+        .then((diagramGroups) => {
+            diagramGroups.forEach((v) => {
                 baseGroup.add(v);
-                pos.x += 100;
-                pos.y += 100;
             });
         });
 
