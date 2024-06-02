@@ -12,6 +12,7 @@ export interface OnStateEvent extends KonvaEventObject<any> {
     diagram?: BaseDiagram[],
     diagramGroup?: DiagramGroup[],
     append?: boolean,
+    delete?: boolean,
     select?: "diagram" | "diagramgroup",
     borderOnly?: boolean
 };
@@ -126,6 +127,23 @@ export class BaseGroup extends Group {
                 v.fire("onstateremove", {}, false);
             });
 
+            if (e.delete) {
+                if (e.select === "diagramgroup") {
+                    e.diagramGroup?.forEach((v) => {
+                        v.remove();
+                        v.destroy();
+                    });
+                }
+                else {
+                    e.diagram?.forEach((v) => {
+                        const parent = v.parent! as DiagramGroup;
+                        parent.detach(v);
+                        v.destroy();
+                    });
+                }
+                return;
+            }
+
             this.selection.selected?.moveToTop();
             if (e.select === "diagramgroup") {
                 if (e.diagramGroup) {
@@ -162,10 +180,10 @@ export class BaseGroup extends Group {
             // }
         });
         // this.on("mousemove", () => {
-            // this.selection.eMove(this)
+        // this.selection.eMove(this)
         // });
         // this.on("mouseup", () => {
-            // this.selection.eUp();
+        // this.selection.eUp();
         // });
 
         // this.on("dragmove", (e) => {

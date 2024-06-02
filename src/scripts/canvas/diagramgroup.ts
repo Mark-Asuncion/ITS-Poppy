@@ -3,6 +3,11 @@ import { isPointIntersectRect } from "./utils";
 import { BaseGroup, OnStateEvent } from "./basegroup";
 import { BaseDiagram } from "./basediagram";
 import { Module } from "../backendconnector";
+import { Statement } from "./blocks/statement";
+import { If, Elif, Else } from "./blocks/control";
+import { For } from "./blocks/loop";
+import { Text } from "konva/lib/shapes/Text";
+import { Theme } from "../../themes/diagram";
 
 export interface AttachedTo {
     v: DiagramGroup,
@@ -10,19 +15,32 @@ export interface AttachedTo {
 };
 
 export class DiagramGroup extends Konva.Group {
+    _textName: Text;
     nodes: BaseDiagram[] = [];
     constructor(opts: Konva.ContainerConfig = {}) {
         super({
-            name: "DiagramGroup",
+            name: "main",
             draggable: true,
             ...opts
         });
+
+        this._textName = new Text({
+            text: this.name(),
+            x: 0,
+            fontSize: Theme.Text.fontSize,
+            padding: Theme.TextBox.padding
+        });
+        this._textName.y(
+            this._textName.y()
+            - this._textName.height()
+        );
+
+        this.add(this._textName);
         this.registerEvents();
     }
 
     registerEvents() {
         this.on("onstateremove", () => {
-            this.nodes[0].removeActive();
             this.removeActive();
         });
 
@@ -32,7 +50,7 @@ export class DiagramGroup extends Konva.Group {
 
         this.on("onstateselect", (e: OnStateEvent) => {
             e.diagramGroup = [ this ];
-            if (e.diagram![0] === this.nodes[0]) {
+            if (e.diagram && e.diagram[0] === this.nodes[0]) {
                 e.select = "diagramgroup";
             }
             else {
@@ -43,13 +61,16 @@ export class DiagramGroup extends Konva.Group {
         this.on("dragstart", (e) => {
             e.cancelBubble = true;
             e.target.moveToTop();
-        })
+            this.fire("onstateselect", {
+                diagramGroup: [ this ],
+                select: "diagramgroup"
+            }, true);
+        });
+
         this.on("dragmove", (e) => {
             e.cancelBubble = true;
-            // console.log(e.target.name(), e.target.position());
-            // console.log(this.name(), this.position());
-            // console.log(e.target.name(), e.target._id);
         })
+
         this.on("dragend", (e) => {
             e.cancelBubble = true;
             const children = ( this.parent as BaseGroup ).getDiagramGroups();
@@ -67,10 +88,10 @@ export class DiagramGroup extends Konva.Group {
         })
     }
 
-    detach(diagrams: BaseDiagram | BaseDiagram[]) {
+    detach(diagrams: BaseDiagram | BaseDiagram[]): DiagramGroup | null {
         if (Array.isArray(diagrams)) {
             console.assert(false, "detaching multiple diagrams NOT IMPLEMENTED");
-            return;
+            return null;
         }
         // @ts-ignore
         let idx = -1;
@@ -83,15 +104,12 @@ export class DiagramGroup extends Konva.Group {
         });
         this.setNodesRelativePosition();
         diagrams.remove();
-        diagrams.indent(0);
 
-        const { x, y } = this.parent!.getRelativePointerPosition()!;
-        // console.log(x, y, this.getRelativePointerPosition());
-        const dg = new DiagramGroup({ x, y });
+        const dg = new DiagramGroup();
         diagrams.setPosition({ x: 0, y: 0 });
+        diagrams.indent(0);
         dg.addDiagram(diagrams);
-        // console.log(dg.name(), dg._id, dg.children);
-        this.parent!.add(dg);
+        return dg;
     }
 
     setNodesRelativePosition() {
@@ -165,18 +183,10 @@ export class DiagramGroup extends Konva.Group {
         node.destroy();
     }
 
-    getRootDiagram(diagram: BaseDiagram) {
-        if (diagram === this.nodes[0]) {
-            return null;
-        }
-
-        // for (let i=0;i<this.nodes.length;i++) {
-        //     if (this.nodes[i] === diagram) {
-        //         return this.nodes[i-1];
-        //     }
-        // }
+    getRootDiagram() {
         return this.nodes[0];
     }
+
     setActive() {
         this.nodes.forEach((v) => {
             v.setActive();
@@ -197,7 +207,92 @@ export class DiagramGroup extends Konva.Group {
 
         return {
             name: this.name(),
-            content
+            content,
+            position: [this.x(), this.y()]
         };
+    }
+
+    serialize(): string {
+        let res = "";
+        this.nodes.forEach((v) => {
+            res += v.getContent();
+        })
+        return res;
+    }
+
+    static _BDDeserialize(data: string): BaseDiagram | null {
+        if (data.length == 0 || data.trim().length == 0) {
+            return null;
+        }
+
+        let indent = 0;
+        for (let i=0;i<data.length;i++) {
+            if (data[i] == '\t') {
+                indent++;
+            }
+        }
+
+        let dStr = "";
+        let dg: BaseDiagram;
+        let d = data.trim().split(' ');
+        if (d[0] == "if") {
+            dStr = d.join(' ');
+            dStr = dStr.replace(/if|:/g,'').trim();
+            dg = new If({
+                content: dStr
+            });
+            dg.indent(indent);
+            return dg;
+        }
+        else if (d[0] == "elif") {
+            dStr = d.join(' ');
+            dStr = dStr.replace(/elif|:/g,'').trim();
+            dg = new Elif({
+                content: dStr
+            });
+            dg.indent(indent);
+            return dg;
+    }
+        else if (d[0] == "else" || d[0] == "else:") {
+            dg = new Else();
+            dg.indent(indent);
+            return dg;
+        }
+        else if (d[0] == "for") {
+            dStr = d.join(' ');
+            dStr = dStr.replace(/for|in\s|:/g,'').trim();
+            dg = new For({
+                content: dStr
+            });
+            dg.indent(indent);
+            return dg;
+            }
+        else {
+            dg = new Statement({
+                content: data.trim()
+            });
+            dg.indent(indent);
+            return dg;
+        }
+    }
+
+    static deserialize(data: Module): DiagramGroup {
+        const dg = new DiagramGroup({
+            name: data.name
+        });
+        let d = data.content
+            .split('\r')
+            .join()
+            .split('\n');
+
+        d.forEach((v) => {
+            console.log("deserialize", data.name, d, v);
+            const bd = this._BDDeserialize(v);
+            if (bd) {
+                dg.addDiagram(bd);
+            }
+        });
+        dg.setNodesRelativePosition();
+        return dg;
     }
 }

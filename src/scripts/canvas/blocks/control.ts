@@ -1,22 +1,23 @@
 import Konva from "konva";
-import { RectConfig } from "konva/lib/shapes/Rect";
 import { Text } from "konva/lib/shapes/Text";
 import { Theme } from "../../../themes/diagram";
 import { TextBox } from "../textbox";
 import { BaseText } from "../basetext";
-import { AttachRect, BaseDiagram, OnResizeEvent } from "../basediagram";
+import { AttachRect, BaseDiagram, BaseDiagramConfig, OnResizeEvent } from "../basediagram";
 
 export class If extends BaseDiagram {
     text: BaseText;
     _ifT: Text[] = [];
-    constructor(rectConfig: RectConfig = {}) {
+    constructor(config: BaseDiagramConfig = {}) {
+        let content = (config.content)? config.content:"";
+        delete config.content;
         super({
             name: "If",
             width: 200,
             height: 95,
-            x: rectConfig.x,
-            y: rectConfig.y
-        }, rectConfig, Theme.Diagram.Control);
+            ...config,
+            theme: Theme.Diagram.Control,
+        });
 
         const padding = Theme.TextBox.padding;
         const pos = {
@@ -35,7 +36,7 @@ export class If extends BaseDiagram {
 
         pos.x += n.width() + padding;
         this.text = new TextBox({
-            text: "",
+            text: content,
             width: this.width() * .7,
             fill: "#00",
             ...Theme.Text,
@@ -148,14 +149,16 @@ export class If extends BaseDiagram {
 export class Elif extends BaseDiagram {
     text: BaseText;
     _ifT: Text[] = [];
-    constructor(rectConfig: RectConfig = {}) {
+    constructor(config: BaseDiagramConfig = {}) {
+        let content = (config.content)? config.content:"";
+        delete config.content;
         super({
             name: "Elif",
             width: 200,
             height: 95,
-            x: rectConfig.x,
-            y: rectConfig.y
-        }, rectConfig, Theme.Diagram.Control);
+            ...config,
+            theme: Theme.Diagram.Control,
+        });
 
         const padding = Theme.TextBox.padding;
         const pos = {
@@ -174,7 +177,7 @@ export class Elif extends BaseDiagram {
 
         pos.x += this._ifT[0].width() + padding;
         this.text = new TextBox({
-            text: "",
+            text: content,
             width: this.width() * .6,
             fill: "#00",
             ...Theme.Text,
@@ -293,14 +296,15 @@ export class Elif extends BaseDiagram {
 
 export class Else extends BaseDiagram {
     _ifT: Text;
-    constructor(rectConfig: RectConfig = {}) {
+    constructor(config: BaseDiagramConfig = {}) {
+        delete config.content;
         super({
             name: "Else",
             width: 200,
             height: 80,
-            x: rectConfig.x,
-            y: rectConfig.y
-        }, rectConfig, Theme.Diagram.Control);
+            ...config,
+            theme: Theme.Diagram.Control,
+        });
 
         this._ifT = new Text({
             x: Theme.TextBox.padding,

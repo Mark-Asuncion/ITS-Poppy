@@ -1,11 +1,12 @@
 use serde::{ Serialize, Deserialize };
 use std::{
-    fs::{File, rename, self},
+    fs::{File, rename, self, create_dir_all, read_dir, ReadDir},
     path::{ PathBuf, Path },
-    io::{self, Write}
+    io::{self, Write, Read}
 };
+use std::collections::HashMap;
 
-use crate::state::GlobalState;
+use crate::{state::GlobalState, config::constants::{PROJECT_CONFIG_NAME, DOTPOPPY, get_dot_poppy, DOT_MODULE_POSITIONS}};
 use tauri::State;
 
 pub fn open_write(path: &Path) -> io::Result<File> {
@@ -31,7 +32,7 @@ pub fn open_read(path: &Path) -> io::Result<File> {
 
 pub fn write_with_temp_to(mut path: PathBuf, content: String) -> io::Result<()> {
     let p = path.clone();
-    let mut f_name = path.file_name()
+    let f_name = path.file_name()
         .unwrap_or_default()
         .to_str()
         .unwrap_or("tmp");
@@ -41,68 +42,201 @@ pub fn write_with_temp_to(mut path: PathBuf, content: String) -> io::Result<()> 
 
     let mut file = open_write(&path)?;
     file.write_all(content.as_bytes())?;
-    rename( path, PathBuf::from(p.clone()))?;
+    rename( path, p )?;
     Ok(())
 }
+
+type PositionMap = HashMap<PathBuf, (f32,f32)>;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Module {
     pub name: String,
-    pub content: String
+    pub content: String,
+    pub position: Option<(f32,f32)>
+}
+
+impl Default for Module {
+    fn default() -> Self {
+        Self {
+            name: Default::default(),
+            content: Default::default(),
+            position: Default::default()
+        }
+    }
 }
 
 impl Module {
-async fn write(&self, mut cwd: PathBuf) -> io::Result<()> {
+    async fn write(&self, mut cwd: PathBuf, positions: &mut PositionMap) -> io::Result<()> {
         if cwd.exists() && cwd.is_file() {
             return Err(io::Error::new(io::ErrorKind::Other, "Path must be a directory"));
         }
         cwd.push(self.name.as_str());
-        cwd.set_extension("py");
-
-        dbg!(&cwd);
-        let mut file_tmp_path = cwd.clone();
-        let fname = file_tmp_path.file_name()
-            .unwrap_or_default()
-            .to_str()
-            .unwrap_or_default()
-            .to_string();
-        let tmp_fname = ".".to_string() + &fname;
-        file_tmp_path.set_file_name(tmp_fname);
-        dbg!(&file_tmp_path);
-
-        let mut file_tmp = open_write(&file_tmp_path)?;
-        file_tmp.write_all(self.content.as_bytes())?;
-
-        if cwd.exists() {
-            fs::remove_file(&cwd)?
+        let opt_parent = cwd.parent();
+        if let Some(p) = opt_parent {
+            if !p.exists() {
+                create_dir_all(p)?
+            }
         }
-        rename(&file_tmp_path, cwd)?;
-        Ok(())
+        cwd.set_extension("py");
+        positions.insert( cwd.clone(), self.position.unwrap_or_default() );
+
+        write_with_temp_to(cwd, self.content.clone())
     }
+
+    fn load(path: &Path, positions: &PositionMap) -> io::Result<Self> {
+        if !path.exists() {
+            return Ok( Default::default() );
+        }
+
+        let file_name = path.file_name()
+            .unwrap()
+            .to_string_lossy()
+            .to_string();
+        // file_name = file_name.replace(".py", "");
+        let mut file = open_read(path)?;
+        let mut buf = String::new();
+        file.read_to_string(&mut buf)?;
+        Ok(Self {
+            name: file_name,
+            content: buf,
+            position: positions.get(path).copied()
+        })
+    }
+}
+
+fn _should_ignore(path: &Path) -> bool {
+    let file_name = path.file_name()
+        .unwrap()
+        .to_string_lossy()
+        .to_string();
+    match file_name.as_str() {
+        PROJECT_CONFIG_NAME | DOTPOPPY => return true,
+        _ => return false
+    }
+
+}
+
+fn _write_cached_module_positions(cwd: PathBuf, positions: PositionMap ) -> io::Result<()> {
+    let cwd = get_dot_poppy(cwd.clone());
+    if let None = cwd {
+        return Err(io::Error::new(
+            io::ErrorKind::Other,
+            "_write_cached_module_positions::error occured creating DOTPOPPY folder")
+        );
+    }
+    let mut dot_module_pos = cwd.unwrap();
+    dot_module_pos.push(DOT_MODULE_POSITIONS);
+
+    let content = serde_json::to_string(&positions)?;
+    write_with_temp_to(dot_module_pos, content)
+}
+
+fn _read_cached_module_positions(cwd: PathBuf) -> Option<PositionMap> {
+    let dotpoppy = get_dot_poppy(cwd.clone());
+    if let None = dotpoppy {
+        dbg!("_read_cached_module_positions::error occured creating DOTPOPPY folder");
+        return None;
+    }
+    let mut dotpoppy = dotpoppy.unwrap();
+    dotpoppy.push(DOT_MODULE_POSITIONS);
+    if !dotpoppy.exists() {
+        return None;
+    }
+    let cache_file = open_read(&dotpoppy);
+    if let Err(e) = cache_file {
+        dbg!(e);
+        return None;
+    }
+    let mut cache_file = cache_file.unwrap();
+    let mut c_buf = String::new();
+    if let Err(e) = cache_file.read_to_string(&mut c_buf) {
+        dbg!(e);
+        return None;
+    }
+    let res = serde_json::from_str(c_buf.as_str());
+    if let Err(e) = res {
+        dbg!(e);
+        return None;
+    }
+    let positions: PositionMap = res.unwrap();
+    Some( positions )
+}
+
+fn _load_modules(cwd: &Path, rd: ReadDir, positions: &PositionMap) -> io::Result<Vec<Module>> {
+    let mut list: Vec<Module> = vec![];
+    for entry in rd {
+        let entry = entry?;
+        let path = entry.path();
+        if _should_ignore(&path) {
+            continue;
+        }
+        if path.is_dir() {
+            let prd = read_dir(path)?;
+            let l = _load_modules(cwd, prd, positions)?;
+            l.into_iter()
+                .for_each(|v| {
+                    list.push(v);
+                });
+        }
+        else {
+            let mut md = Module::load(&path, positions)?;
+            let mut cwd_str = cwd.to_string_lossy().to_string();
+            let path = path.to_string_lossy().to_string();
+            cwd_str += "\\";
+            let mut new_name = path.replace(cwd_str.as_str(), "")
+                .replace(".py", "")
+                .to_string();
+            new_name = new_name.trim()
+                .to_string();
+            md.name = new_name;
+            list.push(md);
+        }
+    }
+    Ok( list )
+}
+
+#[tauri::command]
+pub fn load_modules(gs: State<GlobalState>) -> Vec<Module> {
+    let work_path = gs.get_work_path_clone();
+    if !work_path.exists() {
+        return vec![];
+    }
+
+    let dirs = read_dir(&work_path);
+    if let Err(e) = dirs {
+        dbg!(e);
+        todo!("display err");
+    }
+    let positions = _read_cached_module_positions(work_path.clone())
+        .unwrap_or_default();
+    let list = _load_modules(&work_path, dirs.unwrap(), &positions);
+    if let Err(e) = list {
+        dbg!(e);
+        todo!("display err");
+    }
+    list.unwrap()
 }
 
 #[tauri::command]
 pub async fn write_diagrams_to_modules(modules: String, gs: State<'_, GlobalState>) -> Result<(),()> {
-    use serde_json::from_str;
-    use crate::state::errors::FAIL_ACQ_STATE_CWD;
     use std::collections::HashMap;
-    match from_str(modules.as_str()) {
+    match serde_json::from_str(modules.as_str()) {
         Ok(v) => {
             let mut modules: Vec<Module> = v;
-            let cwd = (*gs.work_path.lock()
-                .expect(FAIL_ACQ_STATE_CWD))
-                .clone();
+            let cwd = gs.get_work_path_clone();
             if cwd == PathBuf::new() {
                 return Ok(());
             }
             let mut names: HashMap<&String, u8> = HashMap::new();
+            let mut positions: PositionMap = PositionMap::new();
             for module in modules.iter_mut() {
                 if let Some(v) = names.get(&module.name) {
                     module.name += &(*v).to_string();
                 }
                 dbg!(&module);
-                if let Err(e) = module.write(cwd.clone()).await {
+                if let Err(e) = module.write(cwd.clone(), &mut positions).await {
                     dbg!(e);
+                    todo!("display err");
                     continue;
                 }
                 match names.get_mut(&module.name) {
@@ -112,7 +246,12 @@ pub async fn write_diagrams_to_modules(modules: String, gs: State<'_, GlobalStat
                     },
                 }
             }
-
+            if let Err(e) = _write_cached_module_positions(
+                cwd.clone(),
+                positions
+            ) {
+                dbg!(e);
+            }
             dbg!(&modules);
         }
         Err(e) => {

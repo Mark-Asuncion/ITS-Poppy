@@ -1,13 +1,30 @@
 use serde::{ Serialize, Deserialize, ser::SerializeStruct };
-use std::{path::{ Path, PathBuf }, io::{Read, self}, fs::create_dir};
+use std::{path::PathBuf, io::{Read, self}, fs::create_dir};
 use tauri::{ State, AppHandle };
 
-use crate::{file::{open_read, self}, state::{GlobalState, errors}};
+use crate::{file::{open_read, self}, state::GlobalState};
 
 pub mod constants {
+    use std::fs::create_dir;
+    use std::path::PathBuf;
+
     pub const PROJECT_CONFIG_NAME: &str = "project-info.json";
     pub const F_DATA: &str = "poppy.projects";
     pub const FORMAT_DATETIME: &str = "%m/%d/%Y %H:%M";
+    pub const DOTPOPPY: &str = ".poppy";
+    pub const DOT_MODULE_POSITIONS: &str = "positions.json";
+
+    pub fn get_dot_poppy(mut cwd: PathBuf) -> Option<PathBuf> {
+        cwd.push(DOTPOPPY);
+        if !cwd.exists() {
+            let res = create_dir(&cwd);
+            if let Err(e) = res {
+                dbg!(e);
+                return None;
+            }
+        }
+        Some(cwd)
+    }
 }
 
 pub mod data {
@@ -46,6 +63,9 @@ pub mod data {
 
     pub fn delete(mut path: PathBuf, val: Vec<String>) -> io::Result<()> {
         use std::collections::HashSet;
+        if val.is_empty() {
+            return Ok(());
+        }
         let projects = load(path.clone())?;
         if projects.is_empty() {
             return Ok(());
@@ -80,7 +100,7 @@ pub struct ProjectConfig {
 
 #[derive(Deserialize, Debug)]
 pub struct ProjectInfo {
-    path: String,
+    path: PathBuf,
     config: ProjectConfig
 }
 
@@ -98,9 +118,9 @@ impl serde::Serialize for ProjectInfo {
 }
 
 impl ProjectInfo {
-    fn new(path: &str, config: ProjectConfig) -> Self {
+    fn new(path: PathBuf, config: ProjectConfig) -> Self {
         Self {
-            path: path.into(),
+            path,
             config
         }
     }
@@ -169,30 +189,35 @@ impl ProjectConfig {
     }
 }
 #[tauri::command]
-pub fn load_projects(app_handle: AppHandle) -> String {
+pub fn load_projects(app_handle: AppHandle) -> Vec<ProjectInfo> {
     let data_dir = app_handle.path_resolver().app_data_dir().unwrap();
-    let projects_path = data::load(data_dir);
+    let projects_path = data::load(data_dir.clone());
     if let Err(e) = projects_path {
         dbg!(e);
         todo!("err message");
     }
 
     let mut projects_config: Vec<ProjectInfo> = vec![];
+    let mut to_del: Vec<String> = vec![];
 
     for project_path in projects_path.unwrap().into_iter() {
-        let project_path_str = project_path.to_string_lossy().to_string();
-        let proj_conf = ProjectConfig::from_path(project_path);
+        let proj_conf = ProjectConfig::from_path(project_path.clone());
         if proj_conf.is_empty() {
+            let project_path_str = project_path.to_string_lossy().to_string();
+            to_del.push(project_path_str);
             continue;
         }
-        let info = ProjectInfo::new(&project_path_str, proj_conf);
+        let info = ProjectInfo::new(project_path.clone(), proj_conf);
         projects_config.push(info);
     }
-    serde_json::to_string(&projects_config).unwrap_or_default()
+    if let Err(e) = data::delete(data_dir, to_del) {
+        dbg!(e);
+    }
+    projects_config
 }
 
 #[tauri::command]
-pub fn new_project(name: String, path: String, gs: State<GlobalState>, app_handle: AppHandle) {
+pub fn new_project(name: String, path: String, app_handle: AppHandle) {
     let path_to_proj = PathBuf::from(path.clone());
     if !path_to_proj.exists() {
         if let Err(e) = create_dir(&path_to_proj) {
@@ -246,7 +271,6 @@ pub fn del_project(path: String, app_handle: AppHandle) -> u8 {
     if let Err(e) = data::delete(data_path, vec![path]) {
         dbg!(e);
         todo!("err message");
-        return 1;
     }
     0
 }
