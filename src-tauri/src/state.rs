@@ -1,14 +1,21 @@
+use std::ffi::OsString;
 use std::path::PathBuf;
 use std::sync::Mutex;
 use tauri::State;
+use winptyrs::PTY;
+
+use crate::pty::instance::PTYInstance;
+
+use self::errors::FAIL_ACQ_PTY_LIST;
 
 pub mod errors {
     pub const FAIL_ACQ_STATE_CWD: &str = "err: failed to acquire GlobalState::work_path";
-    // pub const FAIL_ACQ_STATE_DATA: &str = "err: failed to acquire GlobalState::config";
+    pub const FAIL_ACQ_PTY_LIST:  &str = "err: failed to acquire GlobalState::terms";
 }
 
 pub struct GlobalState {
     pub work_path: Mutex<PathBuf>,
+    pub pty:       Mutex<Option<PTYInstance>>
 }
 
 impl GlobalState {
@@ -25,12 +32,17 @@ impl GlobalState {
             .clone()
     }
 
-    fn get_work_path_as_string(&self) -> String {
+    pub fn get_work_path_as_string(&self) -> String {
         (*self.work_path
             .lock()
             .expect(errors::FAIL_ACQ_STATE_CWD))
             .to_string_lossy()
             .to_string()
+    }
+
+    pub fn add_pty(&self, pty: PTY) {
+        let terms = &mut (*self.pty.lock().expect(FAIL_ACQ_PTY_LIST));
+        *terms = Some(PTYInstance::new(pty));
     }
 }
 
