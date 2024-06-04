@@ -1,4 +1,3 @@
-use std::ffi::OsString;
 use std::path::PathBuf;
 use std::sync::Mutex;
 use tauri::State;
@@ -6,11 +5,11 @@ use winptyrs::PTY;
 
 use crate::pty::instance::PTYInstance;
 
-use self::errors::FAIL_ACQ_PTY_LIST;
+use self::errors::FAIL_ACQ_PTY;
 
 pub mod errors {
     pub const FAIL_ACQ_STATE_CWD: &str = "err: failed to acquire GlobalState::work_path";
-    pub const FAIL_ACQ_PTY_LIST:  &str = "err: failed to acquire GlobalState::terms";
+    pub const FAIL_ACQ_PTY:  &str = "err: failed to acquire GlobalState::pty";
 }
 
 pub struct GlobalState {
@@ -41,7 +40,7 @@ impl GlobalState {
     }
 
     pub fn add_pty(&self, pty: PTY) {
-        let terms = &mut (*self.pty.lock().expect(FAIL_ACQ_PTY_LIST));
+        let terms = &mut (*self.pty.lock().expect(FAIL_ACQ_PTY));
         *terms = Some(PTYInstance::new(pty));
     }
 }
