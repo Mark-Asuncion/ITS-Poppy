@@ -80,6 +80,7 @@ impl Module {
         cwd.set_extension("py");
         positions.insert( cwd.clone(), self.position.unwrap_or_default() );
 
+        // TODO std::fs::File is sync so async is useless :|
         write_with_temp_to(cwd, self.content.clone())
     }
 
