@@ -5,7 +5,7 @@ use std::ffi::OsString;
 use tauri::State;
 use winptyrs::{PTY, PTYArgs, MouseMode, AgentConfig, PTYBackend};
 
-use crate::{error, state::{errors::FAIL_ACQ_PTY_LIST, GlobalState}};
+use crate::{error, state::{errors::FAIL_ACQ_PTY, GlobalState}};
 
 pub fn init(cwd: &str) -> Result<PTY, OsString> {
 
@@ -37,7 +37,7 @@ pub fn spawn_term(gs: State<'_, GlobalState>) {
 
 #[tauri::command]
 pub fn write_term(gs: State<'_, GlobalState>, command: String) -> Result<u32, error::Error> {
-    let term = &mut (*gs.pty.lock().expect(FAIL_ACQ_PTY_LIST));
+    let term = &mut (*gs.pty.lock().expect(FAIL_ACQ_PTY));
     if let None = term {
         return Err(error::Error::PTY_NOT_INSTANTIATED);
     }
@@ -52,7 +52,7 @@ pub fn write_term(gs: State<'_, GlobalState>, command: String) -> Result<u32, er
 
 #[tauri::command]
 pub fn read_term(gs: State<'_, GlobalState>) -> Result<String, error::Error> {
-    let term = & (*gs.pty.lock().expect(FAIL_ACQ_PTY_LIST));
+    let term = & (*gs.pty.lock().expect(FAIL_ACQ_PTY));
     if let None = term {
         return Err(error::Error::PTY_NOT_INSTANTIATED);
     }
@@ -62,7 +62,7 @@ pub fn read_term(gs: State<'_, GlobalState>) -> Result<String, error::Error> {
 
 #[tauri::command]
 pub fn close_term(gs: State<'_, GlobalState>) -> Result<u32, error::Error> {
-    let term = &mut (*gs.pty.lock().expect(FAIL_ACQ_PTY_LIST));
+    let term = &mut (*gs.pty.lock().expect(FAIL_ACQ_PTY));
     if let None = term {
         return Err(error::Error::PTY_NOT_INSTANTIATED);
     }
