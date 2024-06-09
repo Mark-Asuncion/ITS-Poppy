@@ -234,7 +234,7 @@ pub async fn write_diagrams_to_modules(modules: String, gs: State<'_, GlobalStat
                 if let Some(v) = names.get(&module.name) {
                     module.name += &(*v).to_string();
                 }
-                dbg!(&module);
+                // dbg!(&module);
                 if let Err(e) = module.write(cwd.clone(), &mut positions).await {
                     dbg!(e);
                     todo!("display err");
@@ -253,7 +253,7 @@ pub async fn write_diagrams_to_modules(modules: String, gs: State<'_, GlobalStat
             ) {
                 dbg!(e);
             }
-            dbg!(&modules);
+            // dbg!(&modules);
         }
         Err(e) => {
             dbg!(e);

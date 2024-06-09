@@ -113,3 +113,44 @@ export function load_open_project(path: string) {
         console.error(e);
     }
 }
+
+export async function spawn_term(): Promise<boolean> {
+    try {
+        invoke("spawn_term");
+        return true;
+    }
+    catch (e) {
+        console.error(e);
+    }
+    return false;
+}
+
+export async function write_term(command: string): Promise<number> {
+    try {
+        return await invoke("write_term", { command }) as number;
+    }
+    catch (e) {
+        console.error(e);
+    }
+    return 0;
+}
+
+export async function read_term(): Promise<string> {
+    try {
+        return await invoke("read_term") as string;
+    }
+    catch (e) {
+        console.error(e);
+    }
+    return "";
+}
+
+export async function close_term(): Promise<number> {
+    try {
+        return await invoke("close_term") as number;
+    }
+    catch (e) {
+        console.error(e);
+    }
+    return -1;
+}

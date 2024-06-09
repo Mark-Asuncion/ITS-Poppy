@@ -18,12 +18,14 @@ impl PTYInstance {
     }
 
     pub fn read(&self) -> String {
-        let buf = self.term.read(1000, false);
-        if let Err(e) = buf {
-            dbg!(e);
-            return String::new();
+        let mut buf = String::new();
+        while let Ok(v) = self.term.read(1000, false) {
+            if v.is_empty() {
+                break;
+            }
+            buf += &v.to_string_lossy().to_string();
         }
-        buf.unwrap().to_string_lossy().to_string()
+        buf
     }
 
     pub fn is_alive(&self) -> bool {

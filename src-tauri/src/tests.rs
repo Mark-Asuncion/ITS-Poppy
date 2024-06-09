@@ -72,9 +72,10 @@ pub fn t_term() {
 
     // let w = format!("{}ir\n\r\n", EscapeCodes::DEL.to_string());
     // instance.write(&w).unwrap();
-    instance.write("ir\r\n").unwrap();
+    instance.write("python\r\n").unwrap();
 
-    let buf = &instance.read();
+    let mut buf = instance.read();
+    buf += &instance.read();
     println!("{}", buf);
 
     // instance.write("10+2\r\n").unwrap();
@@ -82,8 +83,8 @@ pub fn t_term() {
     // let buf = &instance.read();
     // println!("{}{}", cls, buf);
 
-    instance.write("d\r\n").unwrap();
-
-    let buf = &instance.read();
-    println!("{}", buf);
+    // instance.write("d\r\n").unwrap();
+    //
+    // let buf = &instance.read();
+    // println!("{}", buf);
 }
