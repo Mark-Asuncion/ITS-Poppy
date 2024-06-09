@@ -286,7 +286,7 @@ export class DiagramGroup extends Konva.Group {
             .split('\n');
 
         d.forEach((v) => {
-            console.log("deserialize", data.name, d, v);
+            // console.log("deserialize", data.name, d, v);
             const bd = this._BDDeserialize(v);
             if (bd) {
                 dg.addDiagram(bd);

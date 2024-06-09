@@ -96,6 +96,10 @@ body {
     flex-direction: column;
 }
 
+.flex-dir-row {
+    flex-direction: row;
+}
+
 .flex-grow {
     flex-grow: 1;
 }

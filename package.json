@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@tauri-apps/api": "^1.5.1",
+    "@xterm/xterm": "^5.5.0",
     "konva": "^9.3.3"
   },
   "devDependencies": {

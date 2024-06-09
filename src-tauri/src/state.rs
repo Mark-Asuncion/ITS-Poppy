@@ -48,7 +48,7 @@ impl GlobalState {
 #[tauri::command]
 pub fn set_cwd(p: String, gs: State<GlobalState>) {
     let path = PathBuf::from(p);
-    dbg!(&path);
+    // dbg!(&path);
     gs.set_work_path(path);
 }
 

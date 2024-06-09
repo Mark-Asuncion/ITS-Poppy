@@ -1,5 +1,5 @@
 pub mod instance;
-pub mod escape_codes;
+// pub mod escape_codes;
 
 use std::ffi::OsString;
 use tauri::State;
@@ -25,14 +25,16 @@ pub fn init(cwd: &str) -> Result<PTY, OsString> {
 }
 
 #[tauri::command]
-pub fn spawn_term(gs: State<'_, GlobalState>) {
+pub fn spawn_term(gs: State<'_, GlobalState>) -> Result<(), error::Error> {
     let cwd = gs.get_work_path_as_string();
     let pty = init(&cwd);
     if let Err(e) = pty {
         dbg!(e);
-        todo!("Show error window");
+        return Err(error::Error::PTY_NOT_INSTANTIATED);
     }
+    println!("pty::spawn_term::ok");
     gs.add_pty(pty.unwrap());
+    Ok(())
 }
 
 #[tauri::command]
@@ -47,7 +49,9 @@ pub fn write_term(gs: State<'_, GlobalState>, command: String) -> Result<u32, er
         dbg!(e);
         return Err(error::Error::PTY_WRITE_FAIL);
     }
-    Ok(bytes.unwrap())
+    let bytes = bytes.unwrap();
+    println!("pty::write_term::ok::{}\n{}", bytes, command);
+    Ok(bytes)
 }
 
 #[tauri::command]
@@ -57,7 +61,9 @@ pub fn read_term(gs: State<'_, GlobalState>) -> Result<String, error::Error> {
         return Err(error::Error::PTY_NOT_INSTANTIATED);
     }
     let term = term.as_ref().unwrap();
-    Ok(term.read())
+    let buf = term.read();
+    println!("pty::read_term::ok::{:?}", &buf);
+    Ok(buf)
 }
 
 #[tauri::command]
@@ -68,15 +74,13 @@ pub fn close_term(gs: State<'_, GlobalState>) -> Result<u32, error::Error> {
     }
     let term = term.as_mut().unwrap();
 
-    let res = term.close();
-    dbg!(res.unwrap_or_default());
+    let _ = term.close();
 
     if term.is_alive() {
         return Err(error::Error::PTY_FAIL_TO_CLOSE);
     }
 
     let status = term.exit_status().unwrap_or_default();
-    dbg!(status);
-
+    println!("pty::close_term::ok::{}", status);
     Ok(status)
 }
