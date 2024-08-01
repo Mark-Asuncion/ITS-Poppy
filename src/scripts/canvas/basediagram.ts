@@ -140,6 +140,9 @@ export class BaseDiagram extends Group {
         this.setSize(size);
     }
 
+    // recalculates positions
+    refresh() {}
+
     indent(v?: number): number {
         if (v != undefined) {
             if (v === 0) {

@@ -1,7 +1,7 @@
 import { Theme } from "../../../themes/diagram";
 import { TextBox } from "../textbox";
 import { BaseText } from "../basetext";
-import { AttachRect, BaseDiagram, BaseDiagramConfig, OnResizeEvent } from "../basediagram";
+import { AttachRect, BaseDiagram, BaseDiagramConfig } from "../basediagram";
 
 export class Statement extends BaseDiagram {
     text: BaseText;
@@ -32,16 +32,6 @@ export class Statement extends BaseDiagram {
         });
         this.text.y(this.text.y() - this.text.height() / 2);
         this.add(this.text);
-        this._registerCustomEvents();
-    }
-
-    _registerCustomEvents() {
-        this.on("textresize", (e: OnResizeEvent) => {
-            e.cancelBubble = true;
-            this.setSize({
-                width: this.text.x() + this.text.width() + this.text.padding(),
-            });
-        });
     }
 
     resize(size: {
@@ -58,6 +48,12 @@ export class Statement extends BaseDiagram {
             width: w,
         });
         this.text.setPosition(textPos);
+    }
+
+    refresh() {
+        this.setSize({
+            width: this.text.x() + this.text.width() + this.text.padding(),
+        });
     }
 
     attachRect(): AttachRect {

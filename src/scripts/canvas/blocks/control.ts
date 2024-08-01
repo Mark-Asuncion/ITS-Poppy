@@ -63,21 +63,6 @@ export class If extends BaseDiagram {
         this.add(this._ifT[0]);
         this.add(this.text);
         this.add(this._ifT[1]);
-        this._registerCustomEvents();
-    }
-
-    _registerCustomEvents() {
-        this.on("textresize", (e: OnResizeEvent) => {
-            e.cancelBubble = true;
-            const target = e.target as unknown as BaseText;
-            let posx = target.x() + target.width() + target.padding();
-            const n = this._ifT[1];
-            n.x(posx);
-            posx += n.width() + target.padding();
-            this.setSize({
-                width: posx,
-            });
-        });
     }
 
     resize(size: {
@@ -108,6 +93,15 @@ export class If extends BaseDiagram {
         pos.x += this._ifT[1].width() + padding;
         this.setSize({
             width: pos.x,
+        });
+    }
+
+    refresh() {
+        const padding = Theme.TextBox.padding;
+        this.resize({
+            width: this.text.x() + this.text.width()
+                + this._ifT[1].width()
+                + ( padding * 2 )
         });
     }
 
@@ -204,21 +198,6 @@ export class Elif extends BaseDiagram {
         this.add(this._ifT[0]);
         this.add(this.text);
         this.add(this._ifT[1]);
-        this._registerCustomEvents();
-    }
-
-    _registerCustomEvents() {
-        this.on("textresize", (e: OnResizeEvent) => {
-            e.cancelBubble = true;
-            const target = e.target as unknown as BaseText;
-            let posx = target.x() + target.width() + target.padding();
-            const n = this._ifT[1];
-            n.x(posx);
-            posx += n.width() + target.padding();
-            this.setSize({
-                width: posx,
-            });
-        });
     }
 
     resize(size: {
@@ -252,6 +231,15 @@ export class Elif extends BaseDiagram {
         pos.x += this._ifT[1].width() + padding;
         this.setSize({
             width: pos.x,
+        });
+    }
+
+    refresh() {
+        const padding = Theme.TextBox.padding;
+        this.resize({
+            width: this.text.x() + this.text.width()
+                + this._ifT[1].width()
+                + ( padding * 2 )
         });
     }
 

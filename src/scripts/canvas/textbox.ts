@@ -1,6 +1,7 @@
 import { TextConfig, Text } from "konva/lib/shapes/Text";
 import { Theme } from "../../themes/diagram";
 import { BaseText } from "./basetext";
+import { BaseDiagram } from "./basediagram";
 
 export class TextBox extends BaseText {
     text: Text;
@@ -84,6 +85,10 @@ export class TextBox extends BaseText {
             this.fire("textchanged", { value: input.value }, true);
             const nWidth = this.textResize(input.value);
             input.style.width = `${ nWidth - this.text.padding() * 2 }px`;
+
+            if (this.parent instanceof BaseDiagram) {
+                this.parent.refresh();
+            }
         });
 
         document.body.appendChild(input);
@@ -121,14 +126,10 @@ export class TextBox extends BaseText {
         div.style.visibility = "none";
         div.style.float = "left";
         document.body.appendChild(div);
-        const max = this.minWidth;
-        const tWidth = Math.max(max, div.clientWidth);
+        const max = this.minWidth + ( this.text.padding() * 2 );
+        const tWidth = Math.max(max,
+            div.clientWidth + ( this.text.padding() * 2 ));
         this.setSize({ width: tWidth });
-        this.fire("textresize", {
-            size: {
-                width: tWidth,
-            }
-        }, true);
         div.remove();
         return tWidth;
     }

@@ -2,7 +2,7 @@ import { Text } from "konva/lib/shapes/Text";
 import { Theme } from "../../../themes/diagram";
 import { TextBox } from "../textbox";
 import { BaseText } from "../basetext";
-import { AttachRect, BaseDiagram, BaseDiagramConfig, OnResizeEvent } from "../basediagram";
+import { AttachRect, BaseDiagram, BaseDiagramConfig } from "../basediagram";
 
 export class For extends BaseDiagram {
     text: BaseText[] = [];
@@ -86,38 +86,7 @@ export class For extends BaseDiagram {
         this.add(this._ifT[1]);
         this.add(this.text[1]);
         this.add(this._ifT[2]);
-        this._registerCustomEvents();
     }
-
-    _registerCustomEvents() {
-        this.on("textresize", (e: OnResizeEvent) => {
-            e.cancelBubble = true;
-            const target = e.target as unknown as BaseText;
-            const padding = Theme.TextBox.padding;
-            let posx = target.x() + target.width() + padding;
-            console.log(posx);
-
-            if (target == this.text[0]) {
-                this._ifT[1].x(posx);
-                posx += this._ifT[1].width() + padding;
-                this.text[1].x(posx);
-                posx += this.text[1].width() + padding;
-                this._ifT[2].x(posx);
-
-                this.setSize({
-                    width: this._ifT[2].x() + this._ifT[2].width() + padding
-                });
-            }
-            else {
-                this._ifT[2].x(posx);
-
-                this.setSize({
-                    width: this._ifT[2].x() + this._ifT[2].width() + padding
-                });
-            }
-        });
-    }
-
 
     resize(size: {
         width?: number, height?: number
@@ -159,6 +128,24 @@ export class For extends BaseDiagram {
         this._ifT[2].setPosition({
             x: pos.x, y: pos.y - this._ifT[2].height() / 2
         });
+
+        this.setSize({
+            width: this._ifT[2].x() + this._ifT[2].width() + padding
+        });
+    }
+
+    refresh() {
+        const padding = Theme.TextBox.padding;
+        let posx = padding;
+        this._ifT[0].x(posx);
+        posx += this._ifT[0].width() + padding;
+        this.text[0].x(posx);
+        posx += this.text[0].width() + padding;
+        this._ifT[1].x(posx);
+        posx += this._ifT[1].width() + padding;
+        this.text[1].x(posx);
+        posx += this.text[1].width() + padding;
+        this._ifT[2].x(posx);
 
         this.setSize({
             width: this._ifT[2].x() + this._ifT[2].width() + padding
