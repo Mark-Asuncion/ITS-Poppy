@@ -12,6 +12,7 @@ pub mod errors {
     pub const FAIL_ACQ_PTY:  &str = "err: failed to acquire GlobalState::pty";
 }
 
+#[derive(Debug)]
 pub struct GlobalState {
     pub work_path: Mutex<PathBuf>,
     pub pty:       Mutex<Option<PTYInstance>>

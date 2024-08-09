@@ -1,5 +1,6 @@
 use core::fmt;
 
+#[allow(non_camel_case_types)]
 #[derive(Debug,serde::Serialize, serde::Deserialize)]
 pub enum Error {
     PTY_WRITE_FAIL,

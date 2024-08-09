@@ -1,7 +1,8 @@
 use crate::config::ProjectConfig;
 use crate::config::constants::PROJECT_CONFIG_NAME;
-use crate::pty::escape_codes::EscapeCodes;
 use crate::pty::instance::PTYInstance;
+use crate::state::GlobalState;
+use core::time;
 use std::path::PathBuf;
 use crate::config::data;
 use crate::pty;
@@ -63,20 +64,51 @@ pub fn t_term() {
     // NOTE problem if I read the first stdout and then run an invalid command
     // output becomes messedup sh**** solution create 2 instance 1 is for reading the first output and delete it
     let pty = pty::init(TEST_FOLDER);
-    let mut instance = PTYInstance::new(pty.unwrap());
+    let gs = GlobalState {
+        work_path: Default::default(),
+        pty:       Default::default()
+    };
 
-    // let buf = &instance.read();
-    // println!("{}{}", cls, buf);
+    {
+        gs.add_pty(pty.unwrap());
+        let instance = &mut (*gs.pty.lock().expect(""));
+        let instance = instance.as_mut().unwrap();
 
-    // instance.write("python\r\n").unwrap();
+        // let buf = &instance.read();
+        // println!("{}{}", cls, buf);
 
-    // let w = format!("{}ir\n\r\n", EscapeCodes::DEL.to_string());
-    // instance.write(&w).unwrap();
-    instance.write("python\r\n").unwrap();
+        // instance.write("python\r\n").unwrap();
 
-    let mut buf = instance.read();
-    buf += &instance.read();
-    println!("{}", buf);
+        // let w = format!("{}ir\n\r\n", EscapeCodes::DEL.to_string());
+        // instance.write(&w).unwrap();
+        instance.write("python\r\n").unwrap();
+        // instance.write("\x03").unwrap();
+
+        let mut buf = instance.read();
+        buf += &instance.read();
+        println!("{}", buf);
+        buf = instance.read();
+        println!("{}", buf);
+
+        // std::thread::sleep(time::Duration::from_secs(5));
+        dbg!(instance.is_alive());
+        dbg!(instance.exit_status());
+        std::thread::sleep(time::Duration::from_secs(10));
+    }
+    {
+        let mut guard = gs.pty.lock().expect("");
+        let term = guard.take();
+        drop(term);
+    }
+
+    dbg!(&gs);
+    // dbg!(instance.is_alive());
+    // dbg!(instance.exit_status());
+
+    // dbg!(instance.write("dir\r\n"));
+    // buf = instance.read();
+    // println!("{}", buf);
+    // assert!(!instance.is_alive());
 
     // instance.write("10+2\r\n").unwrap();
 
