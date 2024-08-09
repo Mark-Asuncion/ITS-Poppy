@@ -1,9 +1,17 @@
-use std::ffi::OsString;
+use std::{ffi::OsString, fmt};
 
 use winptyrs::PTY;
 
 pub struct PTYInstance {
     term: PTY
+}
+
+impl fmt::Debug for PTYInstance {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("PTYInstance")
+            .field("term (pid)", &self.term.get_pid())
+            .finish()
+    }
 }
 
 impl PTYInstance {
@@ -28,6 +36,7 @@ impl PTYInstance {
         buf
     }
 
+    // ======for debugging==========
     pub fn is_alive(&self) -> bool {
         let alive = self.term.is_alive();
         if let Err(e) = alive {
@@ -36,11 +45,6 @@ impl PTYInstance {
         }
         alive.unwrap()
     }
-
-    pub fn close(&mut self) -> Result<u32, OsString> {
-        self.write("exit\r\n")
-    }
-
     pub fn exit_status(&self) -> Option<u32> {
         let status = self.term.get_exitstatus();
         if let Err(e) = status {
@@ -49,4 +53,5 @@ impl PTYInstance {
         }
         status.unwrap()
     }
+    // ============================
 }

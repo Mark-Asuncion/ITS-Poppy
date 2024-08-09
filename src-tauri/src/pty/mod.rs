@@ -50,7 +50,8 @@ pub fn write_term(gs: State<'_, GlobalState>, command: String) -> Result<u32, er
         return Err(error::Error::PTY_WRITE_FAIL);
     }
     let bytes = bytes.unwrap();
-    println!("pty::write_term::ok::{}\n{}", bytes, command);
+    println!("pty::write_term::ok::bytes={}, command={}", bytes, command);
+    println!("=================");
     Ok(bytes)
 }
 
@@ -62,25 +63,14 @@ pub fn read_term(gs: State<'_, GlobalState>) -> Result<String, error::Error> {
     }
     let term = term.as_ref().unwrap();
     let buf = term.read();
-    println!("pty::read_term::ok::{:?}", &buf);
+    println!("pty::read_term::ok::buf={:?}, buf={}", &buf, &buf);
+    println!("=================");
     Ok(buf)
 }
 
 #[tauri::command]
-pub fn close_term(gs: State<'_, GlobalState>) -> Result<u32, error::Error> {
-    let term = &mut (*gs.pty.lock().expect(FAIL_ACQ_PTY));
-    if let None = term {
-        return Err(error::Error::PTY_NOT_INSTANTIATED);
-    }
-    let term = term.as_mut().unwrap();
-
-    let _ = term.close();
-
-    if term.is_alive() {
-        return Err(error::Error::PTY_FAIL_TO_CLOSE);
-    }
-
-    let status = term.exit_status().unwrap_or_default();
-    println!("pty::close_term::ok::{}", status);
-    Ok(status)
+pub fn close_term(gs: State<'_, GlobalState>) {
+    let mut guard = gs.pty.lock().expect(FAIL_ACQ_PTY);
+    let term = guard.take();
+    drop(term);
 }
