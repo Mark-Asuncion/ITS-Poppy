@@ -125,8 +125,12 @@ body {
 
 button {
     padding: .5em;
-    /* background-color: none; */
+    /* background-color: white; */
     border-radius: 5px;
+}
+
+button.bg-white {
+    background-color: white;
 }
 
 button.accent {
@@ -146,8 +150,8 @@ button.br-none {
 }
 
 button:hover {
-    background-color: var(--accent);
-    color: white;
+    /* background-color: var(--accent); */
+    color: var(--accent);
 }
 
 .no-radius {
