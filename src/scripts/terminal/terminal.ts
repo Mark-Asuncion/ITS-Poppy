@@ -28,4 +28,6 @@ btns.forEach(async (elem) => {
             // target.classList.remove("sidebar-content");
         }
     });
+    // TODO REMOVE DEBUG PURPOSES ONLY
+    setTimeout(() => ( elem as HTMLDivElement ).click(), 300);
 });
