@@ -46,7 +46,8 @@ fn main() {
             pty::spawn_term,
             pty::write_term,
             pty::read_term,
-            pty::close_term
+            pty::close_term,
+            pty::restart_term
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

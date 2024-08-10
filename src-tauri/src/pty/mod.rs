@@ -70,7 +70,26 @@ pub fn read_term(gs: State<'_, GlobalState>) -> Result<String, error::Error> {
 
 #[tauri::command]
 pub fn close_term(gs: State<'_, GlobalState>) {
-    let mut guard = gs.pty.lock().expect(FAIL_ACQ_PTY);
-    let term = guard.take();
-    drop(term);
+    let term = &mut (*gs.pty.lock().expect(FAIL_ACQ_PTY));
+    *term = None;
+    println!("pty::close_term::ok");
+}
+
+#[tauri::command]
+pub fn restart_term(gs: State<'_, GlobalState>) -> Result<(), error::Error> {
+    {
+        let term = &mut (*gs.pty.lock().expect(FAIL_ACQ_PTY));
+        *term = None;
+    }
+
+    let cwd = gs.get_work_path_as_string();
+    let pty = init(&cwd);
+    if let Err(e) = pty {
+        dbg!(e);
+        return Err(error::Error::PTY_NOT_INSTANTIATED);
+    }
+    gs.add_pty(pty.unwrap());
+
+    println!("pty::restart_term::ok");
+    Ok(())
 }
