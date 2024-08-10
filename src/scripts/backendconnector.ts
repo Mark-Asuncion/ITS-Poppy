@@ -154,3 +154,15 @@ export async function close_term(): Promise<number> {
     }
     return -1;
 }
+
+export async function restart_term(): Promise<void | string> {
+    try {
+        await invoke("restart_term");
+        return;
+    }
+    catch (e) {
+        console.error(e);
+        return (e as Error).message;
+    }
+}
+

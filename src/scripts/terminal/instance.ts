@@ -1,5 +1,5 @@
 import { Terminal } from "@xterm/xterm"
-import { read_term, spawn_term, write_term } from "../backendconnector";
+import { read_term, spawn_term, write_term, close_term, restart_term } from "../backendconnector";
 import { clipboard } from "@tauri-apps/api";
 
 enum RawArrowKeys {
@@ -24,11 +24,12 @@ export class TerminalInstance {
     static async open(target: HTMLElement) {
         const res = await spawn_term();
         if (res) {
-            const parentHeight = Math.floor(target.parentElement!.clientHeight / 16 * .75);
+            const rows = Math.floor(window.innerHeight / 16 * .75);
+            const cols = Math.floor(window.innerWidth * .05);
             // console.log(parentHeight);
             const term = new Terminal({
-                cols: 80,
-                rows: parentHeight,
+                cols: cols,
+                rows: rows,
                 fontSize: 16,
                 overviewRulerWidth: 15,
             });
@@ -52,9 +53,11 @@ export class TerminalInstance {
         const buffer = term.buffer.normal;
         let y = buffer.cursorY;
         const linebuf = buffer.getLine(y)!;
+        if (y+1 >= term.rows) {
+            term.clear();
+        }
         // BUG:
-        // if the input has whitespace at the end this cuts it
-        // and prompt len will be different
+        // if cursorY is passed rows it will obtain a different string
         return linebuf.translateToString(true).trimEnd();
     }
 
@@ -116,6 +119,7 @@ export class TerminalInstance {
     static async _handleEnter() {
         const term = TerminalInstance.instance!;
         const input = TerminalInstance.getInput();
+        // console.log(`input="${input}"`);
         TerminalInstance.maxCursorPosX = 0;
 
         await write_term(`${input}\r\n`);
@@ -321,7 +325,7 @@ export class TerminalInstance {
                         clipboard.writeText(selection);
                     }
                     else {
-                        // send ctrl+c
+                        term.write(RawCtrlChars.CTRLC);
                     }
                 }
             }
@@ -342,7 +346,50 @@ export class TerminalInstance {
             });
     }
 
-    static close() {
-        // TODO:
+    static clear() {
+        const term = TerminalInstance.instance!;
+
+        TerminalInstance.inputBytes = 0;
+        TerminalInstance.maxCursorPosX = 0;
+        TerminalInstance.history = [];
+        TerminalInstance.historyOffset = 0;
+
+        if (term == undefined)
+            return;
+
+        term.reset();
+    }
+
+    static async close() {
+        TerminalInstance.clear();
+        const status = await close_term();
+        console.log(`close-term::exit_status=${status}`);
+
+        TerminalInstance.instance = null;
+        window["TerminalInstance"] = undefined;
+    }
+
+    static async restart() {
+        TerminalInstance.clear();
+        const status = await restart_term();
+        console.log(`restart-term::restart_status=${status}`);
+
+        const term = TerminalInstance.instance!;
+        if (term == undefined)
+            return;
+
+        read_term()
+            .then((buf) => {
+                if (buf.length !== 0) {
+                    term.write(buf);
+                }
+            });
+    }
+
+    static write(command: string) {
+        TerminalInstance.instance!.write(command);
+        TerminalInstance.inputBytes = command.length;
+        // stupid async fix
+        setTimeout(() => TerminalInstance._handleEnter(), 300);
     }
 }

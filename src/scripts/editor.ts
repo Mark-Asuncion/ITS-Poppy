@@ -28,9 +28,18 @@ playBtn?.addEventListener("click", async () => {
     await set_project_name(inpProjName);
     const contents = diagramToModules(canvasStage);
     write_diagrams_to_modules(contents);
-    TerminalInstance.write("python main.py");
+
     let termbtn = document.querySelector("#term-btn") as HTMLButtonElement
     if (!termbtn.classList.contains("active")) {
         termbtn.click();
+    }
+
+    if (TerminalInstance.instance == null) {
+        setTimeout(() =>
+            TerminalInstance.write("python main.py")
+        , 1000);
+    }
+    else {
+        TerminalInstance.write("python main.py");
     }
 });
