@@ -8,10 +8,12 @@
         <link rel="stylesheet" href="./styles/sidebar.css" />
         <link rel="stylesheet" href="./styles/diagram.css" />
         <link rel="stylesheet" href="./styles/canvas.css" />
+        <link rel="stylesheet" href="./styles/xterm.css" />
         <title>ITS Poppy</title>
         <script type="module" src="./scripts/preeditor.ts" defer></script>
         <script type="module" src="./scripts/editor.ts" defer></script>
         <script type="module" src="./scripts/sidebar.ts" defer></script>
+        <script type="module" src="./scripts/terminal/terminal.ts" defer></script>
     </head>
     <body>
         <div class="d-flex fill-content flex-dir-col">
@@ -20,11 +22,18 @@
                     <div class="project-icon"></div>
                     <input id="project-name" class="input-no-indicator fs-24" type="text" name="project-name" value="Untitled Project">
                 </div>
-                <button id="play-btn" class="secondary br-none self-align-center self-align-end" type="button">
-                    <i class="fa fa-play fa-xl aspect-ratio-1"></i>
-                </button>
+                <div>
+                    <button id="play-btn" class="secondary bg-white br-none self-align-center self-align-end" type="button">
+                        <i class="fa fa-play fa-xl aspect-ratio-1"></i>
+                    </button>
+                    <button id="term-btn" class="br-none bg-white self-align-center self-align-end"
+                        aria-role="term-button" aria-target="term-container"
+                        type="button">
+                        <i class="fa fa-solid fa-terminal fa-xl aspect-ratio-1"></i>
+                    </button>
+                </div>
             </div>
-            <div class="d-flex flex-grow" style="height: 1fr;">
+            <div class="d-flex flex-dir-row flex-grow" style="height: 1fr;">
                 <div id="sidebar-container" class="d-flex">
                     <div class="sidebar bg-white d-flex flex-dir-col">
                         <button id="btn-folder-view" aria-role="sidebar-button" aria-target="folder-view" aria-type="folder-tree" type="button" class="aspect-ratio-1 br-none no-radius fill-width">
@@ -62,6 +71,21 @@
                     </div>
                 </div>
                 <div id="diagram-container"></div>
+                <div id="term-container" class="d-none flex-dir-col">
+                    <div class="d-flex bg-black flex-dir-row-rev">
+                        <button aria-role="term-close"
+                            style="width: 32px; margin-right: 48px;"
+                            class="aspect-ratio-1 bright br-none no-radius bg-black">
+                            <i class="fa fa-x fa-lg"></i>
+                        </button>
+                        <button aria-role="term-restart"
+                            style="width: 32px;"
+                            class="aspect-ratio-1 bright br-none no-radius bg-black">
+                            <i class="fa fa-rotate-right fa-lg"></i>
+                        </button>
+                    </div>
+                    <div id="term-view" class="fill-content"></div>
+                </div>
             </div>
         </div>
     </body>

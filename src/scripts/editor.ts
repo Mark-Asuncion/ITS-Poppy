@@ -1,6 +1,7 @@
 // import { invoke } from "@tauri-apps/api/tauri";
 import { diagramToModules, init } from "./canvasinit";
 import { dialog_one_dir, get_cwd_name, set_cwd, write_diagrams_to_modules } from "./backendconnector";
+import { TerminalInstance } from "./terminal/instance";
 
 async function set_project_name(input_element: HTMLInputElement) {
     const isUntitled = input_element.value.toLowerCase() === "untitled project";
@@ -27,4 +28,18 @@ playBtn?.addEventListener("click", async () => {
     await set_project_name(inpProjName);
     const contents = diagramToModules(canvasStage);
     write_diagrams_to_modules(contents);
+
+    let termbtn = document.querySelector("#term-btn") as HTMLButtonElement
+    if (!termbtn.classList.contains("active")) {
+        termbtn.click();
+    }
+
+    if (TerminalInstance.instance == null) {
+        setTimeout(() =>
+            TerminalInstance.write("python main.py")
+        , 1000);
+    }
+    else {
+        TerminalInstance.write("python main.py");
+    }
 });

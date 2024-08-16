@@ -96,6 +96,14 @@ body {
     flex-direction: column;
 }
 
+.flex-dir-row {
+    flex-direction: row;
+}
+
+.flex-dir-row-rev {
+    flex-direction: row-reverse;
+}
+
 .flex-grow {
     flex-grow: 1;
 }
@@ -119,9 +127,17 @@ body {
     /* margin: 0; */
 }
 
+.bg-white {
+    background-color: white;
+}
+
+.bg-black {
+    background-color: black;
+}
+
 button {
     padding: .5em;
-    /* background-color: none; */
+    /* background-color: white; */
     border-radius: 5px;
 }
 
@@ -133,6 +149,10 @@ button.secondary {
     color: var(--secondary);
 }
 
+button.bright {
+    color: white;
+}
+
 button.br-accent {
     border: 2px solid var(--accent);
 }
@@ -142,8 +162,13 @@ button.br-none {
 }
 
 button:hover {
-    background-color: var(--accent);
+    /* background-color: var(--accent); */
+    color: var(--accent);
+}
+
+.bright:hover {
     color: white;
+    filter: brightness(75%);
 }
 
 .no-radius {

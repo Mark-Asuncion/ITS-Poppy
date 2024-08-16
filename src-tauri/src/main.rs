@@ -4,7 +4,10 @@
 mod file;
 mod state;
 mod config;
+#[cfg(test)]
 mod tests;
+mod pty;
+mod error;
 
 use std::fs::create_dir_all;
 
@@ -12,6 +15,7 @@ fn main() {
     tauri::Builder::default()
         .manage(state::GlobalState {
             work_path: Default::default(),
+            pty:       Default::default()
         })
         .setup(|app| {
             let conf_path = app.path_resolver().app_data_dir();
@@ -25,7 +29,7 @@ fn main() {
                     panic!("Error occured creating data dir");
                 }
             }
-            dbg!(&conf_path);
+            // dbg!(&conf_path);
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -39,6 +43,11 @@ fn main() {
             config::open_project,
             config::del_project,
             config::load_open_project,
+            pty::spawn_term,
+            pty::write_term,
+            pty::read_term,
+            pty::close_term,
+            pty::restart_term
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
