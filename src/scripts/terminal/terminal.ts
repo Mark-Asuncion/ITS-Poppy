@@ -53,5 +53,5 @@ btns.forEach(async (elem) => {
         });
     }
     // TODO REMOVE DEBUG PURPOSES ONLY
-    setTimeout(() => ( elem as HTMLDivElement ).click(), 300);
+    // setTimeout(() => ( elem as HTMLDivElement ).click(), 300);
 });

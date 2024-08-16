@@ -32,7 +32,7 @@ pub fn spawn_term(gs: State<'_, GlobalState>) -> Result<(), error::Error> {
         dbg!(e);
         return Err(error::Error::PTY_NOT_INSTANTIATED);
     }
-    println!("pty::spawn_term::ok");
+    // println!("pty::spawn_term::ok");
     gs.add_pty(pty.unwrap());
     Ok(())
 }
@@ -50,8 +50,8 @@ pub fn write_term(gs: State<'_, GlobalState>, command: String) -> Result<u32, er
         return Err(error::Error::PTY_WRITE_FAIL);
     }
     let bytes = bytes.unwrap();
-    println!("pty::write_term::ok::bytes={}, command={}", bytes, command);
-    println!("=================");
+    // println!("pty::write_term::ok::bytes={}, command={}", bytes, command);
+    // println!("=================");
     Ok(bytes)
 }
 
@@ -63,8 +63,8 @@ pub fn read_term(gs: State<'_, GlobalState>) -> Result<String, error::Error> {
     }
     let term = term.as_ref().unwrap();
     let buf = term.read();
-    println!("pty::read_term::ok::buf={:?}, buf={}", &buf, &buf);
-    println!("=================");
+    // println!("pty::read_term::ok::buf={:?}, buf={}", &buf, &buf);
+    // println!("=================");
     Ok(buf)
 }
 
@@ -72,7 +72,7 @@ pub fn read_term(gs: State<'_, GlobalState>) -> Result<String, error::Error> {
 pub fn close_term(gs: State<'_, GlobalState>) {
     let term = &mut (*gs.pty.lock().expect(FAIL_ACQ_PTY));
     *term = None;
-    println!("pty::close_term::ok");
+    // println!("pty::close_term::ok");
 }
 
 #[tauri::command]
@@ -90,6 +90,6 @@ pub fn restart_term(gs: State<'_, GlobalState>) -> Result<(), error::Error> {
     }
     gs.add_pty(pty.unwrap());
 
-    println!("pty::restart_term::ok");
+    // println!("pty::restart_term::ok");
     Ok(())
 }
