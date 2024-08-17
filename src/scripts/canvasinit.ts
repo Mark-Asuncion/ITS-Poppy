@@ -81,6 +81,7 @@ export function init() {
         if (!type) {
             return;
         }
+        // Check if name main is already used and rename if used
         const bg = stage.children[0].children[0] as BaseGroup;
         const pos = getPlacementPos(stage);
         switch (type) {

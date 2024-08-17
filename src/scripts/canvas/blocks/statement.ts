@@ -1,7 +1,7 @@
 import { Theme } from "../../../themes/diagram";
 import { TextBox } from "../textbox";
 import { BaseText } from "../basetext";
-import { AttachRect, BaseDiagram } from "../basediagram";
+import { BaseDiagram } from "../basediagram";
 
 export class Statement extends BaseDiagram {
     text: BaseText;
@@ -32,25 +32,6 @@ export class Statement extends BaseDiagram {
         this.setSize({
             width: this.text.x() + this.text.width() + this.text.padding(),
         });
-    }
-
-    attachRect(): AttachRect {
-        return {
-            x: this.x(),
-            y: this.y() + this.height() / 2,
-            width: this.width(),
-            height: this.height() / 2
-        };
-    }
-
-    attachRectAbsolutePosition(): AttachRect {
-        const { x, y } = this.getAbsolutePosition();
-        return {
-            x,
-            y: y + this.height() / 2,
-            width: this.width(),
-            height: this.height() / 2
-        };
     }
 
     getContent() {

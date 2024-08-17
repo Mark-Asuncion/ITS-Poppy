@@ -8,6 +8,9 @@ import { DiagramGroup } from "./diagramgroup";
 import { KonvaEventObject } from "konva/lib/Node";
 import { Transformer } from "konva/lib/shapes/Transformer";
 
+// onstateremove
+// onstateactive
+// onstateselect
 export interface OnStateEvent extends KonvaEventObject<any> {
     diagram?: BaseDiagram[],
     diagramGroup?: DiagramGroup[],

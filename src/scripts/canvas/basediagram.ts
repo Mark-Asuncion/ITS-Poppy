@@ -17,19 +17,13 @@ export interface OnResizeEvent extends KonvaEventObject<any> {
 
 export interface BaseDiagramConfig extends ContainerConfig {
     theme?: any,
-    diagramType?: "normal" | "block"
+    diagramType?: "normal" | "block" | "indent2" | "indent3"
 }
-
-export interface AttachRect {
-    x: number,
-    y: number,
-    width: number,
-    height: number
-};
 
 export class BaseDiagram extends Group {
     minWidth: number;
     strokeDef: string;
+    dgType: "normal" | "block" | "indent2" | "indent3" = "normal";
     dgSVG: {
         prefix: string,
         hr: number,
@@ -70,12 +64,18 @@ export class BaseDiagram extends Group {
             })
         };
 
-        if (type == "normal") {
+        this.dgType = ( type )? type:"normal";
+        if (type == undefined || type == "normal") {
             this.dgSVG = Theme.SVG.Normal;
         }
+        else if (type == "indent2") {
+            this.dgSVG = Theme.SVG.Indent2;
+        }
+        else if (type == "indent3") {
+            this.dgSVG = Theme.SVG.Indent3;
+        }
         else {
-            // TODO: change to block
-            this.dgSVG = Theme.SVG.Normal;
+            this.dgSVG = Theme.SVG.Block;
         }
 
         let dimension = getSvgPathDimensions(`${this.dgSVG.prefix}${this.dgSVG.hr}${this.dgSVG.suffix}`);
@@ -136,16 +136,40 @@ export class BaseDiagram extends Group {
         this.button.r.tween(attrs.r);
     }
 
-    attachRect(): AttachRect {
-        return  {
-            x: 0, y: 0, width: 0, height: 0
-        }
+    attachRectAbsolutePosition():
+    { x: number, y: number, width: number, height: number } {
+        const { x, y } = this.getAbsolutePosition();
+        return {
+            x,
+            y: y + this.height() / 2,
+            width: this.width(),
+            height: this.height() / 2
+        };
     }
 
-    attachRectAbsolutePosition(): AttachRect{
-        return  {
-            x: 0, y: 0, width: 0, height: 0
+    attachPoint(): { x: number, y: number } {
+        if (this.dgType == "block") {
+            return {
+                x: 19,
+                y: this.height() - 14
+            };
         }
+        else if (this.dgType == "indent2") {
+            return {
+                x: 38,
+                y: this.height() - 14
+            };
+        }
+        else if (this.dgType == "indent3") {
+            return {
+                x: 57,
+                y: this.height() - 14
+            };
+        }
+        return {
+            x: 0,
+            y: this.height() - 14
+        };
     }
 
     setSize(size: {
@@ -159,7 +183,8 @@ export class BaseDiagram extends Group {
             this.path.data(`${this.dgSVG.prefix}${this.dgSVG.hr}${this.dgSVG.suffix}`);
         }
         if (size.height) {
-            this.height(size.height);
+            console.warn("setting height is not supported");
+            // this.height(size.height);
             // dont really care for height at the moment
             // I dont think height resizability will be needed
         }
@@ -232,7 +257,7 @@ export class BaseDiagram extends Group {
             }
         });
 
-        this.on("textchanged", (e: any) => {
+        this.on("textchanged", (_: any) => {
             // console.log("textchanged", e);
         });
 

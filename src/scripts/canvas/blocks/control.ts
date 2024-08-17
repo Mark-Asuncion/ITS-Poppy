@@ -3,13 +3,14 @@ import { Text } from "konva/lib/shapes/Text";
 import { Theme } from "../../../themes/diagram";
 import { TextBox } from "../textbox";
 import { BaseText } from "../basetext";
-import { AttachRect, BaseDiagram, BaseDiagramConfig } from "../basediagram";
+import { BaseDiagram } from "../basediagram";
 
 export class If extends BaseDiagram {
     components: (BaseText | Text)[] = []
     constructor(content: string = "") {
         super({
             name: "If",
+            diagramType: "block",
             theme: Theme.Diagram.Control,
         });
 
@@ -83,25 +84,6 @@ export class If extends BaseDiagram {
         (this.components[1] as TextBox).minWidth = tboxw;
     }
 
-    attachRect(): AttachRect {
-        return {
-            x: this.x(),
-            y: this.y() + this.height() / 2,
-            width: this.width(),
-            height: this.height() / 2
-        };
-    }
-
-    attachRectAbsolutePosition(): AttachRect {
-        const { x, y } = this.getAbsolutePosition();
-        return {
-            x,
-            y: y + this.height() / 2,
-            width: this.width(),
-            height: this.height() / 2
-        };
-    }
-
     getContent() {
         let i=0;
         let ind = "";
@@ -118,6 +100,7 @@ export class Elif extends BaseDiagram {
     constructor(content: string = "") {
         super({
             name: "Elif",
+            diagramType: "block",
             theme: Theme.Diagram.Control,
         });
 
@@ -195,25 +178,6 @@ export class Elif extends BaseDiagram {
         this.components[2].y(pos.y);
     }
 
-    attachRect(): AttachRect {
-        return {
-            x: this.x(),
-            y: this.y() + this.height() / 2,
-            width: this.width(),
-            height: this.height() / 2
-        };
-    }
-
-    attachRectAbsolutePosition(): AttachRect {
-        const { x, y } = this.getAbsolutePosition();
-        return {
-            x,
-            y: y + this.height() / 2,
-            width: this.width(),
-            height: this.height() / 2
-        };
-    }
-
     getContent() {
         let i=0;
         let ind = "";
@@ -227,13 +191,10 @@ export class Elif extends BaseDiagram {
 
 export class Else extends BaseDiagram {
     component: Text;
-    constructor(config: BaseDiagramConfig = {}) {
-        delete config.content;
+    constructor() {
         super({
             name: "Else",
-            width: 200,
-            height: 80,
-            ...config,
+            diagramType: "block",
             theme: Theme.Diagram.Control,
         });
 
@@ -252,25 +213,6 @@ export class Else extends BaseDiagram {
     setPosition(pos: Konva.Vector2d): this {
         super.setPosition(pos);
         return this;
-    }
-
-    attachRect(): AttachRect {
-        return {
-            x: this.x(),
-            y: this.y() + this.height() / 2,
-            width: this.width(),
-            height: this.height() / 2
-        };
-    }
-
-    attachRectAbsolutePosition(): AttachRect {
-        const { x, y } = this.getAbsolutePosition();
-        return {
-            x,
-            y: y + this.height() / 2,
-            width: this.width(),
-            height: this.height() / 2
-        };
     }
 
     getContent() {

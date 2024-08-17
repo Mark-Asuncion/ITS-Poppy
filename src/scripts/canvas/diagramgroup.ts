@@ -9,7 +9,7 @@ import { For } from "./blocks/loop";
 import { Text } from "konva/lib/shapes/Text";
 import { Theme } from "../../themes/diagram";
 
-export interface AttachedTo {
+export interface AttachTo {
     v: DiagramGroup,
     i: number
 };
@@ -113,34 +113,25 @@ export class DiagramGroup extends Konva.Group {
     }
 
     setNodesRelativePosition() {
-        const y = 0;
-        let ypos = y;
         let prev = this.nodes[0];
-        this.nodes.forEach((v) => {
-            if (v === this.nodes[0]) {
-                ypos += v.height();
-                return;
-            }
-            const x = this.nodes[0].getIndentPosition(v.indent());
-            v.setPosition({x, y: ypos });
-            if (prev.x() + prev.width() < v.x()) {
-                prev.setSize({
-                    width: this.nodes[0].width()
-                });
-            }
-            ypos += v.height();
-            prev = v;
 
-        })
+        for (let i=1;i<this.nodes.length;i++) {
+            const curr = this.nodes[i];
+            const atP = prev.attachPoint();
+            curr.setPosition({
+                x: atP.x + prev.x(),
+                y: prev.y() + atP.y
+            });
+            prev = curr;
+        }
     }
 
-    attach(attachTo: AttachedTo) {
+    attach(attachTo: AttachTo) {
         const { v, i } = attachTo;
         const otherNodes = this.nodes;
         v.nodes.splice(i+1, 0, ...otherNodes);
         v.add(...otherNodes);
         v.setNodesRelativePosition();
-        console.log(v.nodes);
 
         this.fire("onstateremove", {
             diagramGroup: [ this ],
@@ -149,7 +140,7 @@ export class DiagramGroup extends Konva.Group {
         this.destroy();
     }
 
-    canAttachTo(other: DiagramGroup): AttachedTo | null {
+    canAttachTo(other: DiagramGroup): AttachTo | null {
         // console.log(this.nodes);
         const { x, y } = this.nodes[0].getAbsolutePosition();
         const len = other.nodes.length;

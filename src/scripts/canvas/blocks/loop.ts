@@ -2,7 +2,7 @@ import { Text } from "konva/lib/shapes/Text";
 import { Theme } from "../../../themes/diagram";
 import { TextBox } from "../textbox";
 import { BaseText } from "../basetext";
-import { AttachRect, BaseDiagram } from "../basediagram";
+import { BaseDiagram } from "../basediagram";
 
 export class For extends BaseDiagram {
     // 0 text - for
@@ -17,6 +17,7 @@ export class For extends BaseDiagram {
         super({
             name: "for",
             width: 230,
+            diagramType: "block",
             theme: Theme.Diagram.Loop
         });
 
@@ -115,25 +116,6 @@ export class For extends BaseDiagram {
         this.components[4].setPosition(pos);
         pos.x += this.components[4].width() + padding;
         this.setSize({ width: pos.x });
-    }
-
-    attachRect(): AttachRect {
-        return {
-            x: this.x(),
-            y: this.y() + this.height() / 2,
-            width: this.width(),
-            height: this.height() / 2
-        };
-    }
-
-    attachRectAbsolutePosition(): AttachRect {
-        const { x, y } = this.getAbsolutePosition();
-        return {
-            x,
-            y: y + this.height() / 2,
-            width: this.width(),
-            height: this.height() / 2
-        };
     }
 
     getContent() {
