@@ -1,5 +1,11 @@
 export const Theme = {
     SVG: {
+        // cover the notch to tell that the block has ended
+        EndBlock: {
+            prefix: "m 37,40 -5,-7 c -1,-2 -3,-3 -5,-3 H 3 c -2,0 -3,-1 -3,-3 L 0,3 C 0,1 1,0 3,0 h ",
+            hr: 100,
+            suffix: " c 2,0 3,1 3,3 l 0,24 c 0,2 -1,3 -3,3 H 78 c -2,0 -4,1 -5,3 l -5,7 c -1,2 -2,3 -4,3 H 42 c -2,0 -4,-1 -5,-3 z"
+        },
         Normal: {
             prefix: "m 37,80 -5,-7 c -1,-2 -3,-3 -5,-3 H 3 C 1,70 0,69 0,67 V 3 C 0,1 1,0 3,0 h 24 c 2,0 4,1 5,3 l 5,7 c 1,2 3,3 5,3 h 21 c 2,0 4,-1 5,-3 l 5,-7 c 1,-2 3,-3 5,-3 h ",
             hr: 100,

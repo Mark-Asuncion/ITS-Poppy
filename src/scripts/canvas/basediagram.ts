@@ -17,13 +17,13 @@ export interface OnResizeEvent extends KonvaEventObject<any> {
 
 export interface BaseDiagramConfig extends ContainerConfig {
     theme?: any,
-    diagramType?: "normal" | "block" | "indent2" | "indent3"
+    diagramType?: "normal" | "block" | "indent2" | "indent3" | "endblock"
 }
 
 export class BaseDiagram extends Group {
     minWidth: number;
     strokeDef: string;
-    dgType: "normal" | "block" | "indent2" | "indent3" = "normal";
+    dgType: "normal" | "block" | "indent2" | "indent3" | "endblock" = "normal";
     dgSVG: {
         prefix: string,
         hr: number,
@@ -74,8 +74,11 @@ export class BaseDiagram extends Group {
         else if (type == "indent3") {
             this.dgSVG = Theme.SVG.Indent3;
         }
-        else {
+        else if (type == "block") {
             this.dgSVG = Theme.SVG.Block;
+        }
+        else {
+            this.dgSVG = Theme.SVG.EndBlock;
         }
 
         let dimension = getSvgPathDimensions(`${this.dgSVG.prefix}${this.dgSVG.hr}${this.dgSVG.suffix}`);
@@ -139,6 +142,12 @@ export class BaseDiagram extends Group {
     attachRectAbsolutePosition():
     { x: number, y: number, width: number, height: number } {
         const { x, y } = this.getAbsolutePosition();
+        if (this.dgType == "endblock") {
+            return {
+                x, y, width: this.width(), height: this.height()
+            };
+        }
+
         return {
             x,
             y: y + this.height() / 2,
@@ -172,6 +181,27 @@ export class BaseDiagram extends Group {
         };
     }
 
+    setIndentByPrevLine(prev: BaseDiagram) {
+        const prevType = prev.dgType;
+        switch (prevType) {
+            case "normal":
+                this._indent = prev._indent;
+                break;
+            case "block":
+                this._indent = prev._indent + 1;
+                break;
+            case "indent2":
+                this._indent = prev._indent + 2;
+                break;
+            case "indent3":
+                this._indent = prev._indent + 3;
+                break;
+            default:
+                this._indent = 0;
+                break;
+        }
+    }
+
     setSize(size: {
         width?: number, height?: number
     }): this {
@@ -197,14 +227,8 @@ export class BaseDiagram extends Group {
 
     indent(v?: number): number {
         if (v != undefined) {
-            if (v === 0) {
-                this._indent = 0;
-            }
-            else {
-                this._indent += v;
-            }
+            this._indent = v;
         }
-        this._indent = (this._indent < 0)? 0:this._indent;
         return this._indent;
     }
 

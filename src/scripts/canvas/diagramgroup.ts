@@ -8,6 +8,7 @@ import { If, Elif, Else } from "./blocks/control";
 import { For } from "./blocks/loop";
 import { Text } from "konva/lib/shapes/Text";
 import { Theme } from "../../themes/diagram";
+import { EndBlock } from "./blocks/endblock";
 
 export interface AttachTo {
     v: DiagramGroup,
@@ -122,6 +123,11 @@ export class DiagramGroup extends Konva.Group {
                 x: atP.x + prev.x(),
                 y: prev.y() + atP.y
             });
+            curr.setIndentByPrevLine(prev);
+            if (curr.dgType == "endblock") {
+                curr.x(0);
+                curr.moveToTop();
+            }
             prev = curr;
         }
     }
@@ -193,7 +199,10 @@ export class DiagramGroup extends Konva.Group {
     getContent(): Module {
         let content = "";
         this.nodes.forEach((v) => {
-            content += v.getContent() + "\n";
+            const c = v.getContent();
+            if (c.length == 0) 
+                return;
+            content += c + "\n";
         });
 
         return {
@@ -211,7 +220,7 @@ export class DiagramGroup extends Konva.Group {
         return res;
     }
 
-    static _BDDeserialize(data: string): BaseDiagram | null {
+    static _BDDeserialize(data: string, prev: BaseDiagram | null): BaseDiagram | null {
         if (data.length == 0 || data.trim().length == 0) {
             return null;
         }
@@ -221,6 +230,10 @@ export class DiagramGroup extends Konva.Group {
             if (data[i] == '\t') {
                 indent++;
             }
+        }
+
+        if (prev && (prev._indent != 0 && indent == 0)) {
+            return new EndBlock();
         }
 
         let dStr = "";
@@ -268,13 +281,18 @@ export class DiagramGroup extends Konva.Group {
             .join()
             .split('\n');
 
-        d.forEach((v) => {
-            // console.log("deserialize", data.name, d, v);
-            const bd = this._BDDeserialize(v);
+        let prev: null | BaseDiagram = null;
+        for (let i=0;i<d.length;i++) {
+            const v = d[i];
+            const bd = this._BDDeserialize(v, prev);
             if (bd) {
                 dg.addDiagram(bd);
+                prev = bd;
+                if (bd.dgType == "endblock") {
+                    i--;
+                }
             }
-        });
+        };
         dg.setNodesRelativePosition();
         return dg;
     }

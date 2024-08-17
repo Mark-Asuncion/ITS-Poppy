@@ -34,6 +34,9 @@ diagramsImg.forEach((elem) => {
         case "loop-for":
             img.src = imgFor;
             break;
+        case "endblock":
+            img.src = imgStatement;
+            break;
         default:
             img.src = imgStatement;
             break;

@@ -3,6 +3,7 @@ import { BaseGroup } from "./canvas/basegroup";
 import { createElifDiagramAt, createElseDiagramAt, createIfDiagramAt, createStatementDiagramAt, createForDiagramAt, isPointIntersectRect } from "./canvas/utils";
 import { Module, get_cwd, load_modules } from "./backendconnector";
 import { DiagramGroup } from "./canvas/diagramgroup";
+import { EndBlock } from "./canvas/blocks/endblock";
 
 function getPlacementPos(stage: Konva.Stage): Konva.Vector2d {
     const basegroup = stage.getChildren()[0].getChildren()[0] as BaseGroup;
@@ -88,12 +89,31 @@ export function init() {
             case "statement":
                 bg.add(createStatementDiagramAt(pos));
                 break;
+            case "endblock":
+                const diagGroup = new DiagramGroup(pos);
+                const diagram = new EndBlock();
+                diagGroup.addDiagram(diagram);
+                bg.add(diagGroup);
+                break;
             case "control-if":
                 const dg = createIfDiagramAt(pos);
+                const dgEnd = new DiagramGroup(pos);
+                const endblock = new EndBlock();
+                dgEnd.addDiagram(endblock);
+
+                const dgStatement = createStatementDiagramAt(pos);
                 const dgElse = createElseDiagramAt(pos);
-                dgElse.attach({
+                dgStatement.attach({
                     v: dg,
                     i: 0
+                });
+                dgEnd.attach({
+                    v: dg,
+                    i: 1
+                });
+                dgElse.attach({
+                    v: dg,
+                    i: 2
                 });
                 bg.add(dg);
                 break;
