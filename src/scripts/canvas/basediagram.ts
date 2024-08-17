@@ -1,11 +1,12 @@
 import { Group } from "konva/lib/Group";
 import { Theme } from "../../themes/diagram";
 import { ContainerConfig } from "konva/lib/Container";
-import { Rect, RectConfig } from "konva/lib/shapes/Rect";
 import { DiagramGroup } from "./diagramgroup";
 import { ArrowButton } from "./button";
 import { OnStateEvent } from "./basegroup";
 import { KonvaEventObject } from "konva/lib/Node";
+import { Path } from "konva/lib/shapes/Path";
+import { getSvgPathDimensions } from "./utils";
 
 export interface OnResizeEvent extends KonvaEventObject<any> {
     size?: {
@@ -16,8 +17,7 @@ export interface OnResizeEvent extends KonvaEventObject<any> {
 
 export interface BaseDiagramConfig extends ContainerConfig {
     theme?: any,
-    rect?: RectConfig,
-    content?: string
+    diagramType?: "normal" | "block"
 }
 
 export interface AttachRect {
@@ -28,59 +28,84 @@ export interface AttachRect {
 };
 
 export class BaseDiagram extends Group {
-    rect: Rect;
-    _indent: number = 0;
+    minWidth: number;
+    strokeDef: string;
+    dgSVG: {
+        prefix: string,
+        hr: number,
+        suffix: string
+    };
+    path: Path;
     button: {
         l: ArrowButton,
         r: ArrowButton
     };
+    _indent: number = 0;
     _nsep = 5;
+
     constructor(config: BaseDiagramConfig) {
-        let rectConfig = config.rect;
-        if (rectConfig == undefined) {
-            rectConfig = {};
-        }
         let theme = config.theme;
+        let type = config.diagramType;
+
         if (theme == undefined) {
             theme = {};
         }
 
         delete config.theme;
-        delete config.rect;
+        delete config.diagramType;
+
         super(config);
 
-        this.rect = new Rect({
-            width: this.width(),
-            height: this.height(),
-            ...Theme.BaseDiagram,
-            ...theme,
-            ...rectConfig,
-        });
+        this.minWidth = (config.width)? config.width:Theme.BaseDiagram.width;
 
         this.button = {
             l: new ArrowButton({
-                x: this.rect.width() / 2,
-                y: this.rect.height() / 2,
+                x: this.width() / 2,
+                y: this.height() / 2,
                 direction: "left"
             }),
             r: new ArrowButton({
-                x: this.rect.width() / 2,
-                y: this.rect.height() / 2
+                x: this.width() / 2,
+                y: this.height() / 2
             })
         };
 
-        this.add(this.button.l);
-        this.add(this.button.r);
-        this.add(this.rect);
-        // this.button.l.moveToBottom();
-        // this.button.r.moveToBottom();
+        if (type == "normal") {
+            this.dgSVG = Theme.SVG.Normal;
+        }
+        else {
+            // TODO: change to block
+            this.dgSVG = Theme.SVG.Normal;
+        }
+
+        let dimension = getSvgPathDimensions(`${this.dgSVG.prefix}${this.dgSVG.hr}${this.dgSVG.suffix}`);
+        let adj = this.minWidth - dimension.width;
+        this.dgSVG.hr += adj;
+        dimension = getSvgPathDimensions(`${this.dgSVG.prefix}${this.dgSVG.hr}${this.dgSVG.suffix}`);
+
+        this.width(dimension.width);
+        this.height(dimension.height);
+
+        this.path = new Path({
+            data : `${this.dgSVG.prefix}${this.dgSVG.hr}${this.dgSVG.suffix}`,
+            strokeWidth: Theme.BaseDiagram.strokeWidth,
+            ...theme
+        });
+        this.strokeDef = theme.stroke;
+
+        // this.add(this.button.l);
+        // this.add(this.button.r);
+        this.add(this.path);
+
         this.registerEvents();
     }
+
     setActive() {
-        this.rect.stroke(Theme.Diagram.Active.stroke);
+        this.path.stroke(this.strokeDef);
     }
+
     removeActive() {
-        this.rect.stroke(Theme.Diagram.Statement.stroke);
+        this.path.stroke(Theme.Diagram.Statement.stroke);
     }
 
     setBtnActive() {
@@ -89,7 +114,7 @@ export class BaseDiagram extends Group {
                 x: -30,
             },
             r: {
-                x: this.rect.width() + 30,
+                x: this.width() + 30,
             }
         };
 
@@ -100,44 +125,46 @@ export class BaseDiagram extends Group {
     removeBtnActive() {
         const attrs = {
             l: {
-                x: this.rect.width() / 2
+                x: this.width() / 2
             },
             r: {
-                x: this.rect.width() / 2
+                x: this.width() / 2
             }
         };
 
         this.button.l.tween(attrs.l);
         this.button.r.tween(attrs.r);
     }
+
     attachRect(): AttachRect {
         return  {
             x: 0, y: 0, width: 0, height: 0
         }
     }
+
     attachRectAbsolutePosition(): AttachRect{
         return  {
             x: 0, y: 0, width: 0, height: 0
         }
     }
 
-    setSize(size: any): this {
+    setSize(size: {
+        width?: number, height?: number
+    }): this {
+        let dimension = getSvgPathDimensions(`${this.dgSVG.prefix}${this.dgSVG.hr}${this.dgSVG.suffix}`);
         if (size.width) {
             this.width(size.width);
-            this.rect.width(size.width);
+            let adj = size.width - dimension.width;
+            this.dgSVG.hr += adj;
+            this.path.data(`${this.dgSVG.prefix}${this.dgSVG.hr}${this.dgSVG.suffix}`);
         }
         if (size.height) {
             this.height(size.height);
-            this.rect.height(size.height);
+            // dont really care for height at the moment
+            // I dont think height resizability will be needed
         }
-        this.fire("onstateactive", {}, true);
+        // this.fire("onstateactive", {}, true);
         return this;
-    }
-
-    resize(size: {
-        width?: number, height?: number
-    }) {
-        this.setSize(size);
     }
 
     // recalculates positions
@@ -180,21 +207,21 @@ export class BaseDiagram extends Group {
     }
 
     registerEvents() {
-        this.button.l.on("mousedown", (e) => {
-            e.cancelBubble = true;
-            if (e.evt.button !== 0) {
-                return;
-            }
-            this.leftIndent();
-        });
-
-        this.button.r.on("mousedown", (e) => {
-            e.cancelBubble = true;
-            if (e.evt.button !== 0) {
-                return;
-            }
-            this.rightIndent();
-        });
+        // this.button.l.on("mousedown", (e) => {
+        //     e.cancelBubble = true;
+        //     if (e.evt.button !== 0) {
+        //         return;
+        //     }
+        //     this.leftIndent();
+        // });
+        //
+        // this.button.r.on("mousedown", (e) => {
+        //     e.cancelBubble = true;
+        //     if (e.evt.button !== 0) {
+        //         return;
+        //     }
+        //     this.rightIndent();
+        // });
 
         this.on("mouseup", (e) => {
             if (e.evt.button === 0) {
@@ -206,7 +233,7 @@ export class BaseDiagram extends Group {
         });
 
         this.on("textchanged", (e: any) => {
-            console.log("textchanged", e);
+            // console.log("textchanged", e);
         });
 
 
@@ -253,9 +280,9 @@ export class BaseDiagram extends Group {
         if (level === 0) {
             return this.x();
         }
-        const l = this.rect.width() / this._nsep;
+        const l = this.width() / this._nsep;
         if (level * ( l + 1 ) > this.width()) {
-            this.resize({
+            this.setSize({
                 width: this.width() + l
             });
             this._nsep++;

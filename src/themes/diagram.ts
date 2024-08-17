@@ -1,7 +1,14 @@
 export const Theme = {
+    SVG: {
+        Normal: {
+            prefix: "m 36,80 -5,-7 c -1,-2 -3,-3 -5,-3 H 3 c -2,0 -3,-1 -3,-3 L 0,3 C 0,1 1,0 3,0 h 24 c 2,0 4,1 5,3 l 5,7 c 1,2 3,3 5,3 h 21 c 2,0 4,-1 5,-3 l 5,-7 c 1,-2 3,-3 5,-3 h ",
+            hr: 100,
+            suffix: " c 2,0 3,1 3,3 l 0,64 c 0,2 -1,3 -3,3 H 76 c -2,0 -4,1 -5,3 l -5,7 c -1,2 -2,3 -4,3 H 41 c -2,0 -4,-1 -5,-3 z"
+        }
+    },
     BaseDiagram: {
-        cornerRadius: 10,
-        strokeWidth: 2
+        strokeWidth: 1,
+        width: 200
     },
     Diagram: {
         Active: {
@@ -12,22 +19,23 @@ export const Theme = {
             fill: "#F9F9F9",
         },
         Control: {
-            stroke: "#6F6F6F",
+            stroke: "#107745",
             fill: "#1AC673",
         },
         Loop: {
-            stroke: "#6F6F6F",
+            stroke: "#a6600e",
             fill: "#ED9227",
         }
     },
     TextBox: {
-        padding: 10,
+        padding: 5,
         wrap: "none",
         fill: "#FFFFFF",
         stroke: "#6F6F6F",
+        cornerRadius: 3
     },
     Text: {
-        fontSize: 16,
+        fontSize: 20,
     },
     Selection: {
         fill: "#6388eb",

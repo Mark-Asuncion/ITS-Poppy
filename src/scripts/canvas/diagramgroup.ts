@@ -124,7 +124,7 @@ export class DiagramGroup extends Konva.Group {
             const x = this.nodes[0].getIndentPosition(v.indent());
             v.setPosition({x, y: ypos });
             if (prev.x() + prev.width() < v.x()) {
-                prev.resize({
+                prev.setSize({
                     width: this.nodes[0].width()
                 });
             }
@@ -238,18 +238,14 @@ export class DiagramGroup extends Konva.Group {
         if (d[0] == "if") {
             dStr = d.join(' ');
             dStr = dStr.replace(/if|:/g,'').trim();
-            dg = new If({
-                content: dStr
-            });
+            dg = new If(dStr);
             dg.indent(indent);
             return dg;
         }
         else if (d[0] == "elif") {
             dStr = d.join(' ');
             dStr = dStr.replace(/elif|:/g,'').trim();
-            dg = new Elif({
-                content: dStr
-            });
+            dg = new Elif(dStr);
             dg.indent(indent);
             return dg;
     }
@@ -261,16 +257,12 @@ export class DiagramGroup extends Konva.Group {
         else if (d[0] == "for") {
             dStr = d.join(' ');
             dStr = dStr.replace(/for|in\s|:/g,'').trim();
-            dg = new For({
-                content: dStr
-            });
+            dg = new For(dStr);
             dg.indent(indent);
             return dg;
             }
         else {
-            dg = new Statement({
-                content: data.trim()
-            });
+            dg = new Statement(data.trim());
             dg.indent(indent);
             return dg;
         }

@@ -13,7 +13,7 @@ export class BaseText extends Group {
         });
 
         this.bg = new Rect({
-            cornerRadius: Theme.BaseDiagram.cornerRadius,
+            cornerRadius: Theme.TextBox.cornerRadius,
             fill: Theme.TextBox.fill,
             stroke: Theme.TextBox.stroke,
             strokeWidth: 1,
@@ -22,12 +22,6 @@ export class BaseText extends Group {
         });
 
         this.add(this.bg);
-    }
-
-    resize(size: {
-        width?: number, height?: number
-    }) {
-        this.setSize(size);
     }
 
     setSize(size: any): this {

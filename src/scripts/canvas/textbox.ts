@@ -58,6 +58,7 @@ export class TextBox extends BaseText {
         input.style.fontFamily = `${ text.fontFamily() }`;
         input.style.textAlign = `${ text.align() }`;
         input.style.color = `${ text.fill() }`;
+        // input.style.border = `1px solid red`;
         input.style.whiteSpace = "nowrap";
         input.value = text.text();
 
@@ -108,57 +109,32 @@ export class TextBox extends BaseText {
         });
     }
 
-    // setPosition(pos: Konva.Vector2d): this {
-    //     const text = this.text as Text;
-    //     const posX = pos.x - text.width() / 2;
-    //     const posY = (pos.y - (text.height() / 2))
-    //         - (text.padding() / 2);
-    //     super.setPosition({
-    //         x: posX,
-    //         y: posY
-    //     });
-    //     return this;
-    // }
-
     textResize(str: string): number {
         const div = document.createElement("div");
         div.innerText = str;
         div.style.visibility = "none";
         div.style.float = "left";
+        div.style.fontSize = `${this.text.fontSize()}px`;
         document.body.appendChild(div);
-        const max = this.minWidth + ( this.text.padding() * 2 );
+        const max = this.minWidth;
         const tWidth = Math.max(max,
             div.clientWidth + ( this.text.padding() * 2 ));
+
         this.setSize({ width: tWidth });
         div.remove();
         return tWidth;
     }
 
-    resize(size: {
-        width?: number, height?: number
-    }) {
+    setSize(size: any): this {
         if (size.width) {
             this.text.width(size.width);
         }
-        this.text.height(this.text.fontSize() + this.text.padding())
+        // this.text.height(this.text.fontSize() + this.text.padding())
 
-        this.width(this.text.width());
-        this.height(this.text.height());
-
-        this.setSize({
+        super.setSize({
             width: this.text.width(),
             height: this.text.height() + this.text.padding(),
         });
-    }
-
-    setSize(size: any): this {
-        super.setSize(size);
-        if (size.width) {
-            ( this.text! as Text ).width(size.width);
-        }
-        if (size.height) {
-            ( this.text! as Text ).height(size.height);
-        }
         return this;
     }
 
