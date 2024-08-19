@@ -66,3 +66,11 @@ export function getSvgPathDimensions(pathData: string, scale: number = 1) {
         height: bbox.height * scale
     };
 }
+
+
+export interface _Selected {
+    setActive: () => void,
+    removeActive: () => void,
+    // moveToTop: () => void,
+    // moveToBottom: () => void
+};

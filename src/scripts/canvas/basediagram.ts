@@ -3,27 +3,26 @@ import { Theme } from "../../themes/diagram";
 import { ContainerConfig } from "konva/lib/Container";
 import { DiagramGroup } from "./diagramgroup";
 import { ArrowButton } from "./button";
-import { OnStateEvent } from "./basegroup";
 import { KonvaEventObject } from "konva/lib/Node";
 import { Path } from "konva/lib/shapes/Path";
 import { getSvgPathDimensions } from "./utils";
+import { Shape, ShapeConfig } from "konva/lib/Shape";
 
-export interface OnResizeEvent extends KonvaEventObject<any> {
-    size?: {
-        width?: number,
-        height?: number
-    }
-};
+// prevent circular dependency from DiagramGroup
+export interface BaseDiagramParent {
+    nodes: BaseDiagram[]
+}
 
+type DiagramType = "normal" | "block" | "indent2" | "indent3" | "endblock";
 export interface BaseDiagramConfig extends ContainerConfig {
     theme?: any,
-    diagramType?: "normal" | "block" | "indent2" | "indent3" | "endblock"
+    diagramType?: DiagramType,
 }
 
 export class BaseDiagram extends Group {
     minWidth: number;
     strokeDef: string;
-    dgType: "normal" | "block" | "indent2" | "indent3" | "endblock" = "normal";
+    dgType: DiagramType = "normal";
     dgSVG: {
         prefix: string,
         hr: number,
@@ -103,12 +102,16 @@ export class BaseDiagram extends Group {
         this.registerEvents();
     }
 
-    setActive() {
-        this.path.stroke(this.strokeDef);
+    setActive(withDrag: boolean = true) {
+        this.path.stroke(Theme.Diagram.Active.stroke);
+        if (withDrag) {
+            this.draggable(true);
+        }
     }
 
     removeActive() {
-        this.path.stroke(Theme.Diagram.Statement.stroke);
+        this.path.stroke(this.strokeDef);
+        this.draggable(false);
     }
 
     setBtnActive() {
@@ -157,33 +160,25 @@ export class BaseDiagram extends Group {
     }
 
     attachPoint(): { x: number, y: number } {
+        let x = 0;
+        let y = this.height() - 14;
         if (this.dgType == "block") {
-            return {
-                x: 19,
-                y: this.height() - 14
-            };
+            x = 19;
         }
         else if (this.dgType == "indent2") {
-            return {
-                x: 38,
-                y: this.height() - 14
-            };
+            x = 38;
         }
         else if (this.dgType == "indent3") {
-            return {
-                x: 57,
-                y: this.height() - 14
-            };
+            x = 57;
         }
-        return {
-            x: 0,
-            y: this.height() - 14
-        };
+
+        return { x, y };
     }
 
     setIndentByPrevLine(prev: BaseDiagram) {
         const prevType = prev.dgType;
         switch (prevType) {
+            case "endblock":
             case "normal":
                 this._indent = prev._indent;
                 break;
@@ -197,7 +192,7 @@ export class BaseDiagram extends Group {
                 this._indent = prev._indent + 3;
                 break;
             default:
-                this._indent = 0;
+                console.warn("SHOULD NEVER HAPPEN");
                 break;
         }
     }
@@ -218,41 +213,36 @@ export class BaseDiagram extends Group {
             // dont really care for height at the moment
             // I dont think height resizability will be needed
         }
-        // this.fire("onstateactive", {}, true);
         return this;
     }
 
     // recalculates positions
     refresh() {}
 
-    indent(v?: number): number {
-        if (v != undefined) {
-            this._indent = v;
-        }
-        return this._indent;
-    }
-
     leftIndent() {
-        this.indent(-1);
+        this._indent--;
+        if (this._indent < 0) {
+            this._indent = 0;
+        }
         const parent = this.parent! as DiagramGroup;
         const pos = parent
-            .getRootDiagram()?.getIndentPosition(this.indent());
+            .getRootDiagram()?.getIndentPosition(this._indent);
         console.log(parent.position(), this.position(), pos);
         if (pos != undefined) {
             this.setPosition({ x: pos, y: this.y() });
         }
-        parent.setNodesRelativePosition();
+        parent.refresh();
     }
 
     rightIndent() {
-        this.indent(1);
+        this._indent++;
         const parent = this.parent! as DiagramGroup;
         const pos = parent
-            .getRootDiagram()?.getIndentPosition(this.indent());
+            .getRootDiagram()?.getIndentPosition(this._indent);
         if (pos != undefined) {
             this.setPosition({ x: pos, y: this.y() });
         }
-        parent.setNodesRelativePosition();
+        parent.refresh();
     }
 
     registerEvents() {
@@ -272,12 +262,13 @@ export class BaseDiagram extends Group {
         //     this.rightIndent();
         // });
 
+        this.on("OnStateSelect", (e: KonvaEventObject<any>) => {
+            e.target = this as unknown as Shape<ShapeConfig>;
+        });
+
         this.on("mouseup", (e) => {
             if (e.evt.button === 0) {
-                this.fire("onstateselect", {
-                    diagram: [ this ],
-                    delete: e.evt.shiftKey
-                }, true);
+                this.fire("OnStateSelect", {}, true);
             }
         });
 
@@ -288,9 +279,7 @@ export class BaseDiagram extends Group {
 
         this.on("dragstart", (e) => {
             e.cancelBubble = true;
-            this.fire("onstateselect", {
-                diagram: [ this ]
-            }, true);
+            // this.fire("OnStateSelect", {}, true);
         });
 
         this.on("dragend", (e) => {
@@ -310,19 +299,19 @@ export class BaseDiagram extends Group {
             }
         });
 
-        this.on("onstateactive", (e: OnStateEvent) => {
-            e.diagram = [ this ];
-            if (this.parent instanceof DiagramGroup
-                && this.parent.nodes[0] !== this) {
-                this.setActive();
-                this.setBtnActive();
-            }
-        });
+        // this.on("onstateactive", (e: OnStateEvent) => {
+        //     e.diagram = [ this ];
+        //     if (this.parent instanceof DiagramGroup
+        //         && this.parent.nodes[0] !== this) {
+        //         this.setActive();
+        //         this.setBtnActive();
+        //     }
+        // });
 
-        this.on("onstateremove", () => {
-            this.removeActive();
-            this.removeBtnActive();
-        });
+        // this.on("onstateremove", () => {
+        //     this.removeActive();
+        //     this.removeBtnActive();
+        // });
     }
 
     getIndentPosition(level: number): number {
@@ -341,5 +330,9 @@ export class BaseDiagram extends Group {
 
     getContent() {
         return "";
+    }
+
+    isBlock() {
+        return this.dgType == "block" || this.dgType == "indent2" || this.dgType == "indent3";
     }
 }

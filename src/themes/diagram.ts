@@ -34,7 +34,7 @@ export const Theme = {
         }
     },
     BaseDiagram: {
-        strokeWidth: 1,
+        strokeWidth: 2,
         width: 200
     },
     Diagram: {

@@ -66,9 +66,9 @@ export class TextBox extends BaseText {
             text.text(input.value);
             input.remove();
             text.show();
-            this.fire("texteditdone", {}, true);
+            // this.fire("texteditdone", {}, true);
             this.isEditing = false;
-            this.fire("onstateremove", {}, true);
+            // this.fire("OnStateRemove", {}, true);
         });
 
         input.addEventListener("keydown", (e) => {
@@ -79,13 +79,26 @@ export class TextBox extends BaseText {
                 input.value = text.text();
                 input.blur();
             }
-            this.fire("textbeforechanged", { value: input.value },true);
+            // this.fire("textbeforechanged", { value: input.value },true);
         });
 
         input.addEventListener("keyup", () => {
             this.fire("textchanged", { value: input.value }, true);
-            const nWidth = this.textResize(input.value);
-            input.style.width = `${ nWidth - this.text.padding() * 2 }px`;
+
+            const div = document.createElement("div");
+            div.innerText = input.value;
+            div.style.visibility = "none";
+            div.style.float = "left";
+            div.style.fontSize = `${this.text.fontSize()}px`;
+            document.body.appendChild(div);
+            const max = this.minWidth;
+            const tWidth = Math.max(max,
+                div.clientWidth + ( this.text.padding() * 2 ));
+
+            this.setSize({ width: tWidth });
+            div.remove();
+
+            input.style.width = `${ tWidth - this.text.padding() * 2 }px`;
 
             if (this.parent instanceof BaseDiagram) {
                 this.parent.refresh();
@@ -95,12 +108,14 @@ export class TextBox extends BaseText {
         document.body.appendChild(input);
 
         // tmp
-        setTimeout(() => input.focus(), 300);
+        setTimeout(() => {
+            input.focus();
+            this.fire("OnStateSelect", {}, true);
+        }, 300);
     }
 
     registerEvents() {
         this.on("mousedown", (e) => {
-            this.fire("onstateactive", {}, true);
             e.cancelBubble = true;
             if (this.isEditing) {
                 return;
@@ -109,27 +124,10 @@ export class TextBox extends BaseText {
         });
     }
 
-    textResize(str: string): number {
-        const div = document.createElement("div");
-        div.innerText = str;
-        div.style.visibility = "none";
-        div.style.float = "left";
-        div.style.fontSize = `${this.text.fontSize()}px`;
-        document.body.appendChild(div);
-        const max = this.minWidth;
-        const tWidth = Math.max(max,
-            div.clientWidth + ( this.text.padding() * 2 ));
-
-        this.setSize({ width: tWidth });
-        div.remove();
-        return tWidth;
-    }
-
     setSize(size: any): this {
         if (size.width) {
             this.text.width(size.width);
         }
-        // this.text.height(this.text.fontSize() + this.text.padding())
 
         super.setSize({
             width: this.text.width(),

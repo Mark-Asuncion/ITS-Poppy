@@ -1,6 +1,6 @@
 import Konva from "konva";
 import { isPointIntersectRect } from "./utils";
-import { BaseGroup, OnStateEvent } from "./basegroup";
+import { BaseGroup } from "./basegroup";
 import { BaseDiagram } from "./basediagram";
 import { Module } from "../backendconnector";
 import { Statement } from "./blocks/statement";
@@ -9,6 +9,8 @@ import { For } from "./blocks/loop";
 import { Text } from "konva/lib/shapes/Text";
 import { Theme } from "../../themes/diagram";
 import { EndBlock } from "./blocks/endblock";
+import { KonvaEventObject } from "konva/lib/Node";
+import { Shape, ShapeConfig } from "konva/lib/Shape";
 
 export interface AttachTo {
     v: DiagramGroup,
@@ -41,36 +43,25 @@ export class DiagramGroup extends Konva.Group {
     }
 
     registerEvents() {
-        this.on("onstateremove", () => {
-            this.removeActive();
-        });
-
-        this.on("onstateactive", () => {
-            this.setActive();
-        });
-
-        this.on("onstateselect", (e: OnStateEvent) => {
-            e.diagramGroup = [ this ];
-            if (e.diagram && e.diagram[0] === this.nodes[0]) {
-                e.select = "diagramgroup";
-            }
-            else {
-                e.diagram?.forEach((v) => v.draggable(true) );
+        this.on("OnStateSelect", (e: KonvaEventObject<any>) => {
+            const p = this.nodes[0] as unknown as Shape<ShapeConfig>;
+            if (e.target == p) {
+                e.target = this as unknown as Shape<ShapeConfig>;
             }
         });
 
         this.on("dragstart", (e) => {
             e.cancelBubble = true;
             e.target.moveToTop();
-            this.fire("onstateselect", {
-                diagramGroup: [ this ],
-                select: "diagramgroup"
-            }, true);
+            this.fire("OnStateSelect", {}, true);
         });
 
         this.on("dragmove", (e) => {
             e.cancelBubble = true;
         })
+
+        // this.on("mousedown", (e) => {
+        // });
 
         this.on("dragend", (e) => {
             e.cancelBubble = true;
@@ -103,19 +94,21 @@ export class DiagramGroup extends Konva.Group {
             }
             return true;
         });
-        this.setNodesRelativePosition();
+        this.refresh();
         diagrams.remove();
 
         const dg = new DiagramGroup();
         diagrams.setPosition({ x: 0, y: 0 });
-        diagrams.indent(0);
+        diagrams._indent = 0;
         dg.addDiagram(diagrams);
         return dg;
     }
 
-    setNodesRelativePosition() {
+    // repositions nodes and adjust widths
+    refresh() {
         let prev = this.nodes[0];
 
+        console.log(prev._indent, prev.dgType);
         for (let i=1;i<this.nodes.length;i++) {
             const curr = this.nodes[i];
             const atP = prev.attachPoint();
@@ -125,10 +118,22 @@ export class DiagramGroup extends Konva.Group {
             });
             curr.setIndentByPrevLine(prev);
             if (curr.dgType == "endblock") {
-                curr.x(0);
+                let nx = 0;
+                for (let j=i-1;j>=0;j--) {
+                    if (this.nodes[j].isBlock()) {
+                        nx = this.nodes[j].x();
+                        curr._indent = this.nodes[j]._indent;
+                        break;
+                    }
+                }
+                curr.x(nx);
+
                 curr.moveToTop();
             }
+            curr.refresh();
             prev = curr;
+
+            // console.log(curr._indent, curr.dgType);
         }
     }
 
@@ -137,11 +142,7 @@ export class DiagramGroup extends Konva.Group {
         const otherNodes = this.nodes;
         v.nodes.splice(i+1, 0, ...otherNodes);
         v.add(...otherNodes);
-        v.setNodesRelativePosition();
-
-        this.fire("onstateremove", {
-            diagramGroup: [ this ],
-        }, true);
+        v.refresh();
         this.remove();
         this.destroy();
     }
@@ -171,6 +172,7 @@ export class DiagramGroup extends Konva.Group {
         this.nodes.push(child);
     }
 
+    // unused
     removeDiagram(i: number) {
         const node = this.nodes[i];
         this.nodes = this.nodes.filter((v) => {
@@ -186,7 +188,7 @@ export class DiagramGroup extends Konva.Group {
 
     setActive() {
         this.nodes.forEach((v) => {
-            v.setActive();
+            v.setActive(false);
         });
     }
 
@@ -199,9 +201,9 @@ export class DiagramGroup extends Konva.Group {
     getContent(): Module {
         let content = "";
         this.nodes.forEach((v) => {
-            const c = v.getContent();
-            if (c.length == 0) 
+            if (v.dgType == "endblock")
                 return;
+            const c = v.getContent();
             content += c + "\n";
         });
 
@@ -220,7 +222,7 @@ export class DiagramGroup extends Konva.Group {
         return res;
     }
 
-    static _BDDeserialize(data: string, prev: BaseDiagram | null): BaseDiagram | null {
+    static _BDDeserialize(data: string, lastBlock: BaseDiagram | null): BaseDiagram | null {
         if (data.length == 0 || data.trim().length == 0) {
             return null;
         }
@@ -232,9 +234,15 @@ export class DiagramGroup extends Konva.Group {
             }
         }
 
-        if (prev && (prev._indent != 0 && indent == 0)) {
-            return new EndBlock();
+        if (lastBlock && (indent <= lastBlock._indent)) {
+            const eb = new EndBlock();
+            eb._indent = lastBlock._indent;
+            return eb;
         }
+        // check if indent is more than lastblock
+        // if true then use indent2 or 3
+        // if more than lastblock._indent + 3
+        // then clamp indent to lastblock._indent + 3
 
         let dStr = "";
         let dg: BaseDiagram;
@@ -243,31 +251,31 @@ export class DiagramGroup extends Konva.Group {
             dStr = d.join(' ');
             dStr = dStr.replace(/if|:/g,'').trim();
             dg = new If(dStr);
-            dg.indent(indent);
+            dg._indent = indent;
             return dg;
         }
         else if (d[0] == "elif") {
             dStr = d.join(' ');
             dStr = dStr.replace(/elif|:/g,'').trim();
             dg = new Elif(dStr);
-            dg.indent(indent);
+            dg._indent = indent;
             return dg;
     }
         else if (d[0] == "else" || d[0] == "else:") {
             dg = new Else();
-            dg.indent(indent);
+            dg._indent = indent;
             return dg;
         }
         else if (d[0] == "for") {
             dStr = d.join(' ');
             dStr = dStr.replace(/for|in\s|:/g,'').trim();
             dg = new For(dStr);
-            dg.indent(indent);
+            dg._indent = indent;
             return dg;
             }
         else {
             dg = new Statement(data.trim());
-            dg.indent(indent);
+            dg._indent = indent;
             return dg;
         }
     }
@@ -281,19 +289,23 @@ export class DiagramGroup extends Konva.Group {
             .join()
             .split('\n');
 
-        let prev: null | BaseDiagram = null;
+        let lastblock: null | BaseDiagram = null;
         for (let i=0;i<d.length;i++) {
             const v = d[i];
-            const bd = this._BDDeserialize(v, prev);
+            const bd = this._BDDeserialize(v, lastblock);
             if (bd) {
                 dg.addDiagram(bd);
-                prev = bd;
+
+                if (bd.isBlock()) {
+                    lastblock = bd;
+                }
                 if (bd.dgType == "endblock") {
+                    lastblock = null;
                     i--;
                 }
             }
         };
-        dg.setNodesRelativePosition();
+        dg.refresh();
         return dg;
     }
 }
