@@ -1,7 +1,7 @@
 import Konva from "konva";
 import { Text } from "konva/lib/shapes/Text";
 import { Theme } from "../../../themes/diagram";
-import { TextBox } from "../textbox";
+import { TextBox } from "../text/textbox";
 import { BaseText } from "../basetext";
 import { BaseDiagram } from "../basediagram";
 

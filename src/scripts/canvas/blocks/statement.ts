@@ -1,5 +1,5 @@
 import { Theme } from "../../../themes/diagram";
-import { TextBox } from "../textbox";
+import { TextBox } from "../text/textbox";
 import { BaseText } from "../basetext";
 import { BaseDiagram } from "../basediagram";
 

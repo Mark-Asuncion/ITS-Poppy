@@ -7,6 +7,7 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { Path } from "konva/lib/shapes/Path";
 import { getSvgPathDimensions } from "./utils";
 import { Shape, ShapeConfig } from "konva/lib/Shape";
+import { TextChangedEvent } from "./basetext";
 
 // prevent circular dependency from DiagramGroup
 export interface BaseDiagramParent {
@@ -272,7 +273,8 @@ export class BaseDiagram extends Group {
             }
         });
 
-        this.on("textchanged", (_: any) => {
+        this.on("TextChanged", (e: TextChangedEvent) => {
+            e.cancelBubble = true;
             // console.log("textchanged", e);
         });
 

@@ -29,9 +29,20 @@ export class BaseGroup extends Group {
         im.src = diagramBackground;
         this.add(backgroundRect);
 
-        window.mCvRootNode = this;
+        window.mCvRootNode = {
+            getDiagramGroups: this.getDiagramGroups.bind(this)
+        };
         this.registerEvents();
     }
+
+
+    // add(children: any) {
+    //     super.add(children)
+    //     if (children instanceof DiagramGroup) {
+    //         children.setModuleName("main");
+    //     }
+    //     return this;
+    // }
 
     registerEvents() {
         this.on("OnStateSelect", (e: KonvaEventObject<any>) => {

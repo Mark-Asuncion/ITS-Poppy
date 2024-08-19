@@ -335,7 +335,7 @@ export class TerminalInstance {
             // console.log(`TerminalInstance::inputBytes="${TerminalInstance.inputBytes}"`);
             // console.log(`getCurrLine()="${TerminalInstance.getCurrLine()}"`);
             TerminalInstance.maxCursorPosX = Math.max(TerminalInstance.maxCursorPosX, TerminalInstance.getCursorPosition().x);
-            console.log(`maxX=${TerminalInstance.maxCursorPosX}`);
+            // console.log(`maxX=${TerminalInstance.maxCursorPosX}`);
         });
 
         read_term()

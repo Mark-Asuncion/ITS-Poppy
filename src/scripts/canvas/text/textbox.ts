@@ -1,21 +1,23 @@
-import { TextConfig, Text } from "konva/lib/shapes/Text";
-import { Theme } from "../../themes/diagram";
-import { BaseText } from "./basetext";
-import { BaseDiagram } from "./basediagram";
+import { Text } from "konva/lib/shapes/Text";
+import { Theme } from "../../../themes/diagram";
+import { BaseText, BaseTextConfig } from "../basetext";
+import { BaseDiagram } from "../basediagram";
 
 export class TextBox extends BaseText {
     text: Text;
     minWidth: number;
-    constructor(textConfig: TextConfig) {
+    constructor(textConfig: BaseTextConfig) {
         super({
             x: textConfig.x,
             y: textConfig.y,
             width: textConfig.width,
             height: textConfig.height,
+            noBG: textConfig.noBG,
         });
 
         delete textConfig.x;
         delete textConfig.y;
+        delete textConfig.noBG;
 
         this.text = new Text({
             padding: Theme.TextBox.padding,
@@ -64,10 +66,13 @@ export class TextBox extends BaseText {
 
         input.addEventListener("focusout", () => {
             text.text(input.value);
-            input.remove();
             text.show();
+            input.remove();
+
             // this.fire("texteditdone", {}, true);
             this.isEditing = false;
+
+            this.fire("TextChanged", { value: input.value }, true);
             // this.fire("OnStateRemove", {}, true);
         });
 
@@ -83,21 +88,7 @@ export class TextBox extends BaseText {
         });
 
         input.addEventListener("keyup", () => {
-            this.fire("textchanged", { value: input.value }, true);
-
-            const div = document.createElement("div");
-            div.innerText = input.value;
-            div.style.visibility = "none";
-            div.style.float = "left";
-            div.style.fontSize = `${this.text.fontSize()}px`;
-            document.body.appendChild(div);
-            const max = this.minWidth;
-            const tWidth = Math.max(max,
-                div.clientWidth + ( this.text.padding() * 2 ));
-
-            this.setSize({ width: tWidth });
-            div.remove();
-
+            const tWidth = this.adjustWidth(input.value);
             input.style.width = `${ tWidth - this.text.padding() * 2 }px`;
 
             if (this.parent instanceof BaseDiagram) {
@@ -114,14 +105,20 @@ export class TextBox extends BaseText {
         }, 300);
     }
 
-    registerEvents() {
-        this.on("mousedown", (e) => {
-            e.cancelBubble = true;
-            if (this.isEditing) {
-                return;
-            }
-            this.createInput();
-        });
+    adjustWidth(v: string) {
+        const div = document.createElement("div");
+        div.innerText = v;
+        div.style.visibility = "none";
+        div.style.float = "left";
+        div.style.fontSize = `${this.text.fontSize()}px`;
+        document.body.appendChild(div);
+        const max = this.minWidth;
+        const tWidth = Math.max(max,
+            div.clientWidth + ( this.text.padding() * 3 ));
+
+        this.setSize({ width: tWidth });
+        div.remove();
+        return tWidth;
     }
 
     setSize(size: any): this {

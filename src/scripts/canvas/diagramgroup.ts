@@ -6,11 +6,12 @@ import { Module } from "../backendconnector";
 import { Statement } from "./blocks/statement";
 import { If, Elif, Else } from "./blocks/control";
 import { For } from "./blocks/loop";
-import { Text } from "konva/lib/shapes/Text";
 import { Theme } from "../../themes/diagram";
 import { EndBlock } from "./blocks/endblock";
 import { KonvaEventObject } from "konva/lib/Node";
 import { Shape, ShapeConfig } from "konva/lib/Shape";
+import { TextBox } from "./text/textbox";
+import { BaseText, TextChangedEvent } from "./basetext";
 
 export interface AttachTo {
     v: DiagramGroup,
@@ -18,34 +19,102 @@ export interface AttachTo {
 };
 
 export class DiagramGroup extends Konva.Group {
-    _textName: Text;
+    _moduleName: BaseText;
     nodes: BaseDiagram[] = [];
     constructor(opts: Konva.ContainerConfig = {}) {
         super({
-            name: "main",
+            name: "",
             draggable: true,
             ...opts
         });
 
-        this._textName = new Text({
+        this.setModuleName("main");
+
+        this._moduleName = new TextBox({
             text: this.name(),
             x: 0,
             fontSize: Theme.Text.fontSize,
-            padding: Theme.TextBox.padding
+            padding: Theme.TextBox.padding,
+            noBG: true
         });
-        this._textName.y(
-            this._textName.y()
-            - this._textName.height()
+
+
+        this._moduleName.y(
+            this._moduleName.y()
+            - this._moduleName.height()
         );
 
-        this.add(this._textName);
+        this.add(this._moduleName);
         this.registerEvents();
     }
 
+    setModuleName(name: string) {
+        let nodes = window.mCvRootNode.getDiagramGroups();
+        let m = {};
+        let ascii0 = '0'.charCodeAt(0);
+        let ascii9 = '9'.charCodeAt(0);
+
+        for (let i=0;i<nodes.length;i++) {
+            if (nodes[i] == this)
+                continue;
+
+            let n = nodes[i].name();
+
+            let substrEnd = 0;
+            for (let ni=n.length-1;ni>=0;ni--) {
+                if (n.charCodeAt(ni) < ascii0 || n.charCodeAt(ni) > ascii9) {
+                    substrEnd = ni;
+                    break;
+                }
+            }
+
+            // console.log(`${n} ${nodes[i]._moduleName.text!.text()}`);
+            // store both then name without number at the end and with
+            // the map
+            if (substrEnd > 0 && substrEnd < n.length-1) {
+                let substr = n.substring(0,substrEnd+1);
+                // console.log(substr);
+                if (m[substr]) {
+                    m[substr]++;
+                }
+                else {
+                    m[substr] = 1;
+                }
+            }
+
+            if (m[n]) {
+                m[n]++;
+            }
+            else {
+                m[n] = 1;
+            }
+        }
+
+        for (let ni=name.length-1;ni>=0;ni--) {
+            if (name.charCodeAt(ni) < ascii0 || name.charCodeAt(ni) > ascii9) {
+                name = name.substring(0, ni+1);
+                break;
+            }
+        }
+        // console.log(m, m[name]);
+        const n = `${name}${( m[name] == 0 || m[name] == undefined)? "":m[name]}`;
+        // console.log(n);
+        this.name(n);
+    }
+
     registerEvents() {
+        this.on("TextChanged", (e: TextChangedEvent) => {
+            if (e.value) {
+                this.setModuleName(e.value.trim());
+                this._moduleName.text!.text(this.name());
+                this._moduleName.adjustWidth(this.name());
+                console.log(`${this.name()} ${this._moduleName.text!.text()}`);
+            }
+        });
+
         this.on("OnStateSelect", (e: KonvaEventObject<any>) => {
             const p = this.nodes[0] as unknown as Shape<ShapeConfig>;
-            if (e.target == p) {
+            if (e.target == p || e.target instanceof BaseText) {
                 e.target = this as unknown as Shape<ShapeConfig>;
             }
         });
@@ -108,7 +177,7 @@ export class DiagramGroup extends Konva.Group {
     refresh() {
         let prev = this.nodes[0];
 
-        console.log(prev._indent, prev.dgType);
+        // console.log(prev._indent, prev.dgType);
         for (let i=1;i<this.nodes.length;i++) {
             const curr = this.nodes[i];
             const atP = prev.attachPoint();
