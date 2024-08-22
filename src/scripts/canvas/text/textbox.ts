@@ -1,21 +1,23 @@
-import { TextConfig, Text } from "konva/lib/shapes/Text";
-import { Theme } from "../../themes/diagram";
-import { BaseText } from "./basetext";
-import { BaseDiagram } from "./basediagram";
+import { Text } from "konva/lib/shapes/Text";
+import { Theme } from "../../../themes/diagram";
+import { BaseText, BaseTextConfig } from "../basetext";
+import { BaseDiagram } from "../basediagram";
 
 export class TextBox extends BaseText {
     text: Text;
     minWidth: number;
-    constructor(textConfig: TextConfig) {
+    constructor(textConfig: BaseTextConfig) {
         super({
             x: textConfig.x,
             y: textConfig.y,
             width: textConfig.width,
             height: textConfig.height,
+            noBG: textConfig.noBG,
         });
 
         delete textConfig.x;
         delete textConfig.y;
+        delete textConfig.noBG;
 
         this.text = new Text({
             padding: Theme.TextBox.padding,
@@ -58,16 +60,20 @@ export class TextBox extends BaseText {
         input.style.fontFamily = `${ text.fontFamily() }`;
         input.style.textAlign = `${ text.align() }`;
         input.style.color = `${ text.fill() }`;
+        // input.style.border = `1px solid red`;
         input.style.whiteSpace = "nowrap";
         input.value = text.text();
 
         input.addEventListener("focusout", () => {
             text.text(input.value);
-            input.remove();
             text.show();
-            this.fire("texteditdone", {}, true);
+            input.remove();
+
+            // this.fire("texteditdone", {}, true);
             this.isEditing = false;
-            this.fire("onstateremove", {}, true);
+
+            this.fire("TextChanged", { value: input.value }, true);
+            // this.fire("OnStateRemove", {}, true);
         });
 
         input.addEventListener("keydown", (e) => {
@@ -78,13 +84,12 @@ export class TextBox extends BaseText {
                 input.value = text.text();
                 input.blur();
             }
-            this.fire("textbeforechanged", { value: input.value },true);
+            // this.fire("textbeforechanged", { value: input.value },true);
         });
 
         input.addEventListener("keyup", () => {
-            this.fire("textchanged", { value: input.value }, true);
-            const nWidth = this.textResize(input.value);
-            input.style.width = `${ nWidth - this.text.padding() * 2 }px`;
+            const tWidth = this.adjustWidth(input.value);
+            input.style.width = `${ tWidth - this.text.padding() * 2 }px`;
 
             if (this.parent instanceof BaseDiagram) {
                 this.parent.refresh();
@@ -94,71 +99,37 @@ export class TextBox extends BaseText {
         document.body.appendChild(input);
 
         // tmp
-        setTimeout(() => input.focus(), 300);
+        setTimeout(() => {
+            input.focus();
+            this.fire("OnStateSelect", {}, true);
+        }, 300);
     }
 
-    registerEvents() {
-        this.on("mousedown", (e) => {
-            this.fire("onstateactive", {}, true);
-            e.cancelBubble = true;
-            if (this.isEditing) {
-                return;
-            }
-            this.createInput();
-        });
-    }
-
-    // setPosition(pos: Konva.Vector2d): this {
-    //     const text = this.text as Text;
-    //     const posX = pos.x - text.width() / 2;
-    //     const posY = (pos.y - (text.height() / 2))
-    //         - (text.padding() / 2);
-    //     super.setPosition({
-    //         x: posX,
-    //         y: posY
-    //     });
-    //     return this;
-    // }
-
-    textResize(str: string): number {
+    adjustWidth(v: string) {
         const div = document.createElement("div");
-        div.innerText = str;
+        div.innerText = v;
         div.style.visibility = "none";
         div.style.float = "left";
+        div.style.fontSize = `${this.text.fontSize()}px`;
         document.body.appendChild(div);
-        const max = this.minWidth + ( this.text.padding() * 2 );
+        const max = this.minWidth;
         const tWidth = Math.max(max,
-            div.clientWidth + ( this.text.padding() * 2 ));
+            div.clientWidth + ( this.text.padding() * 3 ));
+
         this.setSize({ width: tWidth });
         div.remove();
         return tWidth;
     }
 
-    resize(size: {
-        width?: number, height?: number
-    }) {
+    setSize(size: any): this {
         if (size.width) {
             this.text.width(size.width);
         }
-        this.text.height(this.text.fontSize() + this.text.padding())
 
-        this.width(this.text.width());
-        this.height(this.text.height());
-
-        this.setSize({
+        super.setSize({
             width: this.text.width(),
             height: this.text.height() + this.text.padding(),
         });
-    }
-
-    setSize(size: any): this {
-        super.setSize(size);
-        if (size.width) {
-            ( this.text! as Text ).width(size.width);
-        }
-        if (size.height) {
-            ( this.text! as Text ).height(size.height);
-        }
         return this;
     }
 

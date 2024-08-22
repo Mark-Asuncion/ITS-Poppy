@@ -2,18 +2,30 @@ import { Rect } from "konva/lib/shapes/Rect";
 import { TextConfig, Text } from "konva/lib/shapes/Text";
 import { Theme } from "../../themes/diagram";
 import { Group } from "konva/lib/Group";
+import { KonvaEventObject } from "konva/lib/Node";
+
+export interface BaseTextConfig extends TextConfig {
+    noBG?: boolean;
+}
+
+export interface TextChangedEvent extends KonvaEventObject<any> {
+    value?: string
+}
 
 export class BaseText extends Group {
     text?: Text;
     bg: Rect;
     isEditing = false;
-    constructor(textConfig: TextConfig) {
+    constructor(textConfig: BaseTextConfig) {
+        const noBG = textConfig.noBG;
+        delete textConfig.noBG;
+
         super({
             ...textConfig
         });
 
         this.bg = new Rect({
-            cornerRadius: Theme.BaseDiagram.cornerRadius,
+            cornerRadius: Theme.TextBox.cornerRadius,
             fill: Theme.TextBox.fill,
             stroke: Theme.TextBox.stroke,
             strokeWidth: 1,
@@ -21,13 +33,9 @@ export class BaseText extends Group {
             y: 0,
         });
 
-        this.add(this.bg);
-    }
-
-    resize(size: {
-        width?: number, height?: number
-    }) {
-        this.setSize(size);
+        if (!noBG) {
+            this.add(this.bg);
+        }
     }
 
     setSize(size: any): this {
@@ -52,7 +60,6 @@ export class BaseText extends Group {
 
     registerEvents() {
         this.on("mousedown", (e) => {
-            this.fire("onstateactive", {}, true);
             e.cancelBubble = true;
             if (this.isEditing) {
                 return;
@@ -64,4 +71,6 @@ export class BaseText extends Group {
     getContent(): string {
         return "";
     }
+
+    adjustWidth(v: string) { return v.length; }
 }

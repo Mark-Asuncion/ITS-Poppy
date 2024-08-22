@@ -1,132 +1,87 @@
 import Konva from "konva";
 import { Text } from "konva/lib/shapes/Text";
 import { Theme } from "../../../themes/diagram";
-import { TextBox } from "../textbox";
+import { TextBox } from "../text/textbox";
 import { BaseText } from "../basetext";
-import { AttachRect, BaseDiagram, BaseDiagramConfig, OnResizeEvent } from "../basediagram";
+import { BaseDiagram } from "../basediagram";
 
 export class If extends BaseDiagram {
-    text: BaseText;
-    _ifT: Text[] = [];
-    constructor(config: BaseDiagramConfig = {}) {
-        let content = (config.content)? config.content:"";
-        delete config.content;
+    components: (BaseText | Text)[] = []
+    constructor(content: string = "") {
         super({
             name: "If",
-            width: 200,
-            height: 95,
-            ...config,
+            diagramType: "block",
             theme: Theme.Diagram.Control,
         });
 
-        const padding = Theme.TextBox.padding;
-        const pos = {
-            x: padding,
-            y: this.height() / 2
-        };
-
-        this._ifT.push(new Text({
-            ...pos,
+        this.components.push(new Text({
             text: "if",
             fill: "#ffffff",
             fontSize: Theme.Text.fontSize + 6,
         }));
-        let n: Text | BaseText = this._ifT[0];
-        n.y(n.y() - n.height() / 2);
-
-        pos.x += n.width() + padding;
-        this.text = new TextBox({
+        this.components.push(new TextBox({
             text: content,
             width: this.width() * .7,
             fill: "#00",
             ...Theme.Text,
-            ...pos,
-        });
-        n = this.text;
-        n.y(n.y() - n.height() / 2);
+        }));
 
-        pos.x += this.text.width() + padding;
-        this._ifT.push(new Text({
-            ...pos,
+        this.components.push(new Text({
             text: ":",
             fill: "#ffffff",
             fontSize: Theme.Text.fontSize + 6,
-        }));
-        n = this._ifT[1];
-        n.y(n.y() - n.height() / 2);
+        }))
+        this.setInitialPos();
 
-        pos.x += this._ifT[1].width() + padding;
-        this.setSize({
-            width: pos.x,
-        });
-
-        this.add(this._ifT[0]);
-        this.add(this.text);
-        this.add(this._ifT[1]);
+        this.add(...this.components);
     }
 
-    resize(size: {
-        width?: number, height?: number
-    }) {
-        super.resize(size);
+    refresh() {
         const padding = Theme.TextBox.padding;
         const pos = {
             x: padding,
             y: this.height() / 2
         };
-        this._ifT[0].setPosition({
-            x: pos.x, y: pos.y - this._ifT[0].height() / 2
-        });
-        pos.x += this._ifT[0].width() + padding;
-        const diff = 200 - ( 200 * .7 );
-        this.text.resize({
-            width: this.width() - diff
-        });
-        this.text.setPosition({
-            x: pos.x, y: pos.y - this.text.height() / 2
-        })
-        pos.x += this.text.width() + padding;
-        this._ifT[1].setPosition({
-            x: pos.x, y: pos.y - this._ifT[1].height() / 2
-        });
 
-        pos.x += this._ifT[1].width() + padding;
-        this.setSize({
-            width: pos.x,
-        });
+        this.components[0].y(pos.y);
+        pos.y = (this.components[0].y() - this.components[0].height() / 2);
+        this.components[0].setPosition(pos);
+        pos.x += this.components[0].width() + padding;
+        this.components[1].setPosition(pos);
+
+        let nwidth = this.components[1].x() + this.components[1].width() + padding
+            + this.components[2].width() + padding;
+        this.setSize({ width: nwidth });
+
+        this.components[2].x(
+            this.width() - padding - this.components[2].width()
+        );
+        this.components[2].y(pos.y);
+        // let tboxw = this.width() - (this.components[0].width() + this.components[2].width() + padding * 4)
+        // this.components[1].setSize({width: tboxw});
     }
 
-    refresh() {
+    setInitialPos() {
         const padding = Theme.TextBox.padding;
-        this.resize({
-            width: this.text.x() + this.text.width()
-                + this._ifT[1].width()
-                + ( padding * 2 )
-        });
-    }
-
-    setPosition(pos: Konva.Vector2d): this {
-        super.setPosition(pos);
-        return this;
-    }
-
-    attachRect(): AttachRect {
-        return {
-            x: this.x(),
-            y: this.y() + this.rect.height() / 2,
-            width: this.rect.width(),
-            height: this.rect.height() / 2
+        const pos = {
+            x: padding,
+            y: this.height() / 2
         };
-    }
 
-    attachRectAbsolutePosition(): AttachRect {
-        const { x, y } = this.getAbsolutePosition();
-        return {
-            x,
-            y: y + this.rect.height() / 2,
-            width: this.rect.width(),
-            height: this.rect.height() / 2
-        };
+        this.components[0].y(pos.y);
+        pos.y = (this.components[0].y() - this.components[0].height() / 2);
+        this.components[0].setPosition(pos);
+        pos.x += this.components[0].width() + padding;
+        this.components[1].setPosition(pos);
+
+        this.components[2].x(
+            this.width() - padding - this.components[2].width()
+        );
+        this.components[2].y(pos.y);
+
+        let tboxw = this.width() - (this.components[0].width() + this.components[2].width() + padding * 4)
+        this.components[1].setSize({width: tboxw});
+        (this.components[1] as TextBox).minWidth = tboxw;
     }
 
     getContent() {
@@ -136,21 +91,16 @@ export class If extends BaseDiagram {
             ind += "\t";
             i++;
         }
-        return ind + "if " + this.text.getContent() + ":";
+        return ind + "if " + (this.components[1] as BaseText).getContent() + ":";
     }
 }
 
 export class Elif extends BaseDiagram {
-    text: BaseText;
-    _ifT: Text[] = [];
-    constructor(config: BaseDiagramConfig = {}) {
-        let content = (config.content)? config.content:"";
-        delete config.content;
+    components: (BaseText | Text)[] = []
+    constructor(content: string = "") {
         super({
             name: "Elif",
-            width: 200,
-            height: 95,
-            ...config,
+            diagramType: "block",
             theme: Theme.Diagram.Control,
         });
 
@@ -160,115 +110,72 @@ export class Elif extends BaseDiagram {
             y: this.height() / 2
         };
 
-        this._ifT.push(new Text({
-            ...pos,
+        this.components.push(new Text({
             text: "elif",
             fill: "#ffffff",
             fontSize: Theme.Text.fontSize + 6,
         }));
-        let n: Text | BaseText = this._ifT[0];
-        n.y(n.y() - n.height() / 2);
 
-        pos.x += this._ifT[0].width() + padding;
-        this.text = new TextBox({
+        this.components.push(new TextBox({
             text: content,
             width: this.width() * .6,
             fill: "#00",
             ...Theme.Text,
-            ...pos,
-        });
-        n = this.text;
-        n.y(n.y() - n.height() / 2);
-
-        pos.x += this.text.width() + padding;
-        this._ifT.push(new Text({
+        }));
+        this.components.push(new Text({
             ...pos,
             text: ":",
             fill: "#ffffff",
             fontSize: Theme.Text.fontSize + 6,
         }));
-        n = this._ifT[1];
-        n.y(n.y() - n.height() / 2);
+        this.setInitialPos();
 
-        pos.x += this._ifT[1].width() + padding;
-        this.setSize({
-            width: pos.x,
-        });
-
-        this.add(this._ifT[0]);
-        this.add(this.text);
-        this.add(this._ifT[1]);
+        this.add(...this.components);
     }
 
-    resize(size: {
-        width?: number, height?: number
-    }) {
-        super.resize(size);
+    setInitialPos() {
+        const padding = Theme.TextBox.padding;
+        const pos = {
+            x: padding,
+            y: this.height() / 2
+        };
+        this.components[0].y(pos.y);
+        pos.y = (this.components[0].y() - this.components[0].height() / 2);
+        this.components[0].setPosition(pos);
+        pos.x += this.components[0].width() + padding;
+        this.components[1].setPosition(pos);
+
+        this.components[2].x(
+            this.width() - padding - this.components[2].width()
+        );
+        this.components[2].y(pos.y);
+
+        let tboxw = this.width() - (this.components[0].width() + this.components[2].width() + padding * 4)
+        this.components[1].setSize({width: tboxw});
+        (this.components[1] as TextBox).minWidth = tboxw;
+    }
+
+    refresh() {
         const padding = Theme.TextBox.padding;
         const pos = {
             x: padding,
             y: this.height() / 2
         };
 
-        this._ifT[0].setPosition({
-            x: pos.x, y: pos.y - this._ifT[0].height() / 2
-        });
+        this.components[0].y(pos.y);
+        pos.y = (this.components[0].y() - this.components[0].height() / 2);
+        this.components[0].setPosition(pos);
+        pos.x += this.components[0].width() + padding;
+        this.components[1].setPosition(pos);
 
-        pos.x += this._ifT[0].width() + padding;
-        const diff = 200 - ( 200 * .6 );
-        this.text.resize({
-            width: this.width() - diff
-        });
-        this.text.setPosition({
-            x: pos.x, y: pos.y - this.text.height() / 2
-        })
+        let nwidth = this.components[1].x() + this.components[1].width() + padding
+            + this.components[2].width() + padding;
+        this.setSize({ width: nwidth });
 
-        pos.x += this.text.width() + padding;
-        this._ifT[1].setPosition({
-            x: pos.x, y: pos.y - this._ifT[1].height() / 2
-        });
-
-        pos.x += this._ifT[1].width() + padding;
-        this.setSize({
-            width: pos.x,
-        });
-    }
-
-    refresh() {
-        const padding = Theme.TextBox.padding;
-        this.resize({
-            width: this.text.x() + this.text.width()
-                + this._ifT[1].width()
-                + ( padding * 2 )
-        });
-    }
-
-    setPosition(pos: Konva.Vector2d): this {
-        super.setPosition(pos);
-        // this.text.setPosition({
-        //     x: this.rect.width() / 2,
-        //     y: this.rect.height() / 2
-        // });
-        return this;
-    }
-
-    attachRect(): AttachRect {
-        return {
-            x: this.x(),
-            y: this.y() + this.rect.height() / 2,
-            width: this.rect.width(),
-            height: this.rect.height() / 2
-        };
-    }
-
-    attachRectAbsolutePosition(): AttachRect {
-        const { x, y } = this.getAbsolutePosition();
-        return {
-            x,
-            y: y + this.rect.height() / 2,
-            width: this.rect.width(),
-            height: this.rect.height() / 2
-        };
+        this.components[2].x(
+            this.width() - padding - this.components[2].width()
+        );
+        this.components[2].y(pos.y);
     }
 
     getContent() {
@@ -278,56 +185,34 @@ export class Elif extends BaseDiagram {
             ind += "\t";
             i++;
         }
-        return ind + "elif " + this.text.getContent() + ":";
+        return ind + "elif " + (this.components[1] as BaseText).getContent() + ":";
     }
 }
 
 export class Else extends BaseDiagram {
-    _ifT: Text;
-    constructor(config: BaseDiagramConfig = {}) {
-        delete config.content;
+    component: Text;
+    constructor() {
         super({
             name: "Else",
-            width: 200,
-            height: 80,
-            ...config,
+            diagramType: "block",
             theme: Theme.Diagram.Control,
         });
 
-        this._ifT = new Text({
+        this.component = new Text({
             x: Theme.TextBox.padding,
             y: this.height() / 2,
             text: "else:",
             fill: "#ffffff",
             fontSize: Theme.Text.fontSize + 6,
         });
-        this._ifT.y(this._ifT.y() - this._ifT.height() / 2);
+        this.component.y(this.component.y() - this.component.height() / 2);
 
-        this.add(this._ifT);
+        this.add(this.component);
     }
 
     setPosition(pos: Konva.Vector2d): this {
         super.setPosition(pos);
         return this;
-    }
-
-    attachRect(): AttachRect {
-        return {
-            x: this.x(),
-            y: this.y() + this.rect.height() / 2,
-            width: this.rect.width(),
-            height: this.rect.height() / 2
-        };
-    }
-
-    attachRectAbsolutePosition(): AttachRect {
-        const { x, y } = this.getAbsolutePosition();
-        return {
-            x,
-            y: y + this.rect.height() / 2,
-            width: this.rect.width(),
-            height: this.rect.height() / 2
-        };
     }
 
     getContent() {

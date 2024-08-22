@@ -1,174 +1,121 @@
 import { Text } from "konva/lib/shapes/Text";
 import { Theme } from "../../../themes/diagram";
-import { TextBox } from "../textbox";
+import { TextBox } from "../text/textbox";
 import { BaseText } from "../basetext";
-import { AttachRect, BaseDiagram, BaseDiagramConfig } from "../basediagram";
+import { BaseDiagram } from "../basediagram";
 
 export class For extends BaseDiagram {
+    // 0 text - for
+    // 1 textbox 
+    // 2 text - in
+    // 3 textbox
+    // 4 text :
+    components: ( BaseText | Text )[] = [];
     text: BaseText[] = [];
     _ifT: Text[] = [];
-    constructor(config: BaseDiagramConfig = {}) {
-        let content = config.content?.split(' ');
-        delete config.content;
+    constructor(content: string = "") {
         super({
             name: "for",
-            width: 220,
-            height: 95,
-            ...config,
+            width: 230,
+            diagramType: "block",
             theme: Theme.Diagram.Loop
         });
 
-        const padding = Theme.TextBox.padding;
-        const pos = {
-            x: Theme.TextBox.padding,
-            y: this.rect.height() / 2,
-        };
-
-        this._ifT.push(new Text({
-            ...pos,
+        this.components.push(new Text({
             text: "for",
             fill: "#ffffff",
             fontSize: Theme.Text.fontSize + 6,
         }));
-        let n: Text | BaseText = this._ifT[0];
-        n.y(n.y() - n.height() / 2);
-
-        pos.x += this._ifT[0].width() + padding;
-        this.text.push(
+        this.components.push(
             new TextBox({
                 text: (content)? content[0]:'',
                 width: this.width() * .2,
                 fill: "#00",
                 ...Theme.Text,
-                ...pos
             })
         );
-        n = this.text[0];
-        n.y(n.y() - n.height() / 2);
-
-        pos.x += this.text[0].width() + padding;
-        this._ifT.push(new Text({
-            x: pos.x,
-            y: pos.y,
+        this.components.push(new Text({
             text: "in",
             fill: "#ffffff",
             fontSize: Theme.Text.fontSize + 6,
         }));
-        n = this._ifT[1];
-        n.y(n.y() - n.height() / 2);
 
-        pos.x += this._ifT[1].width() + padding;
-        this.text.push(
+        this.components.push(
             new TextBox({
                 text: (content)? content[1]:'',
                 width: this.width() * .3,
                 fill: "#00",
                 ...Theme.Text,
-                ...pos
             })
         );
-        n = this.text[1];
-        n.y(n.y() - n.height() / 2);
 
-        pos.x += this.text[1].width() + padding;
-        this._ifT.push(new Text({
-            x: pos.x,
-            y: pos.y,
+        this.components.push(new Text({
             text: ":",
             fill: "#ffffff",
             fontSize: Theme.Text.fontSize + 6,
         }));
-        n = this._ifT[2];
-        n.y(n.y() - n.height() / 2);
 
-        this.add(this._ifT[0]);
-        this.add(this.text[0]);
-        this.add(this._ifT[1]);
-        this.add(this.text[1]);
-        this.add(this._ifT[2]);
+        this.setInitialPos();
+
+        this.add(...this.components);
     }
 
-    resize(size: {
-        width?: number, height?: number
-    }) {
-        super.resize(size);
+    setInitialPos() {
         const padding = Theme.TextBox.padding;
         const pos = {
             x: padding,
-            y: this.rect.height() / 2,
+            y: this.height() / 2
         };
 
-        this._ifT[0].setPosition({
-            x: pos.x, y: pos.y - this._ifT[0].height() / 2
-        });
-        pos.x += this._ifT[0].width() + padding;
-        let diff = 220 - 220 * .2;
+        this.components[0].y(pos.y);
+        pos.y = (this.components[0].y() - this.components[0].height() / 2);
+        this.components[0].setPosition(pos);
+        pos.x += this.components[0].width() + padding;
+        this.components[1].setPosition(pos);
 
-        this.text[0].resize({
-            width: this.width() - diff,
-        });
-        this.text[0].setPosition({
-            x: pos.x, y: pos.y - this.text[0].height() / 2
-        });
-        pos.x += this.text[0].width() + padding;
+        this.components[4].x(
+            this.width() - padding - this.components[4].width()
+        );
+        this.components[4].y(pos.y);
 
-        this._ifT[1].setPosition({
-            x: pos.x, y: pos.y - this._ifT[1].height() / 2
-        });
-        pos.x += this._ifT[1].width() + padding;
+        // placed 0 .... 4
+        // get the remaining space assuming 2 is placed
+        const totalWidths = this.components[0].width() + this.components[2].width() 
+            + this.components[4].width();
+        let remainSpace = this.width() - (totalWidths + padding * 6)
 
-        diff = 220 - 220 * .3;
-        this.text[1].resize({
-            width: this.width() - diff,
-        });
-        this.text[1].setPosition({
-            x: pos.x, y: pos.y - this.text[1].height() / 2
-        });
-        pos.x += this.text[1].width() + padding;
-        this._ifT[2].setPosition({
-            x: pos.x, y: pos.y - this._ifT[2].height() / 2
-        });
+        this.components[1].setPosition(pos);
+        this.components[1].setSize({width: remainSpace * .2});
+        (this.components[1] as TextBox).minWidth = remainSpace * .2;
 
-        this.setSize({
-            width: this._ifT[2].x() + this._ifT[2].width() + padding
-        });
+        pos.x += this.components[1].width() + padding;
+        this.components[2].setPosition(pos);
+        pos.x += this.components[2].width() + padding;
+        this.components[3].setPosition(pos);
+        this.components[3].setSize({width: remainSpace * .8});
+        (this.components[3] as TextBox).minWidth = remainSpace * .8;
     }
 
     refresh() {
         const padding = Theme.TextBox.padding;
-        let posx = padding;
-        this._ifT[0].x(posx);
-        posx += this._ifT[0].width() + padding;
-        this.text[0].x(posx);
-        posx += this.text[0].width() + padding;
-        this._ifT[1].x(posx);
-        posx += this._ifT[1].width() + padding;
-        this.text[1].x(posx);
-        posx += this.text[1].width() + padding;
-        this._ifT[2].x(posx);
-
-        this.setSize({
-            width: this._ifT[2].x() + this._ifT[2].width() + padding
-        });
-    }
-
-    attachRect(): AttachRect {
-        return {
-            x: this.x(),
-            y: this.y() + this.rect.height() / 2,
-            width: this.rect.width(),
-            height: this.rect.height() / 2
+        const pos = {
+            x: padding,
+            y: this.height() / 2
         };
-    }
 
-    attachRectAbsolutePosition(): AttachRect {
-        const { x, y } = this.getAbsolutePosition();
-        return {
-            x,
-            y: y + this.rect.height() / 2,
-            width: this.rect.width(),
-            height: this.rect.height() / 2
-        };
+        this.components[0].y(pos.y);
+        pos.y = (this.components[0].y() - this.components[0].height() / 2);
+        this.components[0].setPosition(pos);
+        pos.x += this.components[0].width() + padding;
+        this.components[1].setPosition(pos);
+        pos.x += this.components[1].width() + padding;
+        this.components[2].setPosition(pos);
+        pos.x += this.components[2].width() + padding;
+        this.components[3].setPosition(pos);
+        pos.x += this.components[3].width() + padding;
+        this.components[4].setPosition(pos);
+        pos.x += this.components[4].width() + padding;
+        this.setSize({ width: pos.x });
     }
 
     getContent() {
@@ -178,6 +125,7 @@ export class For extends BaseDiagram {
             ind += "\t";
             i++;
         }
-        return ind + "for " + this.text[0].getContent() + " in " + this.text[1].getContent() + ":";
+        return ind + "for " + (this.components[1] as BaseText).getContent()
+            + " in " + (this.components[3] as BaseText).getContent() + ":";
     }
 }
