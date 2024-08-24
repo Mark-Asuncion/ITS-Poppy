@@ -64,25 +64,6 @@ export const Theme = {
     Text: {
         fontSize: 20,
     },
-    Selection: {
-        fill: "#6388eb",
-        stroke: "#1A4BCC",
-        strokeWidth: 1,
-        opacity: 0.5
-    },
-    Transformer: {
-        id: "transformer",
-        name: "transformer",
-        resizeEnabled: false,
-        rotateEnabled: false,
-        flipEnabled: false,
-        borderEnabled: false,
-        borderDash: [6, 6],
-        borderStroke: "#E31C17",
-        borderStrokeWidth: 1,
-        padding: 1,
-        anchorSize: 5,
-    },
     Button: {
         fill: "#6F6F6F",
         hover: "#E8E8E8",

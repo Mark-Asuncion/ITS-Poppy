@@ -1,0 +1,38 @@
+.context-menu-container {
+    border-radius: 0.5em;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: max-content;
+    height: max-content;
+    background-color: white;
+    padding: 4px 8px;
+    box-shadow: 1px 1px 5px black;
+    min-width: 130px;
+}
+
+.context-menu-container > * {
+    font-size: 16px;
+    text-align: center;
+}
+
+.context-menu-p {
+    font-weight: bold;
+}
+
+.context-menu-button {
+    border-radius: 0.5em;
+    background-color: white;
+    border: none;
+    width: 100%;
+}
+
+.context-menu-button:hover {
+    box-shadow: 1px 1px 5px black;
+    color: black;
+}
+
+.context-menu-button:active {
+    background-color: var(--accent);
+    color: white;
+}

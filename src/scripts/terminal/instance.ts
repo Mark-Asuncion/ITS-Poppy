@@ -325,7 +325,9 @@ export class TerminalInstance {
                         clipboard.writeText(selection);
                     }
                     else {
+                        // TODO: this section is not tested
                         term.write(RawCtrlChars.CTRLC);
+                        TerminalInstance.restart();
                     }
                 }
             }

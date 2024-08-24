@@ -13,9 +13,12 @@ export class EndBlock extends BaseDiagram {
     refresh() {
         const p = (this.parent! as unknown as BaseDiagramParent);
         let maxWidth = 0;
-        p.nodes.forEach((v) => {
+        for (let i=0;i<p.nodes.length; i++) {
+            let v = p.nodes[i];
+            if (v == this)
+                break;
             maxWidth = Math.max(maxWidth, v.x() + v.width() - this.x());
-        })
+        }
 
         this.setSize({ width: maxWidth });
     }

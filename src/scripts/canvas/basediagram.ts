@@ -8,6 +8,7 @@ import { Path } from "konva/lib/shapes/Path";
 import { getSvgPathDimensions } from "./utils";
 import { Shape, ShapeConfig } from "konva/lib/Shape";
 import { TextChangedEvent } from "./basetext";
+import { clipboard } from "@tauri-apps/api";
 
 // prevent circular dependency from DiagramGroup
 export interface BaseDiagramParent {
@@ -105,6 +106,9 @@ export class BaseDiagram extends Group {
 
     setActive(withDrag: boolean = true) {
         this.path.stroke(Theme.Diagram.Active.stroke);
+        this.path.shadowEnabled(true);
+        this.path.shadowColor("black");
+        this.path.shadowBlur(5);
         if (withDrag) {
             this.draggable(true);
         }
@@ -112,6 +116,7 @@ export class BaseDiagram extends Group {
 
     removeActive() {
         this.path.stroke(this.strokeDef);
+        this.path.shadowEnabled(false);
         this.draggable(false);
     }
 
@@ -270,6 +275,16 @@ export class BaseDiagram extends Group {
         this.on("mouseup", (e) => {
             if (e.evt.button === 0) {
                 this.fire("OnStateSelect", {}, true);
+            }
+            else if (e.evt.button === 2) {
+                window.mContextMenu = [];
+                window.mContextMenu.push({ name: "Copy Diagram",
+                    callback: () => {
+                        if (this.getContent().length != 0)
+                            clipboard.writeText(this.getContent());
+                    }
+                });
+                window.mContextMenu.push({ name: "", separator: 1 });
             }
         });
 
