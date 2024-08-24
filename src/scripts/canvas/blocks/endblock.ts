@@ -1,5 +1,6 @@
 import { Theme } from "../../../themes/diagram";
-import { BaseDiagram, BaseDiagramParent } from "../basediagram";
+import { BaseDiagram } from "../basediagram";
+import { DiagramGroup } from "../diagramgroup";
 
 export class EndBlock extends BaseDiagram {
     constructor() {
@@ -11,7 +12,7 @@ export class EndBlock extends BaseDiagram {
     }
 
     refresh() {
-        const p = (this.parent! as unknown as BaseDiagramParent);
+        const p = (this.parent! as DiagramGroup);
         let maxWidth = 0;
         for (let i=0;i<p.nodes.length; i++) {
             let v = p.nodes[i];
@@ -28,6 +29,7 @@ export class EndBlock extends BaseDiagram {
     }
 
     onContextMenu() {
-        window.mContextMenu = [];
+        super.onContextMenu();
+        window.mContextMenu = window.mContextMenu.slice(1);
     }
 }

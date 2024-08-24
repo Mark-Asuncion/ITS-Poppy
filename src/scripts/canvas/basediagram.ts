@@ -10,12 +10,6 @@ import { Shape, ShapeConfig } from "konva/lib/Shape";
 import { TextChangedEvent } from "./basetext";
 import { clipboard } from "@tauri-apps/api";
 
-// prevent circular dependency from DiagramGroup
-export interface BaseDiagramParent {
-    nodes: BaseDiagram[],
-    refresh: () => void,
-}
-
 type DiagramType = "normal" | "block" | "indent2" | "indent3" | "endblock";
 export interface BaseDiagramConfig extends ContainerConfig {
     theme?: any,
@@ -253,11 +247,18 @@ export class BaseDiagram extends Group {
     }
 
     onContextMenu() {
-        window.mContextMenu = [];
         window.mContextMenu.push({ name: "Copy Diagram",
             callback: () => {
                 if (this.getContent().length != 0)
                 clipboard.writeText(this.getContent());
+            }
+        });
+        window.mContextMenu.push({
+            name: "Delete",
+            callback: () => {
+                const parent = (this.parent! as DiagramGroup);
+                parent.detach(this);
+                parent.refresh();
             }
         });
     }

@@ -1,6 +1,6 @@
 import Konva from "konva";
 import { BaseGroup } from "./canvas/basegroup";
-import { createElifDiagramAt, createElseDiagramAt, createIfDiagramAt, createStatementDiagramAt, createForDiagramAt, isPointIntersectRect } from "./canvas/utils";
+import { createElifDiagramAt, createElseDiagramAt, createIfDiagramAt, createStatementDiagramAt, createForDiagramAt } from "./canvas/utils";
 import { Module, get_cwd, load_modules } from "./backendconnector";
 import { DiagramGroup } from "./canvas/diagramgroup";
 import { EndBlock } from "./canvas/blocks/endblock";
@@ -59,16 +59,6 @@ export function diagramToModules(stage: Konva.Stage) {
     return ret;
 }
 
-// export function createStageForDiagramImage(container: HTMLDivElement) {
-//     const size = container.getBoundingClientRect();
-//     const stage = new Konva.Stage({
-//         container: container,
-//         width: size.width,
-//         height: size.height,
-//     });
-//     return stage;
-// }
-
 export function init() {
     const domContainer = document.querySelector("#diagram-container")! as HTMLDivElement;
     const size = domContainer.getBoundingClientRect();
@@ -83,7 +73,7 @@ export function init() {
 
     stage.on("mousedown", (e) => {
         e.cancelBubble = true;
-        if (e.evt.button === 0) {
+        if (e.evt.button !== 2) {
             contextMenuHide();
         }
     });
@@ -156,39 +146,6 @@ export function init() {
                 break;
         }
     }) as EventListener);
-
-    stage.on("mousedown", (e) => {
-        if (e.evt.button === 0 && e.evt.ctrlKey) {
-            const bg = (stage.children[0].children[0] as BaseGroup)
-            const pos = bg.getRelativePointerPosition()
-            if (pos === null) {
-                return;
-            }
-            console.log(pos)
-        }
-        else if (e.evt.button === 0 && e.evt.shiftKey) {
-            if (e.target.parent instanceof BaseGroup &&
-                e.target instanceof DiagramGroup) {
-                const pointerPos = e.target.parent!.getRelativePointerPosition()!;
-                const target = e.target as DiagramGroup;
-                target.nodes.forEach((v) => {
-                    const pos = v.getAbsolutePosition();
-                    const size = v.getSize();
-                    const isIntersect = isPointIntersectRect(pointerPos, {
-                        x: pos.x, y: pos.y,
-                        width: size.width, height: size.height
-                    });
-
-                    if (isIntersect) {
-                        const bd = target.detach(v);
-                        bd?.remove();
-                        bd?.destroy();
-                    }
-                });
-                // console.assert(false, "Remove NOT IMPPLEMENTED");
-            }
-        }
-        })
 
     const layer = new Konva.Layer();
     const baseGroup = new BaseGroup({

@@ -176,6 +176,9 @@ export class DiagramGroup extends Konva.Group {
     // repositions nodes and adjust widths
     refresh() {
         let prev = this.nodes[0];
+        prev.x(0);
+        prev.y(0);
+        prev._indent = 0;
 
         // console.log(prev._indent, prev.dgType);
         for (let i=1;i<this.nodes.length;i++) {

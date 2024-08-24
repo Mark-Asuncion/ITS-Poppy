@@ -1,7 +1,7 @@
 import { Theme } from "../../../themes/diagram";
 import { TextBox } from "../text/textbox";
 import { BaseText } from "../basetext";
-import { BaseDiagram, BaseDiagramParent } from "../basediagram";
+import { BaseDiagram } from "../basediagram";
 import { toDiagram } from "../utils";
 
 export class Statement extends BaseDiagram {
