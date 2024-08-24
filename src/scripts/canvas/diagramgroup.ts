@@ -163,8 +163,8 @@ export class DiagramGroup extends Konva.Group {
             }
             return true;
         });
-        this.refresh();
         diagrams.remove();
+        this.refresh();
 
         const dg = new DiagramGroup();
         diagrams.setPosition({ x: 0, y: 0 });

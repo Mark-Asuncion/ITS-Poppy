@@ -4,6 +4,7 @@ import { createElifDiagramAt, createElseDiagramAt, createIfDiagramAt, createStat
 import { Module, get_cwd, load_modules } from "./backendconnector";
 import { DiagramGroup } from "./canvas/diagramgroup";
 import { EndBlock } from "./canvas/blocks/endblock";
+import { contextMenuHide, contextMenuShow } from "./contextmenu/contextmenu";
 
 function getPlacementPos(stage: Konva.Stage): Konva.Vector2d {
     const basegroup = stage.getChildren()[0].getChildren()[0] as BaseGroup;
@@ -75,6 +76,22 @@ export function init() {
         container: domContainer,
         width: size.width,
         height: size.height,
+    });
+
+    // window.mCvStage = stage;
+
+    stage.on("mousedown", (e) => {
+        e.cancelBubble = true;
+        if (e.evt.button === 0) {
+            contextMenuHide();
+        }
+    });
+
+    domContainer.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        console.log(window.mContextMenu);
+        contextMenuHide();
+        contextMenuShow();
     });
 
     document.addEventListener("diagramdrop", ((e: any) => {

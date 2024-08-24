@@ -27,6 +27,9 @@
                 "message": true,
                 "open": true,
                 "save": true
+            },
+            "clipboard": {
+                "all": true
             }
         },
     "bundle": {

@@ -2,6 +2,7 @@
 import { diagramToModules, init } from "./canvasinit";
 import { dialog_one_dir, get_cwd_name, set_cwd, write_diagrams_to_modules } from "./backendconnector";
 import { TerminalInstance } from "./terminal/instance";
+import { contextMenuHide, contextMenuShow } from "./contextmenu/contextmenu";
 
 async function set_project_name(input_element: HTMLInputElement) {
     const isUntitled = input_element.value.toLowerCase() === "untitled project";
@@ -43,3 +44,23 @@ playBtn?.addEventListener("click", async () => {
         TerminalInstance.write("python main.py");
     }
 });
+
+document.body.addEventListener("mousemove", (e) => {
+    if (!window.mCursor) {
+        window.mCursor = {
+            x: e.clientX,
+            y: e.clientY
+        };
+        return;
+    }
+
+    window.mCursor.x = e.clientX;
+    window.mCursor.y = e.clientY;
+    // console.log(`cursor: ${window.mCursor.x}, ${window.mCursor.y}`);
+})
+
+window.mContextMenu = [];
+window.mDebugContextMenuFn = {
+    contextMenuShow: contextMenuShow,
+    contextMenuHide: contextMenuHide
+};
