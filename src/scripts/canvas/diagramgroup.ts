@@ -329,7 +329,7 @@ export class DiagramGroup extends Konva.Group {
             dg = new Elif(dStr);
             dg._indent = indent;
             return dg;
-    }
+        }
         else if (d[0] == "else" || d[0] == "else:") {
             dg = new Else();
             dg._indent = indent;

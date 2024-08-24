@@ -5,6 +5,7 @@ import { Module, get_cwd, load_modules } from "./backendconnector";
 import { DiagramGroup } from "./canvas/diagramgroup";
 import { EndBlock } from "./canvas/blocks/endblock";
 import { contextMenuHide, contextMenuShow } from "./contextmenu/contextmenu";
+import { While } from "./canvas/blocks/loop";
 
 function getPlacementPos(stage: Konva.Stage): Konva.Vector2d {
     const basegroup = stage.getChildren()[0].getChildren()[0] as BaseGroup;
@@ -107,10 +108,12 @@ export function init() {
                 bg.add(createStatementDiagramAt(pos));
                 break;
             case "endblock":
-                const diagGroup = new DiagramGroup(pos);
-                const diagram = new EndBlock();
-                diagGroup.addDiagram(diagram);
-                bg.add(diagGroup);
+                {
+                    const diagGroup = new DiagramGroup(pos);
+                    const diagram = new EndBlock();
+                    diagGroup.addDiagram(diagram);
+                    bg.add(diagGroup);
+                }
                 break;
             case "control-if":
                 const dg = createIfDiagramAt(pos);
@@ -142,6 +145,12 @@ export function init() {
                 break;
             case "loop-for":
                 bg.add(createForDiagramAt(pos));
+                break;
+            case "loop-while":
+                const diagGroup = new DiagramGroup(pos);
+                const diagram = new While();
+                diagGroup.addDiagram(diagram);
+                bg.add(diagGroup);
                 break;
             default:
                 break;

@@ -3,6 +3,7 @@ import { DiagramGroup } from "./diagramgroup";
 import { Statement } from "./blocks/statement";
 import { If, Elif, Else } from "./blocks/control";
 import { For } from "./blocks/loop";
+import { BaseDiagram } from "./basediagram";
 
 export function isPointIntersectRect(
     point: { x: number, y: number },
@@ -67,10 +68,54 @@ export function getSvgPathDimensions(pathData: string, scale: number = 1) {
     };
 }
 
-
 export interface _Selected {
     setActive: () => void,
     removeActive: () => void,
     // moveToTop: () => void,
     // moveToBottom: () => void
 };
+
+export function toDiagram(curr: BaseDiagram, what: string, parent: any) {
+    const p = parent as DiagramGroup;
+    // find the insertion index
+    let insertionIndex = -1;
+    for (let i=0;i<p.nodes.length;i++) {
+        if (p.nodes[i] === curr) {
+            insertionIndex = i;
+            break;
+        }
+    }
+
+    if (insertionIndex == -1) {
+        return;
+    }
+
+    let ct = curr.getInputContent();
+    let node: null | BaseDiagram = null;
+    if (what == "if") {
+        curr.remove();
+        curr.destroy();
+
+        ct = ct.replace(/if|:/g,'').trim();
+        node = new If(ct);
+    }
+    else if (what == "elif") {
+        curr.remove();
+        curr.destroy();
+
+        ct = ct.replace(/elif|:/g,'').trim();
+        node = new Elif(ct);
+    }
+    else if (what == "else") {
+        curr.remove();
+        curr.destroy();
+        node = new Else();
+    }
+
+    if (node == null)
+        return;
+
+    p.nodes.splice(insertionIndex, 1, node);
+    p.add(node);
+    p.refresh();
+}

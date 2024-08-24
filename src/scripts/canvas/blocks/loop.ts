@@ -11,8 +11,6 @@ export class For extends BaseDiagram {
     // 3 textbox
     // 4 text :
     components: ( BaseText | Text )[] = [];
-    text: BaseText[] = [];
-    _ifT: Text[] = [];
     constructor(content: string = "") {
         super({
             name: "for",
@@ -127,5 +125,97 @@ export class For extends BaseDiagram {
         }
         return ind + "for " + (this.components[1] as BaseText).getContent()
             + " in " + (this.components[3] as BaseText).getContent() + ":";
+    }
+}
+
+export class While extends BaseDiagram {
+    components: (BaseText | Text)[] = [];
+    constructor(content: string = "") {
+        super({
+            name: "while",
+            diagramType: "block",
+            theme: Theme.Diagram.Loop
+        });
+
+        this.components.push(new Text({
+            text: "while",
+            fill: "#ffffff",
+            fontSize: Theme.Text.fontSize + 6,
+        }));
+
+        this.components.push(new TextBox({
+            text: (content)? content[0]:'',
+            fill: "#00",
+            ...Theme.Text,
+        }));
+
+        this.components.push(new Text({
+            text: ":",
+            fill: "#ffffff",
+            fontSize: Theme.Text.fontSize + 6,
+        }));
+
+        this.setInitialPos();
+        this.add(...this.components);
+    }
+
+    setInitialPos() {
+        const padding = Theme.TextBox.padding;
+        const pos = {
+            x: padding,
+            y: this.height() / 2
+        };
+
+        this.components[0].y(pos.y);
+        pos.y = (this.components[0].y() - this.components[0].height() / 2);
+        this.components[0].setPosition(pos);
+        pos.x += this.components[0].width() + padding;
+        this.components[1].setPosition(pos);
+
+        this.components[2].x(
+            this.width() - padding - this.components[2].width()
+        );
+        this.components[2].y(pos.y);
+
+        let tboxw = this.width() - (this.components[0].width() + this.components[2].width() + padding * 4)
+        this.components[1].setSize({width: tboxw});
+        (this.components[1] as TextBox).minWidth = tboxw;
+    }
+
+    refresh() {
+        const padding = Theme.TextBox.padding;
+        const pos = {
+            x: padding,
+            y: this.height() / 2
+        };
+
+        this.components[0].y(pos.y);
+        pos.y = (this.components[0].y() - this.components[0].height() / 2);
+        this.components[0].setPosition(pos);
+        pos.x += this.components[0].width() + padding;
+        this.components[1].setPosition(pos);
+
+        let nwidth = this.components[1].x() + this.components[1].width() + padding
+            + this.components[2].width() + padding;
+        this.setSize({ width: nwidth });
+
+        this.components[2].x(
+            this.width() - padding - this.components[2].width()
+        );
+        this.components[2].y(pos.y);
+    }
+
+    getInputContent() {
+        return (this.components[1] as BaseText).getContent();
+    }
+
+    getContent() {
+        let i=0;
+        let ind = "";
+        while (i<this._indent) {
+            ind += "\t";
+            i++;
+        }
+        return ind + "white " + ( this.components[1] as BaseText ).getContent() + ":";
     }
 }

@@ -12,7 +12,8 @@ import { clipboard } from "@tauri-apps/api";
 
 // prevent circular dependency from DiagramGroup
 export interface BaseDiagramParent {
-    nodes: BaseDiagram[]
+    nodes: BaseDiagram[],
+    refresh: () => void,
 }
 
 type DiagramType = "normal" | "block" | "indent2" | "indent3" | "endblock";
@@ -251,6 +252,16 @@ export class BaseDiagram extends Group {
         parent.refresh();
     }
 
+    onContextMenu() {
+        window.mContextMenu = [];
+        window.mContextMenu.push({ name: "Copy Diagram",
+            callback: () => {
+                if (this.getContent().length != 0)
+                clipboard.writeText(this.getContent());
+            }
+        });
+    }
+
     registerEvents() {
         // this.button.l.on("mousedown", (e) => {
         //     e.cancelBubble = true;
@@ -277,14 +288,7 @@ export class BaseDiagram extends Group {
                 this.fire("OnStateSelect", {}, true);
             }
             else if (e.evt.button === 2) {
-                window.mContextMenu = [];
-                window.mContextMenu.push({ name: "Copy Diagram",
-                    callback: () => {
-                        if (this.getContent().length != 0)
-                            clipboard.writeText(this.getContent());
-                    }
-                });
-                window.mContextMenu.push({ name: "", separator: 1 });
+                this.onContextMenu();
             }
         });
 
@@ -346,6 +350,10 @@ export class BaseDiagram extends Group {
     }
 
     getContent() {
+        return "";
+    }
+
+    getInputContent() {
         return "";
     }
 

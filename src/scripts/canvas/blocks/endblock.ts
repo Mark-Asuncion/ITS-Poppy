@@ -26,4 +26,8 @@ export class EndBlock extends BaseDiagram {
     getContent() {
         return "";
     }
+
+    onContextMenu() {
+        window.mContextMenu = [];
+    }
 }
