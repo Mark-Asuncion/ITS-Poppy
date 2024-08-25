@@ -1,0 +1,43 @@
+.notify-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    padding: 0.5em;
+    margin: 0.5em;
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.notify-item {
+    box-shadow: 0 0 5px black;
+    background-color: white;
+    padding: 0 0.5em;
+    border-radius: 0.4em;
+    display: flex;
+    margin: 0.3em 0;
+    align-items: center;
+    gap: 8px;
+    width: max-content;
+}
+
+.notify-icon-container {
+    border-radius: 9999px;
+}
+
+.notify-type-info {
+    padding: 0 0.6em;
+}
+
+.notify-type-error, .notify-type-warn {
+    padding: 0 0.7em;
+}
+
+.notify-icon-container:first-child {
+    aspect-ratio: 1 / 1;
+    margin: 4px;
+}
+
+.notify-close-btn {
+    border: none;
+    background-color: white;
+}
