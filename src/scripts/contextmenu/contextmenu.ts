@@ -26,7 +26,6 @@ export function contextMenuHide() {
     for (let i=0;i<divs.length;i++) {
         if (!divs[i])
             continue;
-        window.mContextMenu = [];
         divs[i].remove();
     }
 }

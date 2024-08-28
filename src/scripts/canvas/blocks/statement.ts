@@ -2,7 +2,6 @@ import { Theme } from "../../../themes/diagram";
 import { TextBox } from "../text/textbox";
 import { BaseText } from "../basetext";
 import { BaseDiagram } from "../basediagram";
-import { toDiagram } from "../utils";
 
 export class Statement extends BaseDiagram {
     text: BaseText;
@@ -45,24 +44,24 @@ export class Statement extends BaseDiagram {
         return ind + this.text.getContent();
     }
 
-    getInputContent() {
-        return this.text.getContent();
-    }
+    // getInputContent() {
+    //     return this.text.getContent();
+    // }
 
-    onContextMenu() {
-        super.onContextMenu();
-        const ct = this.getContent().trim().split(' ');
-
-        window.mContextMenu.push({
-            name: "To Control",
-            callback: () => {
-                if (ct[0] !== "if" &&
-                    ct[0] !== "elif" &&
-                    ct[0] !== "else") {
-                    return;
-                }
-                toDiagram(this, ct[0], this.parent!);
-            }
-        });
-    }
+    // onContextMenu() {
+    //     super.onContextMenu();
+    //     const ct = this.getContent().trim().split(' ');
+    //
+    //     window.mContextMenu.push({
+    //         name: "To Control",
+    //         callback: () => {
+    //             if (ct[0] !== "if" &&
+    //                 ct[0] !== "elif" &&
+    //                 ct[0] !== "else") {
+    //                 return;
+    //             }
+    //             toDiagram(this, ct[0], this.parent!);
+    //         }
+    //     });
+    // }
 }

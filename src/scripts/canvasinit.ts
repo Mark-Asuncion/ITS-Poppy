@@ -10,14 +10,26 @@ import { While } from "./canvas/blocks/loop";
 function getPlacementPos(stage: Konva.Stage): Konva.Vector2d {
     const basegroup = stage.getChildren()[0].getChildren()[0] as BaseGroup;
     const container = stage.container().getBoundingClientRect();
+    // offset because if half it is on the right side
     const containerCenter = {
-        x: container.width,
-        y: container.height,
+        x: container.x + container.width * .2,
+        y: container.y + container.height * .2,
     };
-    return {
-        x: Math.abs( basegroup.x() + (basegroup.x() / 2 + containerCenter.x) ),
-        y: Math.abs( basegroup.y() + (basegroup.y() / 2 + containerCenter.y) ),
-    };
+    let transform = basegroup.getAbsoluteTransform()
+        .copy()
+        .invert();
+
+    // const div = document.createElement("div");
+    // div.style.position = "absolute";
+    // div.style.width = "10px";
+    // div.style.height = "10px";
+    // div.style.left = `${container.x + containerCenter.x}px`;
+    // div.style.top = `${container.y + containerCenter.y}px`;
+    // div.style.backgroundColor = "red";
+    // document.body.appendChild(div);
+
+    const p = transform.point(containerCenter);
+    return p;
 }
 
 async function __loadModules(stage: Konva.Stage): Promise<DiagramGroup[]> {
@@ -69,7 +81,7 @@ export function init() {
         height: size.height,
     });
 
-    // window.mCvStage = stage;
+    window.mCvStage = stage;
 
     stage.on("mousedown", (e) => {
         e.cancelBubble = true;
@@ -90,7 +102,6 @@ export function init() {
         if (!type) {
             return;
         }
-        // Check if name main is already used and rename if used
         const bg = stage.children[0].children[0] as BaseGroup;
         const pos = getPlacementPos(stage);
         switch (type) {
@@ -158,6 +169,8 @@ export function init() {
             diagramGroups.forEach((v) => {
                 baseGroup.add(v);
             });
+
+            baseGroup.focus(0);
         });
 
     layer.add(baseGroup);

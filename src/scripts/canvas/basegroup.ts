@@ -9,7 +9,7 @@ import { _Selected } from "./utils";
 export class BaseGroup extends Group {
     // background size multipler
     mtpSize: number ;
-    constructor(opts: Konva.ContainerConfig, size: number = 5) {
+    constructor(opts: Konva.ContainerConfig, size: number = 10) {
         super(opts);
         this.mtpSize = size;
 
@@ -91,5 +91,28 @@ export class BaseGroup extends Group {
             ret.push(child);
         }
         return ret;
+    }
+
+    // childn focus on the nth child
+    focus(childn: number) {
+        const childs = this.getDiagramGroups();
+        if (childs.length == 0 || childs[childn] == undefined) {
+            return;
+        }
+        const ch = childs[childn];
+
+        const stage = this.getStage()!;
+        const container = stage.container().getBoundingClientRect();
+        const offset = {
+            x: container.x + container.width * .1,
+            y: container.y + container.height * .1
+        };
+        const pos = {
+            x: this.x() + ch.x() - offset.x,
+            y: this.y() + ch.y() - offset.y
+        };
+
+        // console.log(this.position(), ch.position(), pos);
+        this.setPosition(pos);
     }
 }
