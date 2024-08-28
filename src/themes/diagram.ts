@@ -52,6 +52,10 @@ export const Theme = {
         Loop: {
             stroke: "#a6600e",
             fill: "#ED9227",
+        },
+        Function: {
+            fill: "#2782ED",
+            stroke: "#0f5cb7"
         }
     },
     TextBox: {

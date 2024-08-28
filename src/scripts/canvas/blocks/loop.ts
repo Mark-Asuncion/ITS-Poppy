@@ -10,10 +10,10 @@ export class For extends BaseDiagram {
     // 2 text - in
     // 3 textbox
     // 4 text :
-    components: ( BaseText | Text )[] = [];
+    // components: ( BaseText | Text )[] = [];
     constructor(content: string = "") {
         super({
-            name: "for",
+            name: "For",
             width: 230,
             diagramType: "block",
             theme: Theme.Diagram.Loop
@@ -129,7 +129,6 @@ export class For extends BaseDiagram {
 }
 
 export class While extends BaseDiagram {
-    components: (BaseText | Text)[] = [];
     constructor(content: string = "") {
         super({
             name: "while",

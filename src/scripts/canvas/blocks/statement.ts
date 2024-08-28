@@ -1,10 +1,8 @@
 import { Theme } from "../../../themes/diagram";
 import { TextBox } from "../text/textbox";
-import { BaseText } from "../basetext";
 import { BaseDiagram } from "../basediagram";
 
 export class Statement extends BaseDiagram {
-    text: BaseText;
     constructor(content: string = "") {
         super({
             name: "Statement",
@@ -17,20 +15,22 @@ export class Statement extends BaseDiagram {
             x: this.width() / 2 - w / 2,
             y: this.height() / 2
         };
-        this.text = new TextBox({
+        this.components.push(new TextBox({
             text: content,
             width: w,
             fill: "#00",
             ...Theme.Text,
             ...textPos,
-        });
-        this.text.y(this.text.y() - this.text.height() / 2);
-        this.add(this.text);
+        }));
+        let tb = this.components[0];
+        tb.y(tb.y() - tb.height() / 2);
+        this.add(tb);
     }
 
     refresh() {
+        let tb = this.components[0];
         this.setSize({
-            width: this.text.x() + this.text.width() + this.text.padding(),
+            width: tb.x() + tb.width() + tb.padding(),
         });
     }
 
@@ -41,7 +41,7 @@ export class Statement extends BaseDiagram {
             ind += "\t";
             i++;
         }
-        return ind + this.text.getContent();
+        return ind + (this.components[0] as TextBox).getContent();
     }
 
     // getInputContent() {

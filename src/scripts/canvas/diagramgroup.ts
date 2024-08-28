@@ -12,6 +12,7 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { Shape, ShapeConfig } from "konva/lib/Shape";
 import { TextBox } from "./text/textbox";
 import { BaseText, TextChangedEvent } from "./basetext";
+import { Function } from "./blocks/function";
 
 export interface AttachTo {
     v: DiagramGroup,
@@ -175,6 +176,8 @@ export class DiagramGroup extends Konva.Group {
 
     // repositions nodes and adjust widths
     refresh() {
+        if (this.nodes.length === 0)
+            return;
         let prev = this.nodes[0];
         prev.x(0);
         prev.y(0);
@@ -344,11 +347,20 @@ export class DiagramGroup extends Konva.Group {
             dg = new For(dStr);
             dg._indent = indent;
             return dg;
-            }
+        }
         else {
-            dg = new Statement(data.trim());
-            dg._indent = indent;
-            return dg;
+            let fnMatch = data.match(/.+\(.*\)/);
+            if (fnMatch != null && fnMatch.length >= 1) {
+                let s = fnMatch[0].split("(");
+                let params = s[1].substring(0, s[1].length-1).trim();
+                dg = new Function(s[0].trim(), params);
+                return dg;
+            }
+            else {
+                dg = new Statement(data.trim());
+                dg._indent = indent;
+                return dg;
+            }
         }
     }
 

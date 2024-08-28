@@ -16,6 +16,7 @@ export class BaseText extends Group {
     text?: Text;
     bg: Rect;
     isEditing = false;
+    input: HTMLTextAreaElement | null = null;
     constructor(textConfig: BaseTextConfig) {
         const noBG = textConfig.noBG;
         delete textConfig.noBG;
@@ -56,6 +57,16 @@ export class BaseText extends Group {
 
     padding(): number {
         return 0;
+    }
+
+    removeFocus() {
+        if (this.input) {
+            this.input.blur();
+        }
+    }
+
+    focus() {
+        this.createInput();
     }
 
     registerEvents() {

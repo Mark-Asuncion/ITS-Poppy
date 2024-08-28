@@ -6,7 +6,6 @@ import { BaseText } from "../basetext";
 import { BaseDiagram } from "../basediagram";
 
 export class If extends BaseDiagram {
-    components: (BaseText | Text)[] = []
     constructor(content: string = "") {
         super({
             name: "If",
@@ -96,7 +95,6 @@ export class If extends BaseDiagram {
 }
 
 export class Elif extends BaseDiagram {
-    components: (BaseText | Text)[] = []
     constructor(content: string = "") {
         super({
             name: "Elif",
@@ -190,7 +188,6 @@ export class Elif extends BaseDiagram {
 }
 
 export class Else extends BaseDiagram {
-    component: Text;
     constructor() {
         super({
             name: "Else",
@@ -198,16 +195,16 @@ export class Else extends BaseDiagram {
             theme: Theme.Diagram.Control,
         });
 
-        this.component = new Text({
+        this.components.push(new Text({
             x: Theme.TextBox.padding,
             y: this.height() / 2,
             text: "else:",
             fill: "#ffffff",
             fontSize: Theme.Text.fontSize + 6,
-        });
-        this.component.y(this.component.y() - this.component.height() / 2);
+        }));
+        this.components[0].y(this.components[0].y() - this.components[0].height() / 2);
 
-        this.add(this.component);
+        this.add(...this.components);
     }
 
     setPosition(pos: Konva.Vector2d): this {

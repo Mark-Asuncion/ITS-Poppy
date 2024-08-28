@@ -6,6 +6,8 @@ import { DiagramGroup } from "./canvas/diagramgroup";
 import { EndBlock } from "./canvas/blocks/endblock";
 import { contextMenuHide, contextMenuShow } from "./contextmenu/contextmenu";
 import { While } from "./canvas/blocks/loop";
+import { Function } from "./canvas/blocks/function";
+import { Shape, ShapeConfig } from "konva/lib/Shape";
 
 function getPlacementPos(stage: Konva.Stage): Konva.Vector2d {
     const basegroup = stage.getChildren()[0].getChildren()[0] as BaseGroup;
@@ -157,6 +159,15 @@ export function init() {
                 break;
         }
     }) as EventListener);
+
+    window["addFn"] = () => {
+        const pos = getPlacementPos(stage);
+        const diagGroup = new DiagramGroup(pos);
+        const diagram = new Function();
+        diagGroup.addDiagram(diagram);
+        const bg = stage.children[0].children[0] as BaseGroup;
+        bg.add(diagGroup);
+    };
 
     const layer = new Konva.Layer();
     const baseGroup = new BaseGroup({

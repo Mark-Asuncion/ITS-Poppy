@@ -5,7 +5,7 @@ import { DiagramGroup } from "../diagramgroup";
 export class EndBlock extends BaseDiagram {
     constructor() {
         super({
-            name: "endblock",
+            name: "Endblock",
             diagramType: "endblock",
             theme: Theme.Diagram.Statement
         });
