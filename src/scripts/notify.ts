@@ -1,4 +1,4 @@
-export function notifyPush(text: string, iconType: string = "info", timeout: number = 5000) {
+export function notifyPush(text: string, iconType: "info" | "warn" | "error" = "info", timeout: number = 5000) {
     if (!window.mNotifyDiv) {
         window.mNotifyDiv = document.createElement("div");
         window.mNotifyDiv.classList.add("notify-container");

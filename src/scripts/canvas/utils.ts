@@ -123,5 +123,6 @@ export function toDiagram(curr: BaseDiagram, what: string, parent: any) {
 
 export interface TextKeyUpEvent extends KonvaEventObject<any> {
     value?: string,
-    key?: string
+    key?: string,
+    shiftKey?: boolean,
 };
