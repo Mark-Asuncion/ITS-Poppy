@@ -1,13 +1,14 @@
 import Konva from "konva";
 import { BaseGroup } from "./canvas/basegroup";
-import { createElifDiagramAt, createElseDiagramAt, createIfDiagramAt, createStatementDiagramAt, createForDiagramAt } from "./canvas/utils";
+import { createElifDiagramAt, createElseDiagramAt, createIfDiagramAt, createStatementDiagramAt, createForDiagramAt, isPointIntersectRect } from "./canvas/utils";
 import { Module, get_cwd, load_modules } from "./backendconnector";
 import { DiagramGroup } from "./canvas/diagramgroup";
-import { EndBlock } from "./canvas/blocks/endblock";
 import { contextMenuHide, contextMenuShow } from "./contextmenu/contextmenu";
 import { While } from "./canvas/blocks/loop";
 import { Function } from "./canvas/blocks/function";
 import { Shape, ShapeConfig } from "konva/lib/Shape";
+import { BaseDiagram } from "./canvas/basediagram";
+import { Theme } from "../themes/diagram";
 
 function getPlacementPos(stage: Konva.Stage): Konva.Vector2d {
     const basegroup = stage.getChildren()[0].getChildren()[0] as BaseGroup;
@@ -92,6 +93,33 @@ export function init() {
         }
     });
 
+
+    // disable default behaviour
+    document.addEventListener("keydown", (e) => {
+        if (!window.mSelected) {
+            return;
+        }
+
+        if (e.key == "Tab") {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    });
+
+    document.addEventListener("keyup", (e) => {
+        if (isPointIntersectRect(window.mCursor, domContainer.getBoundingClientRect())) {
+            console.log(window.mSelected);
+            if (!window.mSelected) {
+                return;
+            }
+            const shape = (window.mSelected as unknown as Shape<ShapeConfig>)
+            shape.fire("KeyUp", {
+                key: e.key,
+                shiftKey: e.shiftKey
+            }, true);
+        }
+    });
+
     domContainer.addEventListener("contextmenu", (e) => {
         e.preventDefault();
         console.log(window.mContextMenu);
@@ -113,7 +141,11 @@ export function init() {
             case "endblock":
                 {
                     const diagGroup = new DiagramGroup(pos);
-                    const diagram = new EndBlock();
+                    const diagram = new BaseDiagram({
+                        name: "Endblock",
+                        diagramType: "endblock",
+                        theme: Theme.Diagram.Statement
+                    });
                     diagGroup.addDiagram(diagram);
                     bg.add(diagGroup);
                 }
@@ -121,7 +153,11 @@ export function init() {
             case "control-if":
                 const dg = createIfDiagramAt(pos);
                 const dgEnd = new DiagramGroup(pos);
-                const endblock = new EndBlock();
+                const endblock = new BaseDiagram({
+                    name: "Endblock",
+                    diagramType: "endblock",
+                    theme: Theme.Diagram.Statement
+                });
                 dgEnd.addDiagram(endblock);
 
                 const dgStatement = createStatementDiagramAt(pos);

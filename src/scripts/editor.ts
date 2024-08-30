@@ -25,6 +25,12 @@ if (inpProjName) {
     });
 }
 
+
+window["mSave"] = () => {
+    const contents = diagramToModules(canvasStage);
+    write_diagrams_to_modules(contents);
+};
+
 playBtn?.addEventListener("click", async () => {
     await set_project_name(inpProjName);
     const contents = diagramToModules(canvasStage);

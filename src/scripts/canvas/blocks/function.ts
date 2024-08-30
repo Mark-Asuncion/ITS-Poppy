@@ -106,7 +106,7 @@ export class Function extends BaseDiagram {
             this.refresh();
             (newComponent[1] as BaseText).focus()
         }
-        else if (e.key == "Backspace" && e.value!.length === 0) {
+        else if (e.key == "Backspace" && (e.value != undefined && e.value.length === 0)) {
             if (tb === this.components[2]) {
                 return;
             }

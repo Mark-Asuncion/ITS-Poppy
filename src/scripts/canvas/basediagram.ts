@@ -2,7 +2,6 @@ import { Group } from "konva/lib/Group";
 import { Theme } from "../../themes/diagram";
 import { ContainerConfig } from "konva/lib/Container";
 import { DiagramGroup } from "./diagramgroup";
-import { ArrowButton } from "./button";
 import { KonvaEventObject } from "konva/lib/Node";
 import { Path } from "konva/lib/shapes/Path";
 import { getSvgPathDimensions } from "./utils";
@@ -13,7 +12,7 @@ import { notifyPush } from "../notify";
 import { TextKeyUpEvent } from "./utils";
 import { Text } from "konva/lib/shapes/Text";
 
-type DiagramType = "normal" | "block" | "indent2" | "indent3" | "endblock";
+type DiagramType = "normal" | "block" | "indent0" | "indent1" | "indent2" | "indent3" | "endblock";
 export interface BaseDiagramConfig extends ContainerConfig {
     theme?: any,
     diagramType?: DiagramType,
@@ -29,10 +28,6 @@ export class BaseDiagram extends Group {
         suffix: string
     };
     path: Path;
-    button: {
-        l: ArrowButton,
-        r: ArrowButton
-    };
     _indent: number = 0;
     _nsep = 5;
     components: (BaseText | Text)[] = []
@@ -52,21 +47,15 @@ export class BaseDiagram extends Group {
 
         this.minWidth = (config.width)? config.width:Theme.BaseDiagram.width;
 
-        this.button = {
-            l: new ArrowButton({
-                x: this.width() / 2,
-                y: this.height() / 2,
-                direction: "left"
-            }),
-            r: new ArrowButton({
-                x: this.width() / 2,
-                y: this.height() / 2
-            })
-        };
-
         this.dgType = ( type )? type:"normal";
         if (type == undefined || type == "normal") {
             this.dgSVG = Theme.SVG.Normal;
+        }
+        else if (type == "indent0") {
+            this.dgSVG = Theme.SVG.Indent0;
+        }
+        else if (type == "indent1") {
+            this.dgSVG = Theme.SVG.Indent1;
         }
         else if (type == "indent2") {
             this.dgSVG = Theme.SVG.Indent2;
@@ -119,34 +108,6 @@ export class BaseDiagram extends Group {
         this.draggable(false);
     }
 
-    setBtnActive() {
-        const attrs = {
-            l: {
-                x: -30,
-            },
-            r: {
-                x: this.width() + 30,
-            }
-        };
-
-        this.button.l.tween(attrs.l);
-        this.button.r.tween(attrs.r);
-    }
-
-    removeBtnActive() {
-        const attrs = {
-            l: {
-                x: this.width() / 2
-            },
-            r: {
-                x: this.width() / 2
-            }
-        };
-
-        this.button.l.tween(attrs.l);
-        this.button.r.tween(attrs.r);
-    }
-
     attachRectAbsolutePosition():
     { x: number, y: number, width: number, height: number } {
         const { x, y } = this.getAbsolutePosition();
@@ -167,38 +128,63 @@ export class BaseDiagram extends Group {
     attachPoint(): { x: number, y: number } {
         let x = 0;
         let y = this.height() - 14;
-        if (this.dgType == "block") {
+        if (this.dgType == "block" || this.dgType == "indent1") {
             x = 19;
         }
         else if (this.dgType == "indent2") {
             x = 38;
         }
         else if (this.dgType == "indent3") {
-            x = 57;
+            x = 59;
         }
 
         return { x, y };
     }
 
-    setIndentByPrevLine(prev: BaseDiagram) {
-        const prevType = prev.dgType;
-        switch (prevType) {
-            case "endblock":
-            case "normal":
-                this._indent = prev._indent;
-                break;
-            case "block":
-                this._indent = prev._indent + 1;
-                break;
-            case "indent2":
-                this._indent = prev._indent + 2;
-                break;
-            case "indent3":
-                this._indent = prev._indent + 3;
-                break;
-            default:
-                console.warn("SHOULD NEVER HAPPEN");
-                break;
+    setIndentByPrevNodes(nodes: BaseDiagram[]) {
+        if (nodes.length === 0) {
+            return;
+        }
+
+        if (this.dgType !== "endblock") {
+            const prev = nodes[nodes.length-1];
+            const prevType = prev.dgType;
+            switch (prevType) {
+                case "endblock":
+                case "indent0":
+                case "normal":
+                    this._indent = prev._indent;
+                    break;
+                case "indent1":
+                case "block":
+                    this._indent = prev._indent + 1;
+                    break;
+                case "indent2":
+                    this._indent = prev._indent + 2;
+                    break;
+                case "indent3":
+                    this._indent = prev._indent + 3;
+                    break;
+                default:
+                    console.warn("SHOULD NEVER HAPPEN");
+                    break;
+            }
+        }
+        else {
+            let seenEB = 0;
+            for (let i=nodes.length-1;i>=0;i--) {
+                if (nodes[i].dgType === "endblock") {
+                    seenEB++;
+                }
+
+                if (nodes[i].dgType === "block") {
+                    this.x(nodes[i].x());
+                    this._indent = nodes[i]._indent;
+
+                    if (seenEB == 0)
+                        break;
+                }
+            }
         }
     }
 
@@ -222,7 +208,21 @@ export class BaseDiagram extends Group {
     }
 
     // recalculates positions
-    refresh() {}
+    refresh() {
+        const type = this.dgType;
+        if (type == "endblock" || type == "indent0" || type == "indent1" || type == "indent2" || type == "indent3") {
+            const p = (this.parent! as DiagramGroup);
+            let maxWidth = 0;
+            for (let i=0;i<p.nodes.length; i++) {
+                let v = p.nodes[i];
+                if (v == this)
+                break;
+                maxWidth = Math.max(maxWidth, v.x() + v.width() - this.x());
+            }
+
+            this.setSize({ width: maxWidth });
+        }
+    }
 
     onContextMenu() {
         window.mContextMenu = [];
@@ -246,7 +246,103 @@ export class BaseDiagram extends Group {
         });
     }
 
-    onKeyUp(e: TextKeyUpEvent) { e }
+    onKeyUp(e: TextKeyUpEvent) {
+        // TODO
+        const parent = this.parent! as DiagramGroup;
+        const index = this.getIndexPos();
+        console.assert(index !== -1);
+        if (index === 0) {
+            notifyPush("First Line Cannot Be Indented", "info", 3000);
+            return;
+        }
+
+        const prevNode = parent.nodes[index-1];
+        let node: BaseDiagram | null = null;
+
+        if (e.key == "Tab" && !e.shiftKey) {
+            switch (prevNode.dgType) {
+                case "endblock":
+                    prevNode.swapSVG("indent1");
+                    parent.refresh();
+                    break;
+                case "normal":
+                    node = new BaseDiagram({
+                        theme: Theme.Diagram.Statement,
+                        diagramType: "indent1"
+                    });
+                    break;
+                case "block":
+                    node = new BaseDiagram({
+                        theme: Theme.Diagram.Statement,
+                        diagramType: "indent2"
+                    });
+                    break;
+                case "indent0":
+                    prevNode.swapSVG("indent1");
+                    parent.refresh();
+                    break;
+                case "indent1":
+                    prevNode.swapSVG("indent2");
+                    parent.refresh();
+                    break;
+                case "indent2":
+                    prevNode.swapSVG("indent3");
+                    parent.refresh();
+                    break;
+                case "indent3":
+                    break;
+                default:
+                    console.warn("Should Not Happen");
+                    break;
+            }
+            if (!node) {
+                return;
+            }
+
+            parent.nodes.splice(index,0, node);
+            parent.add(node);
+            parent.refresh();
+        }
+        else if (e.key == "Tab" && e.shiftKey) {
+            switch (prevNode.dgType) {
+                case "endblock":
+                case "normal":
+                    break;
+                case "block":
+                    node = new BaseDiagram({
+                        theme: Theme.Diagram.Statement,
+                        diagramType: "endblock"
+                    });
+                    break;
+                case "indent0":
+                    prevNode.swapSVG("endblock");
+                    parent.refresh();
+                    break;
+                case "indent1":
+                    prevNode.swapSVG("indent0");
+                    parent.refresh();
+                    break;
+                case "indent2":
+                    prevNode.swapSVG("indent1");
+                    parent.refresh();
+                    break;
+                case "indent3":
+                    prevNode.swapSVG("indent2");
+                    parent.refresh();
+                    break;
+                default:
+                    console.warn("Should Not Happen");
+                    break;
+            }
+            if (!node) {
+                return;
+            }
+
+            parent.nodes.splice(index,0, node);
+            parent.add(node);
+            parent.refresh();
+        }
+    }
 
     registerEvents() {
         this.on("KeyUp", (e: TextKeyUpEvent) => {
@@ -305,6 +401,54 @@ export class BaseDiagram extends Group {
     }
 
     isBlock() {
-        return this.dgType == "block" || this.dgType == "indent2" || this.dgType == "indent3";
+        return this.dgType == "block" || this.dgType == "indent1" || this.dgType == "indent2" || this.dgType == "indent3";
     }
+
+    getIndexPos() {
+        const parent = this.parent as DiagramGroup
+        for (let i=0;i<parent.nodes.length;i++) {
+            if (parent.nodes[i] === this) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    swapSVG(type: DiagramType) {
+        let width = this.width();
+        this.dgType = type;
+        switch (type) {
+            case "normal":
+                this.dgSVG = Theme.SVG.Normal;
+                break;
+            case "block":
+                this.dgSVG = Theme.SVG.Block;
+                break;
+            case "indent0":
+                this.dgSVG = Theme.SVG.Indent0;
+                break;
+            case "indent1":
+                this.dgSVG = Theme.SVG.Indent1;
+                break;
+            case "indent2":
+                this.dgSVG = Theme.SVG.Indent2;
+                break;
+            case "indent3":
+                this.dgSVG = Theme.SVG.Indent3;
+                break;
+            case "endblock":
+                this.dgSVG = Theme.SVG.EndBlock;
+                break;
+            default:
+                console.warn("Should Not Happen");
+                break;
+        }
+
+        this.path.data(`${this.dgSVG.prefix}${this.dgSVG.hr}${this.dgSVG.suffix}`);
+        this.setSize({ width });
+
+        const dimension = getSvgPathDimensions(`${this.dgSVG.prefix}${this.dgSVG.hr}${this.dgSVG.suffix}`);
+        this.height(dimension.height);
+    }
+
 }

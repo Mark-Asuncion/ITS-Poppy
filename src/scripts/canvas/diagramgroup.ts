@@ -7,7 +7,6 @@ import { Statement } from "./blocks/statement";
 import { If, Elif, Else } from "./blocks/control";
 import { For } from "./blocks/loop";
 import { Theme } from "../../themes/diagram";
-import { EndBlock } from "./blocks/endblock";
 import { KonvaEventObject } from "konva/lib/Node";
 import { Shape, ShapeConfig } from "konva/lib/Shape";
 import { TextBox } from "./text/textbox";
@@ -191,18 +190,8 @@ export class DiagramGroup extends Konva.Group {
                 x: atP.x + prev.x(),
                 y: prev.y() + atP.y
             });
-            curr.setIndentByPrevLine(prev);
+            curr.setIndentByPrevNodes(this.nodes.slice(0, i));
             if (curr.dgType == "endblock") {
-                let nx = 0;
-                for (let j=i-1;j>=0;j--) {
-                    if (this.nodes[j].isBlock()) {
-                        nx = this.nodes[j].x();
-                        curr._indent = this.nodes[j]._indent;
-                        break;
-                    }
-                }
-                curr.x(nx);
-
                 curr.moveToTop();
             }
             curr.refresh();
@@ -276,9 +265,10 @@ export class DiagramGroup extends Konva.Group {
     getContent(): Module {
         let content = "";
         this.nodes.forEach((v) => {
-            if (v.dgType == "endblock")
-                return;
             const c = v.getContent();
+            if (c.length === 0) {
+                return;
+            }
             content += c + "\n";
         });
 
@@ -289,6 +279,7 @@ export class DiagramGroup extends Konva.Group {
         };
     }
 
+    // REMOVE
     serialize(): string {
         let res = "";
         this.nodes.forEach((v) => {
@@ -310,7 +301,11 @@ export class DiagramGroup extends Konva.Group {
         }
 
         if (lastBlock && (indent <= lastBlock._indent)) {
-            const eb = new EndBlock();
+            const eb = new BaseDiagram({
+                name: "Endblock",
+                diagramType: "endblock",
+                theme: Theme.Diagram.Statement
+            });
             eb._indent = lastBlock._indent;
             return eb;
         }
@@ -380,9 +375,7 @@ export class DiagramGroup extends Konva.Group {
             if (bd) {
                 dg.addDiagram(bd);
 
-                if (bd.isBlock()) {
-                    lastblock = bd;
-                }
+                lastblock = bd;
                 if (bd.dgType == "endblock") {
                     lastblock = null;
                     i--;
