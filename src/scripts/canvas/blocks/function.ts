@@ -9,14 +9,15 @@ export class Function extends BaseDiagram {
     // prevent adding twice cause for some reason keyup is called twice
     // so the KeyUp is also called twice
     creatingComponent = false;
-    constructor(content: string = "", param: string = "") {
+    // param = params split by ','
+    constructor(functionName: string = "", param: string = "") {
         super({
             name: "Function",
             theme: Theme.Diagram.Function,
         });
 
         this.components.push(new TextBox({
-            text: content,
+            text: functionName,
             width: this.width() * .7,
             fill: "#00",
             ...Theme.Text,

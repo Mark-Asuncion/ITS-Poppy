@@ -11,7 +11,10 @@ export class For extends BaseDiagram {
     // 3 textbox
     // 4 text :
     // components: ( BaseText | Text )[] = [];
-    constructor(content: string = "") {
+
+    // content[]
+    // for [0] in [1]:
+    constructor(content: string[] = []) {
         super({
             name: "For",
             width: 230,
@@ -26,7 +29,7 @@ export class For extends BaseDiagram {
         }));
         this.components.push(
             new TextBox({
-                text: (content)? content[0]:'',
+                text: (content.length > 0)? content[0]:'',
                 width: this.width() * .2,
                 fill: "#00",
                 ...Theme.Text,
@@ -40,7 +43,7 @@ export class For extends BaseDiagram {
 
         this.components.push(
             new TextBox({
-                text: (content)? content[1]:'',
+                text: (content.length > 0)? content[1]:'',
                 width: this.width() * .3,
                 fill: "#00",
                 ...Theme.Text,
@@ -143,7 +146,7 @@ export class While extends BaseDiagram {
         }));
 
         this.components.push(new TextBox({
-            text: (content)? content[0]:'',
+            text: content,
             fill: "#00",
             ...Theme.Text,
         }));
@@ -215,6 +218,6 @@ export class While extends BaseDiagram {
             ind += "\t";
             i++;
         }
-        return ind + "white " + ( this.components[1] as BaseText ).getContent() + ":";
+        return ind + "while " + ( this.components[1] as BaseText ).getContent() + ":";
     }
 }

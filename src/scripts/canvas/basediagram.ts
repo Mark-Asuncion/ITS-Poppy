@@ -12,7 +12,7 @@ import { notifyPush } from "../notify";
 import { TextKeyUpEvent } from "./utils";
 import { Text } from "konva/lib/shapes/Text";
 
-type DiagramType = "normal" | "block" | "indent0" | "indent1" | "indent2" | "indent3" | "endblock";
+export type DiagramType = "normal" | "block" | "indent0" | "indent1" | "indent2" | "indent3" | "endblock";
 export interface BaseDiagramConfig extends ContainerConfig {
     theme?: any,
     diagramType?: DiagramType,
@@ -177,12 +177,12 @@ export class BaseDiagram extends Group {
                     seenEB++;
                 }
 
-                if (nodes[i].dgType === "block") {
+                if (nodes[i].isBlock()) {
                     this.x(nodes[i].x());
                     this._indent = nodes[i]._indent;
-
                     if (seenEB == 0)
                         break;
+                    seenEB--;
                 }
             }
         }
@@ -274,7 +274,7 @@ export class BaseDiagram extends Group {
                 case "block":
                     node = new BaseDiagram({
                         theme: Theme.Diagram.Statement,
-                        diagramType: "indent2"
+                        diagramType: "indent1"
                     });
                     break;
                 case "indent0":

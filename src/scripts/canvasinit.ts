@@ -1,14 +1,11 @@
 import Konva from "konva";
 import { BaseGroup } from "./canvas/basegroup";
-import { createElifDiagramAt, createElseDiagramAt, createIfDiagramAt, createStatementDiagramAt, createForDiagramAt, isPointIntersectRect } from "./canvas/utils";
 import { Module, get_cwd, load_modules } from "./backendconnector";
 import { DiagramGroup } from "./canvas/diagramgroup";
 import { contextMenuHide, contextMenuShow } from "./contextmenu/contextmenu";
-import { While } from "./canvas/blocks/loop";
 import { Function } from "./canvas/blocks/function";
 import { Shape, ShapeConfig } from "konva/lib/Shape";
-import { BaseDiagram } from "./canvas/basediagram";
-import { Theme } from "../themes/diagram";
+import { createDiagramFrom, isPointIntersectRect } from "./canvas/utils";
 
 function getPlacementPos(stage: Konva.Stage): Konva.Vector2d {
     const basegroup = stage.getChildren()[0].getChildren()[0] as BaseGroup;
@@ -21,15 +18,6 @@ function getPlacementPos(stage: Konva.Stage): Konva.Vector2d {
     let transform = basegroup.getAbsoluteTransform()
         .copy()
         .invert();
-
-    // const div = document.createElement("div");
-    // div.style.position = "absolute";
-    // div.style.width = "10px";
-    // div.style.height = "10px";
-    // div.style.left = `${container.x + containerCenter.x}px`;
-    // div.style.top = `${container.y + containerCenter.y}px`;
-    // div.style.backgroundColor = "red";
-    // document.body.appendChild(div);
 
     const p = transform.point(containerCenter);
     return p;
@@ -134,66 +122,38 @@ export function init() {
         }
         const bg = stage.children[0].children[0] as BaseGroup;
         const pos = getPlacementPos(stage);
+        const dgGroup = new DiagramGroup(pos);
         switch (type) {
             case "statement":
-                bg.add(createStatementDiagramAt(pos));
+                dgGroup.addDiagram(createDiagramFrom("statement"));
                 break;
             case "endblock":
-                {
-                    const diagGroup = new DiagramGroup(pos);
-                    const diagram = new BaseDiagram({
-                        name: "Endblock",
-                        diagramType: "endblock",
-                        theme: Theme.Diagram.Statement
-                    });
-                    diagGroup.addDiagram(diagram);
-                    bg.add(diagGroup);
-                }
+                dgGroup.addDiagram(createDiagramFrom("endblock"));
                 break;
             case "control-if":
-                const dg = createIfDiagramAt(pos);
-                const dgEnd = new DiagramGroup(pos);
-                const endblock = new BaseDiagram({
-                    name: "Endblock",
-                    diagramType: "endblock",
-                    theme: Theme.Diagram.Statement
-                });
-                dgEnd.addDiagram(endblock);
-
-                const dgStatement = createStatementDiagramAt(pos);
-                const dgElse = createElseDiagramAt(pos);
-                dgStatement.attach({
-                    v: dg,
-                    i: 0
-                });
-                dgEnd.attach({
-                    v: dg,
-                    i: 1
-                });
-                dgElse.attach({
-                    v: dg,
-                    i: 2
-                });
-                bg.add(dg);
+                dgGroup.addDiagram(createDiagramFrom("if"));
+                dgGroup.addDiagram(createDiagramFrom("statement"));
+                dgGroup.addDiagram(createDiagramFrom("endblock"));
                 break;
             case "control-elif":
-                bg.add(createElifDiagramAt(pos));
+                dgGroup.addDiagram(createDiagramFrom("elif"));
                 break;
             case "control-else":
-                bg.add(createElseDiagramAt(pos));
+                dgGroup.addDiagram(createDiagramFrom("else"));
                 break;
             case "loop-for":
-                bg.add(createForDiagramAt(pos));
+                dgGroup.addDiagram(createDiagramFrom("for"));
                 break;
             case "loop-while":
-                const diagGroup = new DiagramGroup(pos);
-                const diagram = new While();
-                diagGroup.addDiagram(diagram);
-                bg.add(diagGroup);
+                dgGroup.addDiagram(createDiagramFrom("while"));
+                break;
+            case "function":
+                dgGroup.addDiagram(createDiagramFrom("function"));
                 break;
             default:
                 break;
         }
+        bg.add(dgGroup);
     }) as EventListener);
 
     window["addFn"] = () => {

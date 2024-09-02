@@ -101,6 +101,7 @@ export class BaseGroup extends Group {
         }
         const ch = childs[childn];
 
+        // TODO: FIX
         const stage = this.getStage()!;
         const container = stage.container().getBoundingClientRect();
         const offset = {
