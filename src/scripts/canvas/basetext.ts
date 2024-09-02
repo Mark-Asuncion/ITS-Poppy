@@ -12,6 +12,12 @@ export interface TextChangedEvent extends KonvaEventObject<any> {
     value?: string
 }
 
+export interface TextKeyUpEvent extends KonvaEventObject<any> {
+    value?: string,
+    key?: string,
+    shiftKey?: boolean,
+};
+
 export class BaseText extends Group {
     text?: Text;
     bg: Rect;
@@ -63,10 +69,12 @@ export class BaseText extends Group {
         if (this.input) {
             this.input.blur();
         }
+        this.fire("OnStateClear", {}, true);
     }
 
     focus() {
         this.createInput();
+        this.fire("OnStateSelect", {}, true);
     }
 
     registerEvents() {

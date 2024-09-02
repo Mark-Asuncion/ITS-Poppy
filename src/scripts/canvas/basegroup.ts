@@ -55,6 +55,13 @@ export class BaseGroup extends Group {
                 window.mSelected.setActive();
         });
 
+        this.on("OnStateClear", (_: KonvaEventObject<any>) => {
+            if (window.mSelected) {
+                window.mSelected.removeActive();
+            }
+            window.mSelected = null;
+        });
+
         this.on("mousedown", (e) => {
             if (e.evt.button === 1) {
                 this.startDrag();

@@ -45,6 +45,8 @@ export class DiagramGroup extends Konva.Group {
     }
 
     setModuleName(name: string) {
+        // BUG: when name is changed from main -> main2 reverts back to main
+        // even though there isn't main2
         let nodes = window.mCvRootNode.getDiagramGroups();
         let m = {};
         let ascii0 = '0'.charCodeAt(0);
@@ -335,7 +337,6 @@ export class DiagramGroup extends Konva.Group {
             nodeInfo.type = findNodeType(line);
 
             if (prevNodeInfo && tabCount === prevNodeInfo.tabCount) {
-                console.log(nodeInfos.slice());
                 if (prevNodeInfo.type !== "statement") {
                     nodeInfos.push({
                         text: "",
@@ -354,7 +355,7 @@ export class DiagramGroup extends Konva.Group {
             }
             else if (prevNodeInfo && tabCount > prevNodeInfo.tabCount) {
                 let diff = Math.min(tabCount - prevNodeInfo.tabCount, 3);
-                console.log(nodeInfos.slice(), nodeInfo, diff);
+                // console.log(nodeInfos.slice(), nodeInfo, diff);
                 if (diff > 1 && prevNodeInfo.type !== "statement") {
                     nodeInfos.push({
                         text: "",
@@ -366,8 +367,6 @@ export class DiagramGroup extends Konva.Group {
 
             nodeInfos.push(nodeInfo);
         };
-
-        console.log(nodeInfos);
 
         for (let i=0;i<nodeInfos.length;i++) {
             const info = nodeInfos[i];

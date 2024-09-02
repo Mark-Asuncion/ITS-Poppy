@@ -4,7 +4,6 @@ import { Statement } from "./blocks/statement";
 import { If, Elif, Else } from "./blocks/control";
 import { For, While } from "./blocks/loop";
 import { BaseDiagram } from "./basediagram";
-import { KonvaEventObject } from "konva/lib/Node";
 import { Theme } from "../../themes/diagram";
 import { Function } from "./blocks/function";
 
@@ -87,12 +86,6 @@ export function toDiagram(curr: BaseDiagram, what: string, parent: any) {
     p.add(node);
     p.refresh();
 }
-
-export interface TextKeyUpEvent extends KonvaEventObject<any> {
-    value?: string,
-    key?: string,
-    shiftKey?: boolean,
-};
 
 export function findNodeType(line: string) {
     let lineTrim = line.trim();

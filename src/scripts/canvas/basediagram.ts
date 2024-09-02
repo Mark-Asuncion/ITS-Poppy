@@ -6,10 +6,9 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { Path } from "konva/lib/shapes/Path";
 import { getSvgPathDimensions } from "./utils";
 import { Shape, ShapeConfig } from "konva/lib/Shape";
-import { BaseText, TextChangedEvent } from "./basetext";
+import { BaseText, TextChangedEvent, TextKeyUpEvent } from "./basetext";
 import { clipboard } from "@tauri-apps/api";
 import { notifyPush } from "../notify";
-import { TextKeyUpEvent } from "./utils";
 import { Text } from "konva/lib/shapes/Text";
 
 export type DiagramType = "normal" | "block" | "indent0" | "indent1" | "indent2" | "indent3" | "endblock";
@@ -247,7 +246,10 @@ export class BaseDiagram extends Group {
     }
 
     onKeyUp(e: TextKeyUpEvent) {
-        // TODO
+        if (e.key !== "Tab") {
+            return;
+        }
+
         const parent = this.parent! as DiagramGroup;
         const index = this.getIndexPos();
         console.assert(index !== -1);
@@ -259,7 +261,7 @@ export class BaseDiagram extends Group {
         const prevNode = parent.nodes[index-1];
         let node: BaseDiagram | null = null;
 
-        if (e.key == "Tab" && !e.shiftKey) {
+        if (!e.shiftKey) {
             switch (prevNode.dgType) {
                 case "endblock":
                     prevNode.swapSVG("indent1");
@@ -303,7 +305,7 @@ export class BaseDiagram extends Group {
             parent.add(node);
             parent.refresh();
         }
-        else if (e.key == "Tab" && e.shiftKey) {
+        else if (e.shiftKey) {
             switch (prevNode.dgType) {
                 case "endblock":
                 case "normal":
@@ -344,6 +346,8 @@ export class BaseDiagram extends Group {
         }
     }
 
+    onTextChanged(e: TextChangedEvent) { e }
+
     registerEvents() {
         this.on("KeyUp", (e: TextKeyUpEvent) => {
             e.cancelBubble = true;
@@ -365,7 +369,7 @@ export class BaseDiagram extends Group {
 
         this.on("TextChanged", (e: TextChangedEvent) => {
             e.cancelBubble = true;
-            // console.log("textchanged", e);
+            this.onTextChanged(e);
         });
 
         this.on("dragstart", (e) => {
@@ -412,6 +416,24 @@ export class BaseDiagram extends Group {
             }
         }
         return -1;
+    }
+
+    focus() {
+        for (let i=0;i<this.components.length;i++) {
+            if (this.components[i] instanceof BaseText) {
+                (this.components[i] as BaseText).focus();
+                break;
+            }
+        }
+    }
+
+    removeFocus() {
+        for (let i=0;i<this.components.length;i++) {
+            if (this.components[i] instanceof BaseText) {
+                (this.components[i] as BaseText).removeFocus();
+                break;
+            }
+        }
     }
 
     swapSVG(type: DiagramType) {

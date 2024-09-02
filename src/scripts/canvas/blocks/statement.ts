@@ -1,6 +1,9 @@
 import { Theme } from "../../../themes/diagram";
 import { TextBox } from "../text/textbox";
 import { BaseDiagram } from "../basediagram";
+import { TextChangedEvent, TextKeyUpEvent } from "../basetext";
+import { createDiagramFrom, findNodeType } from "../utils";
+import { DiagramGroup } from "../diagramgroup";
 
 export class Statement extends BaseDiagram {
     constructor(content: string = "") {
@@ -27,6 +30,74 @@ export class Statement extends BaseDiagram {
         this.add(tb);
     }
 
+    onTextChanged(e: TextChangedEvent) {
+        if (!e.value) {
+            return;
+        }
+
+        const content = e.value;
+        console.log("content: ", content);
+        const type = findNodeType(content);
+        if (type === "statement") {
+            return;
+        }
+        console.log(type, content);
+
+        const diagram = createDiagramFrom(type, content);
+        console.log(diagram);
+
+        const indexPos = this.getIndexPos();
+        const p = (this.parent! as DiagramGroup);
+        p.nodes[indexPos].remove();
+        p.nodes[indexPos].destroy();
+        p.nodes[indexPos] = diagram;
+        p.add(diagram);
+        p.refresh();
+    }
+
+
+    onKeyUp(e: TextKeyUpEvent) {
+        super.onKeyUp(e);
+
+        if (!e.key)
+            return;
+
+        const p = this.parent! as DiagramGroup;
+        const indexPos = this.getIndexPos();
+        if (e.key === "Enter") {
+
+            let node: Statement;
+            if (indexPos < p.nodes.length-1) {
+                node = createDiagramFrom("statement");
+                p.nodes.splice(indexPos+1,0,node);
+                p.add(node);
+                p.refresh();
+            }
+            else {
+                node = createDiagramFrom("statement");
+                p.addDiagram(node);
+                p.refresh();
+            }
+
+            node.focus();
+        }
+        else if (e.key === "Backspace") {
+            console.log(`${ e.value }`, typeof(e.value), e.value?.length);
+            if (e.value != undefined && e.value.length === 0) {
+                const nodeToDes = p.nodes[indexPos];
+                nodeToDes.removeFocus();
+
+                p.nodes.splice(indexPos, 1);
+                nodeToDes.remove();
+                nodeToDes.destroy();
+                p.refresh();
+                if (indexPos > 0) {
+                    p.nodes[indexPos-1].focus();
+                }
+            }
+        }
+    }
+
     refresh() {
         let tb = this.components[0];
         this.setSize({
@@ -43,25 +114,4 @@ export class Statement extends BaseDiagram {
         }
         return ind + (this.components[0] as TextBox).getContent();
     }
-
-    // getInputContent() {
-    //     return this.text.getContent();
-    // }
-
-    // onContextMenu() {
-    //     super.onContextMenu();
-    //     const ct = this.getContent().trim().split(' ');
-    //
-    //     window.mContextMenu.push({
-    //         name: "To Control",
-    //         callback: () => {
-    //             if (ct[0] !== "if" &&
-    //                 ct[0] !== "elif" &&
-    //                 ct[0] !== "else") {
-    //                 return;
-    //             }
-    //             toDiagram(this, ct[0], this.parent!);
-    //         }
-    //     });
-    // }
 }

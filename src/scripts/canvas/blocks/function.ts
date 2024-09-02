@@ -3,7 +3,7 @@ import { Theme } from "../../../themes/diagram";
 import { TextBox } from "../text/textbox";
 import { BaseText } from "../basetext";
 import { BaseDiagram } from "../basediagram";
-import { TextKeyUpEvent } from "../utils";
+import { TextKeyUpEvent } from "../basetext";
 
 export class Function extends BaseDiagram {
     // prevent adding twice cause for some reason keyup is called twice
