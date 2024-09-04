@@ -2,7 +2,7 @@
 import { diagramToModules, init } from "./canvasinit";
 import { dialog_one_dir, get_cwd_name, set_cwd, write_diagrams_to_modules } from "./backendconnector";
 import { TerminalInstance } from "./terminal/instance";
-import { contextMenuHide, contextMenuShow } from "./contextmenu/contextmenu";
+import { notifyPush } from "./notify";
 
 async function set_project_name(input_element: HTMLInputElement) {
     const isUntitled = input_element.value.toLowerCase() === "untitled project";
@@ -24,6 +24,12 @@ if (inpProjName) {
         set_project_name(inpProjName);
     });
 }
+
+
+window["mSave"] = () => {
+    const contents = diagramToModules(canvasStage);
+    write_diagrams_to_modules(contents);
+};
 
 playBtn?.addEventListener("click", async () => {
     await set_project_name(inpProjName);
@@ -60,7 +66,3 @@ document.body.addEventListener("mousemove", (e) => {
 })
 
 window.mContextMenu = [];
-window.mDebugContextMenuFn = {
-    contextMenuShow: contextMenuShow,
-    contextMenuHide: contextMenuHide
-};

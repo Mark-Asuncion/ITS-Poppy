@@ -9,16 +9,13 @@ declare global {
         mCvRootNode: {
             getDiagramGroups: () => DiagramGroup[]
         };
-        // mCvStage: Stage;
+        mCvStage: Stage;
 
-        mDebugContextMenuFn: {
-            contextMenuShow: () => void
-            contextMenuHide: () => void
-        };
         mContextMenu: _ContextMenuItem[];
         mCursor: {
             x: number,
             y: number
-        }
+        };
+        mNotifyDiv: HTMLDivElement | null;
     }
 }

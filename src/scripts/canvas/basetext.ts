@@ -12,10 +12,17 @@ export interface TextChangedEvent extends KonvaEventObject<any> {
     value?: string
 }
 
+export interface TextKeyUpEvent extends KonvaEventObject<any> {
+    value?: string,
+    key?: string,
+    shiftKey?: boolean,
+};
+
 export class BaseText extends Group {
     text?: Text;
     bg: Rect;
     isEditing = false;
+    input: HTMLTextAreaElement | null = null;
     constructor(textConfig: BaseTextConfig) {
         const noBG = textConfig.noBG;
         delete textConfig.noBG;
@@ -56,6 +63,18 @@ export class BaseText extends Group {
 
     padding(): number {
         return 0;
+    }
+
+    removeFocus() {
+        if (this.input) {
+            this.input.blur();
+        }
+        this.fire("OnStateClear", {}, true);
+    }
+
+    focus() {
+        this.createInput();
+        this.fire("OnStateSelect", {}, true);
     }
 
     registerEvents() {

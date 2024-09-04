@@ -31,6 +31,7 @@ diagramsImg.forEach((elem) => {
         case "control-else":
             img.src = imgElse;
             break;
+        case "loop-while":
         case "loop-for":
             img.src = imgFor;
             break;

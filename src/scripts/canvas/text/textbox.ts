@@ -8,6 +8,7 @@ export class TextBox extends BaseText {
     minWidth: number;
     constructor(textConfig: BaseTextConfig) {
         super({
+            name: "TextBox",
             x: textConfig.x,
             y: textConfig.y,
             width: textConfig.width,
@@ -64,10 +65,13 @@ export class TextBox extends BaseText {
         input.style.whiteSpace = "nowrap";
         input.value = text.text();
 
+        this.input = input;
+
         input.addEventListener("focusout", () => {
             text.text(input.value);
             text.show();
             input.remove();
+            this.input = null;
 
             // this.fire("texteditdone", {}, true);
             this.isEditing = false;
@@ -84,16 +88,18 @@ export class TextBox extends BaseText {
                 input.value = text.text();
                 input.blur();
             }
-            // this.fire("textbeforechanged", { value: input.value },true);
         });
 
-        input.addEventListener("keyup", () => {
+        input.addEventListener("keyup", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             const tWidth = this.adjustWidth(input.value);
             input.style.width = `${ tWidth - this.text.padding() * 2 }px`;
 
             if (this.parent instanceof BaseDiagram) {
                 this.parent.refresh();
             }
+            this.fire("KeyUp", { value: input.value, key: e.key }, true);
         });
 
         document.body.appendChild(input);

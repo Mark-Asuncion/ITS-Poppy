@@ -1,13 +1,9 @@
 import Konva from "konva";
-import { isPointIntersectRect } from "./utils";
+import { createDiagramFrom, findNodeType, isPointIntersectRect } from "./utils";
 import { BaseGroup } from "./basegroup";
 import { BaseDiagram } from "./basediagram";
 import { Module } from "../backendconnector";
-import { Statement } from "./blocks/statement";
-import { If, Elif, Else } from "./blocks/control";
-import { For } from "./blocks/loop";
 import { Theme } from "../../themes/diagram";
-import { EndBlock } from "./blocks/endblock";
 import { KonvaEventObject } from "konva/lib/Node";
 import { Shape, ShapeConfig } from "konva/lib/Shape";
 import { TextBox } from "./text/textbox";
@@ -49,6 +45,8 @@ export class DiagramGroup extends Konva.Group {
     }
 
     setModuleName(name: string) {
+        // BUG: when name is changed from main -> main2 reverts back to main
+        // even though there isn't main2
         let nodes = window.mCvRootNode.getDiagramGroups();
         let m = {};
         let ascii0 = '0'.charCodeAt(0);
@@ -175,7 +173,12 @@ export class DiagramGroup extends Konva.Group {
 
     // repositions nodes and adjust widths
     refresh() {
+        if (this.nodes.length === 0)
+            return;
         let prev = this.nodes[0];
+        prev.x(0);
+        prev.y(0);
+        prev._indent = 0;
 
         // console.log(prev._indent, prev.dgType);
         for (let i=1;i<this.nodes.length;i++) {
@@ -185,18 +188,8 @@ export class DiagramGroup extends Konva.Group {
                 x: atP.x + prev.x(),
                 y: prev.y() + atP.y
             });
-            curr.setIndentByPrevLine(prev);
+            curr.setIndentByPrevNodes(this.nodes.slice(0, i));
             if (curr.dgType == "endblock") {
-                let nx = 0;
-                for (let j=i-1;j>=0;j--) {
-                    if (this.nodes[j].isBlock()) {
-                        nx = this.nodes[j].x();
-                        curr._indent = this.nodes[j]._indent;
-                        break;
-                    }
-                }
-                curr.x(nx);
-
                 curr.moveToTop();
             }
             curr.refresh();
@@ -270,9 +263,10 @@ export class DiagramGroup extends Konva.Group {
     getContent(): Module {
         let content = "";
         this.nodes.forEach((v) => {
-            if (v.dgType == "endblock")
-                return;
             const c = v.getContent();
+            if (c.length === 0) {
+                return;
+            }
             content += c + "\n";
         });
 
@@ -283,70 +277,13 @@ export class DiagramGroup extends Konva.Group {
         };
     }
 
+    // REMOVE
     serialize(): string {
         let res = "";
         this.nodes.forEach((v) => {
             res += v.getContent();
         })
         return res;
-    }
-
-    static _BDDeserialize(data: string, lastBlock: BaseDiagram | null): BaseDiagram | null {
-        if (data.length == 0 || data.trim().length == 0) {
-            return null;
-        }
-
-        let indent = 0;
-        for (let i=0;i<data.length;i++) {
-            if (data[i] == '\t') {
-                indent++;
-            }
-        }
-
-        if (lastBlock && (indent <= lastBlock._indent)) {
-            const eb = new EndBlock();
-            eb._indent = lastBlock._indent;
-            return eb;
-        }
-        // check if indent is more than lastblock
-        // if true then use indent2 or 3
-        // if more than lastblock._indent + 3
-        // then clamp indent to lastblock._indent + 3
-
-        let dStr = "";
-        let dg: BaseDiagram;
-        let d = data.trim().split(' ');
-        if (d[0] == "if") {
-            dStr = d.join(' ');
-            dStr = dStr.replace(/if|:/g,'').trim();
-            dg = new If(dStr);
-            dg._indent = indent;
-            return dg;
-        }
-        else if (d[0] == "elif") {
-            dStr = d.join(' ');
-            dStr = dStr.replace(/elif|:/g,'').trim();
-            dg = new Elif(dStr);
-            dg._indent = indent;
-            return dg;
-    }
-        else if (d[0] == "else" || d[0] == "else:") {
-            dg = new Else();
-            dg._indent = indent;
-            return dg;
-        }
-        else if (d[0] == "for") {
-            dStr = d.join(' ');
-            dStr = dStr.replace(/for|in\s|:/g,'').trim();
-            dg = new For(dStr);
-            dg._indent = indent;
-            return dg;
-            }
-        else {
-            dg = new Statement(data.trim());
-            dg._indent = indent;
-            return dg;
-        }
     }
 
     static deserialize(data: Module): DiagramGroup {
@@ -358,22 +295,83 @@ export class DiagramGroup extends Konva.Group {
             .join()
             .split('\n');
 
-        let lastblock: null | BaseDiagram = null;
-        for (let i=0;i<d.length;i++) {
-            const v = d[i];
-            const bd = this._BDDeserialize(v, lastblock);
-            if (bd) {
-                dg.addDiagram(bd);
+        interface NodeInfo {
+            text: string,
+            tabCount: number,
+            type: string,
+        };
 
-                if (bd.isBlock()) {
-                    lastblock = bd;
+        let nodeInfos: NodeInfo[] = [];
+
+        function countTabChars(line: string) {
+            let count = 0;
+            for (let i=0;i<line.length;i++) {
+                if (line[i] == "\t") {
+                    count++;
                 }
-                if (bd.dgType == "endblock") {
-                    lastblock = null;
-                    i--;
+                else {
+                    break;
                 }
             }
+            return count;
+        }
+
+        for (let i=0;i<d.length;i++) {
+            let prevNodeInfo: NodeInfo | null = null;
+            if (nodeInfos.length > 0)
+                 prevNodeInfo = nodeInfos[nodeInfos.length-1];
+
+            let line = d[i];
+            if (line.length == 0) {
+                continue;
+            }
+            let tabCount = countTabChars(line);
+
+            let nodeInfo: NodeInfo = {
+                text: "",
+                tabCount: tabCount,
+                type: "",
+            };
+
+            nodeInfo.text = line.trim();
+            nodeInfo.type = findNodeType(line);
+
+            if (prevNodeInfo && tabCount === prevNodeInfo.tabCount) {
+                if (prevNodeInfo.type !== "statement") {
+                    nodeInfos.push({
+                        text: "",
+                        tabCount: tabCount,
+                        type: "endblock"
+                    });
+                }
+            }
+            else if (prevNodeInfo && tabCount < prevNodeInfo.tabCount) {
+                // endblock
+                nodeInfos.push({
+                    text: "",
+                    tabCount: tabCount,
+                    type: "endblock"
+                });
+            }
+            else if (prevNodeInfo && tabCount > prevNodeInfo.tabCount) {
+                let diff = Math.min(tabCount - prevNodeInfo.tabCount, 3);
+                // console.log(nodeInfos.slice(), nodeInfo, diff);
+                if (diff > 1 && prevNodeInfo.type !== "statement") {
+                    nodeInfos.push({
+                        text: "",
+                        tabCount: tabCount,
+                        type: `indent${diff-1}`
+                    });
+                }
+            }
+
+            nodeInfos.push(nodeInfo);
         };
+
+        for (let i=0;i<nodeInfos.length;i++) {
+            const info = nodeInfos[i];
+            dg.addDiagram(createDiagramFrom(info.type, info.text));
+        }
         dg.refresh();
         return dg;
     }

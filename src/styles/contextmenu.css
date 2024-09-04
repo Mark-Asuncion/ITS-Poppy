@@ -6,9 +6,11 @@
     width: max-content;
     height: max-content;
     background-color: white;
-    padding: 4px 8px;
+    padding: 4px;
     box-shadow: 1px 1px 5px black;
-    min-width: 130px;
+    min-width: 100px;
+    display: flex;
+    flex-direction: column;
 }
 
 .context-menu-container > * {
@@ -21,18 +23,16 @@
 }
 
 .context-menu-button {
-    border-radius: 0.5em;
     background-color: white;
     border: none;
-    width: 100%;
 }
 
 .context-menu-button:hover {
-    box-shadow: 1px 1px 5px black;
-    color: black;
+    background-color: var(--accent);
+    color: white;
 }
 
 .context-menu-button:active {
-    background-color: var(--accent);
+    background-color: gray;
     color: white;
 }

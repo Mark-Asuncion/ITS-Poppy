@@ -1,22 +1,26 @@
 import Konva from "konva";
 import { BaseGroup } from "./canvas/basegroup";
-import { createElifDiagramAt, createElseDiagramAt, createIfDiagramAt, createStatementDiagramAt, createForDiagramAt, isPointIntersectRect } from "./canvas/utils";
 import { Module, get_cwd, load_modules } from "./backendconnector";
 import { DiagramGroup } from "./canvas/diagramgroup";
-import { EndBlock } from "./canvas/blocks/endblock";
 import { contextMenuHide, contextMenuShow } from "./contextmenu/contextmenu";
+import { Function } from "./canvas/blocks/function";
+import { Shape, ShapeConfig } from "konva/lib/Shape";
+import { createDiagramFrom, isPointIntersectRect } from "./canvas/utils";
 
 function getPlacementPos(stage: Konva.Stage): Konva.Vector2d {
     const basegroup = stage.getChildren()[0].getChildren()[0] as BaseGroup;
     const container = stage.container().getBoundingClientRect();
+    // offset because if half it is on the right side
     const containerCenter = {
-        x: container.width,
-        y: container.height,
+        x: container.x + container.width * .2,
+        y: container.y + container.height * .2,
     };
-    return {
-        x: Math.abs( basegroup.x() + (basegroup.x() / 2 + containerCenter.x) ),
-        y: Math.abs( basegroup.y() + (basegroup.y() / 2 + containerCenter.y) ),
-    };
+    let transform = basegroup.getAbsoluteTransform()
+        .copy()
+        .invert();
+
+    const p = transform.point(containerCenter);
+    return p;
 }
 
 async function __loadModules(stage: Konva.Stage): Promise<DiagramGroup[]> {
@@ -58,16 +62,6 @@ export function diagramToModules(stage: Konva.Stage) {
     return ret;
 }
 
-// export function createStageForDiagramImage(container: HTMLDivElement) {
-//     const size = container.getBoundingClientRect();
-//     const stage = new Konva.Stage({
-//         container: container,
-//         width: size.width,
-//         height: size.height,
-//     });
-//     return stage;
-// }
-
 export function init() {
     const domContainer = document.querySelector("#diagram-container")! as HTMLDivElement;
     const size = domContainer.getBoundingClientRect();
@@ -78,12 +72,39 @@ export function init() {
         height: size.height,
     });
 
-    // window.mCvStage = stage;
+    window.mCvStage = stage;
 
     stage.on("mousedown", (e) => {
         e.cancelBubble = true;
-        if (e.evt.button === 0) {
+        if (e.evt.button !== 2) {
             contextMenuHide();
+        }
+    });
+
+
+    // disable default behaviour
+    document.addEventListener("keydown", (e) => {
+        if (!window.mSelected) {
+            return;
+        }
+
+        if (e.key == "Tab") {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    });
+
+    document.addEventListener("keyup", (e) => {
+        if (isPointIntersectRect(window.mCursor, domContainer.getBoundingClientRect())) {
+            console.log(window.mSelected);
+            if (!window.mSelected) {
+                return;
+            }
+            const shape = (window.mSelected as unknown as Shape<ShapeConfig>)
+            shape.fire("KeyUp", {
+                key: e.key,
+                shiftKey: e.shiftKey
+            }, true);
         }
     });
 
@@ -99,87 +120,50 @@ export function init() {
         if (!type) {
             return;
         }
-        // Check if name main is already used and rename if used
         const bg = stage.children[0].children[0] as BaseGroup;
         const pos = getPlacementPos(stage);
+        const dgGroup = new DiagramGroup(pos);
         switch (type) {
             case "statement":
-                bg.add(createStatementDiagramAt(pos));
+                dgGroup.addDiagram(createDiagramFrom("statement"));
                 break;
             case "endblock":
-                const diagGroup = new DiagramGroup(pos);
-                const diagram = new EndBlock();
-                diagGroup.addDiagram(diagram);
-                bg.add(diagGroup);
+                dgGroup.addDiagram(createDiagramFrom("endblock"));
                 break;
             case "control-if":
-                const dg = createIfDiagramAt(pos);
-                const dgEnd = new DiagramGroup(pos);
-                const endblock = new EndBlock();
-                dgEnd.addDiagram(endblock);
-
-                const dgStatement = createStatementDiagramAt(pos);
-                const dgElse = createElseDiagramAt(pos);
-                dgStatement.attach({
-                    v: dg,
-                    i: 0
-                });
-                dgEnd.attach({
-                    v: dg,
-                    i: 1
-                });
-                dgElse.attach({
-                    v: dg,
-                    i: 2
-                });
-                bg.add(dg);
+                dgGroup.addDiagram(createDiagramFrom("if"));
+                dgGroup.addDiagram(createDiagramFrom("statement"));
+                dgGroup.addDiagram(createDiagramFrom("endblock"));
                 break;
             case "control-elif":
-                bg.add(createElifDiagramAt(pos));
+                dgGroup.addDiagram(createDiagramFrom("elif"));
                 break;
             case "control-else":
-                bg.add(createElseDiagramAt(pos));
+                dgGroup.addDiagram(createDiagramFrom("else"));
                 break;
             case "loop-for":
-                bg.add(createForDiagramAt(pos));
+                dgGroup.addDiagram(createDiagramFrom("for"));
+                break;
+            case "loop-while":
+                dgGroup.addDiagram(createDiagramFrom("while"));
+                break;
+            case "function":
+                dgGroup.addDiagram(createDiagramFrom("function"));
                 break;
             default:
                 break;
         }
+        bg.add(dgGroup);
     }) as EventListener);
 
-    stage.on("mousedown", (e) => {
-        if (e.evt.button === 0 && e.evt.ctrlKey) {
-            const bg = (stage.children[0].children[0] as BaseGroup)
-            const pos = bg.getRelativePointerPosition()
-            if (pos === null) {
-                return;
-            }
-            console.log(pos)
-        }
-        else if (e.evt.button === 0 && e.evt.shiftKey) {
-            if (e.target.parent instanceof BaseGroup &&
-                e.target instanceof DiagramGroup) {
-                const pointerPos = e.target.parent!.getRelativePointerPosition()!;
-                const target = e.target as DiagramGroup;
-                target.nodes.forEach((v) => {
-                    const pos = v.getAbsolutePosition();
-                    const size = v.getSize();
-                    const isIntersect = isPointIntersectRect(pointerPos, {
-                        x: pos.x, y: pos.y,
-                        width: size.width, height: size.height
-                    });
-
-                    if (isIntersect) {
-                        const bd = target.detach(v);
-                        bd?.remove();
-                        bd?.destroy();
-                    }
-                });
-                // console.assert(false, "Remove NOT IMPPLEMENTED");
-            }
-        }
-        })
+    window["addFn"] = () => {
+        const pos = getPlacementPos(stage);
+        const diagGroup = new DiagramGroup(pos);
+        const diagram = new Function();
+        diagGroup.addDiagram(diagram);
+        const bg = stage.children[0].children[0] as BaseGroup;
+        bg.add(diagGroup);
+    };
 
     const layer = new Konva.Layer();
     const baseGroup = new BaseGroup({
@@ -192,6 +176,8 @@ export function init() {
             diagramGroups.forEach((v) => {
                 baseGroup.add(v);
             });
+
+            baseGroup.focus(0);
         });
 
     layer.add(baseGroup);
