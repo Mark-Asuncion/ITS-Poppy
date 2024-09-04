@@ -1,15 +1,16 @@
 use serde::{ Serialize, Deserialize, ser::SerializeStruct };
-use std::{path::PathBuf, io::{Read, self}, fs::create_dir};
+use std::{path::PathBuf, io::{Read, self, Write}, fs::{create_dir, create_dir_all}};
 use tauri::{ State, AppHandle };
+use tauri::PathResolver;
 
-use crate::{file::{open_read, self}, state::GlobalState};
+use crate::{file::{open_read, self}, state::GlobalState, error};
 
 pub mod constants {
     use std::fs::create_dir;
     use std::path::PathBuf;
 
     pub const PROJECT_CONFIG_NAME: &str = "project-info.json";
-    pub const F_DATA: &str = "poppy.projects";
+    pub const F_DATA: &str = "poppy.json";
     pub const FORMAT_DATETIME: &str = "%m/%d/%Y %H:%M";
     pub const DOTPOPPY: &str = ".poppy";
     pub const DOT_MODULE_POSITIONS: &str = "positions.json";
@@ -27,66 +28,120 @@ pub mod constants {
     }
 }
 
-pub mod data {
-    use std::io;
-    use std::io::{Read, Write};
-    use std::path::PathBuf;
-    use crate::file::{self, open_write};
-    use super::constants;
+#[derive(Serialize, Deserialize, Debug)]
+pub struct AppConfig {
+    projects: Vec<PathBuf>
+}
 
-    pub fn load(mut path: PathBuf) -> io::Result<Vec<PathBuf>> {
-        path.push(constants::F_DATA);
-        if !path.exists() {
-            return Ok(vec![]);
+impl AppConfig {
+    pub fn load(path_resolver: &PathResolver) -> io::Result<Self> {
+        // immediate fail if data dir cannot be obtained
+        // because no fallback
+        let mut data_dir = path_resolver.app_data_dir()
+            .expect(error::Error::DATA_DIR_FAIL.to_string().as_str());
+
+        if let Err(e) = create_dir_all(data_dir.as_path()) {
+            println!("{}::{}", error::Error::DATA_DIR_CREATE_FAIL, e);
+            return Err(e);
         }
-        let mut file = file::open_read(&path)?;
-        let mut buf = String::new();
-        file.read_to_string(&mut buf)?;
-        if buf.is_empty() {
-            return Ok(vec![]);
+
+        data_dir.push(constants::F_DATA);
+
+        if !data_dir.exists() {
+            return Ok(
+                AppConfig {
+                    projects: Vec::new()
+                }
+            );
         }
-        let mut v_paths: Vec<PathBuf> = vec![];
-        let paths: Vec<&str> = buf.split("\r\n").collect();
-        for path in paths {
-            v_paths.push(PathBuf::from(path));
+
+        let f = file::open_read(&data_dir);
+        if let Err(e) = f {
+            let path_name = data_dir.to_string_lossy().to_string();
+            println!(
+                "{}, path={}::{}",
+                error::Error::FILE_OPEN_FAIL,
+                path_name, e
+            );
+            return Err(e);
         }
-        Ok(v_paths)
+        let mut f = f.unwrap();
+        let mut content: String = String::new();
+        f.read_to_string(&mut content).unwrap();
+
+        let err_msg = format!("Error Occured Reading {}", &content);
+        let appconfig: Self = serde_json::from_str(content.as_str())
+            .expect(err_msg.as_str());
+
+        Ok(appconfig)
     }
 
-    pub fn append(mut path: PathBuf, data: Vec<String>) -> io::Result<()> {
-        path.push(constants::F_DATA);
-        let mut file =  file::open_append(&path)?;
-        let data= data.join("\r\n").to_string() + "\r\n";
-        file.write_all(data.as_bytes())?;
+    pub fn write(&self, path_resolver: &PathResolver) -> io::Result<()> {
+        let mut data_dir = path_resolver.app_data_dir()
+            .expect(error::Error::DATA_DIR_FAIL.to_string().as_str());
+
+        if let Err(e) = create_dir_all(data_dir.as_path()) {
+            println!("{}::{}", error::Error::DATA_DIR_CREATE_FAIL, e);
+            return Err(e);
+        }
+        data_dir.push(constants::F_DATA);
+
+        let f = file::open_write(&data_dir);
+        if let Err(e) = f {
+            let path_name = data_dir.to_string_lossy().to_string();
+            println!(
+                "{}, path={}::{}",
+                error::Error::FILE_OPEN_FAIL,
+                path_name, e
+            );
+            return Err(e);
+        }
+        let mut f = f.unwrap();
+
+        let content = serde_json::to_string(&self);
+        if let Err(e) = &content {
+            println!("Conversion Error {}", e);
+        }
+        let content = content.unwrap_or_default();
+
+        if let Err(e) = f.write_all(content.as_bytes()) {
+            let path_name = data_dir.to_string_lossy().to_string();
+            println!(
+                "{}, path={}::{}",
+                error::Error::FILE_WRITE_FAIL,
+                path_name, e
+            );
+            return Err(e);
+        }
+
         Ok(())
     }
 
-    pub fn delete(mut path: PathBuf, val: Vec<String>) -> io::Result<()> {
-        use std::collections::HashSet;
-        if val.is_empty() {
-            return Ok(());
+    pub fn append_project(&mut self, path: PathBuf) {
+        let proj_conf_check = ProjectConfig::from_path(path.clone());
+        if proj_conf_check.is_empty() {
+            let path_name = path.to_string_lossy().to_string();
+            print!("Path {} is not a poppy project", path_name);
+            return;
         }
-        let projects = load(path.clone())?;
-        if projects.is_empty() {
-            return Ok(());
+        let mut is_appended;
+
+        let new_p_str = path.to_string_lossy().to_string();
+        for p in self.projects.clone().into_iter() {
+            let p_str = p.to_string_lossy().to_string();
+            is_appended = p_str == new_p_str;
+            if is_appended {
+                return;
+            }
         }
-        path.push(constants::F_DATA);
-        let mut to_del: HashSet<String> = HashSet::new();
-        for v in val.into_iter() {
-            to_del.insert(v);
-        }
-        let remain: Vec<String> = projects.into_iter()
-            .filter(|v| {
-                let s = v.to_string_lossy()
-                    .to_string();
-                !to_del.contains(&s)
-            })
-            .map(|v| v.to_string_lossy().to_string())
-            .collect();
-        let remain = remain.join("\r\n");
-        let mut file = open_write(&path)?;
-        file.write_all(remain.as_bytes())?;
-        Ok(())
+        self.projects.push(path);
+    }
+
+    pub fn delete_project(&mut self, path_name: String) {
+        self.projects = self.projects.clone().into_iter().filter(|v| {
+            let v_str = v.to_string_lossy().to_string();
+            return !(path_name == v_str);
+        }).collect();
     }
 }
 
@@ -98,6 +153,7 @@ pub struct ProjectConfig {
     createdAt: String
 }
 
+// To make sure that the paths is generated by the app
 #[derive(Deserialize, Debug)]
 pub struct ProjectInfo {
     path: PathBuf,
@@ -188,19 +244,26 @@ impl ProjectConfig {
         Ok(())
     }
 }
+
+// ================================
+//      == TAURI COMMANDS ==
+// ================================
+
 #[tauri::command]
 pub fn load_projects(app_handle: AppHandle) -> Vec<ProjectInfo> {
-    let data_dir = app_handle.path_resolver().app_data_dir().unwrap();
-    let projects_path = data::load(data_dir.clone());
-    if let Err(e) = projects_path {
+    let appconfig = AppConfig::load(&app_handle.path_resolver());
+    if let Err(e) = appconfig {
         dbg!(e);
-        todo!("err message");
+        panic!("SHOW ERROR HERE");
     }
+    let mut appconfig = appconfig.unwrap();
+    let projects_path = appconfig.projects.clone();
 
     let mut projects_config: Vec<ProjectInfo> = vec![];
     let mut to_del: Vec<String> = vec![];
 
-    for project_path in projects_path.unwrap().into_iter() {
+    // double check paths if it contains the poppy config file
+    for project_path in projects_path.into_iter() {
         let proj_conf = ProjectConfig::from_path(project_path.clone());
         if proj_conf.is_empty() {
             let project_path_str = project_path.to_string_lossy().to_string();
@@ -210,9 +273,16 @@ pub fn load_projects(app_handle: AppHandle) -> Vec<ProjectInfo> {
         let info = ProjectInfo::new(project_path.clone(), proj_conf);
         projects_config.push(info);
     }
-    if let Err(e) = data::delete(data_dir, to_del) {
-        dbg!(e);
+
+    for path in to_del {
+        appconfig.delete_project(path);
     }
+
+    if let Err(e) = appconfig.write(&app_handle.path_resolver()) {
+        dbg!(e);
+        panic!("SHOW ERROR HERE");
+    }
+
     projects_config
 }
 
@@ -222,19 +292,26 @@ pub fn new_project(name: String, path: String, app_handle: AppHandle) {
     if !path_to_proj.exists() {
         if let Err(e) = create_dir(&path_to_proj) {
             dbg!(e);
-            todo!("show error window cannot create dir at ...")
+            panic!("SHOW ERROR HERE");
         }
     }
     let proj_conf = ProjectConfig::new(name);
     if let Err(e) = proj_conf.write(path_to_proj.clone()) {
         dbg!(e);
-        return;
+        panic!("SHOW ERROR HERE");
     }
 
-    let data_path = app_handle.path_resolver().app_data_dir().unwrap_or_default();
-    if let Err(e) = data::append(data_path, vec![path]) {
+    let appconfig = AppConfig::load(&app_handle.path_resolver());
+    if let Err(e) = appconfig {
         dbg!(e);
-        return;
+        panic!("SHOW ERROR HERE");
+    }
+
+    let mut appconfig = appconfig.unwrap();
+    appconfig.append_project(PathBuf::from(path));
+    if let Err(e) = appconfig.write(&app_handle.path_resolver()) {
+        dbg!(e);
+        panic!("SHOW ERROR HERE");
     }
 }
 
@@ -244,11 +321,13 @@ pub fn open_project(path: String, gs: State<GlobalState>) {
     let proj_conf = ProjectConfig::from_path(path.clone());
     if proj_conf.is_empty() {
         dbg!("Not a project directory");
-        todo!("err message");
+        panic!("SHOW ERROR HERE");
     }
     gs.set_work_path(path);
 }
 
+// Load a poppy projects and append it to the list
+// doesn't actually open the project
 #[tauri::command]
 pub fn load_open_project(path: String, app_handle: AppHandle) {
     let pathb = PathBuf::from(path.as_str());
@@ -259,18 +338,33 @@ pub fn load_open_project(path: String, app_handle: AppHandle) {
     if proj_conf.is_empty() {
         return;
     }
-    let data_path = app_handle.path_resolver().app_data_dir().unwrap_or_default();
-    if let Err(e) = data::append(data_path, vec![path]) {
+
+    let appconfig = AppConfig::load(&app_handle.path_resolver());
+    if let Err(e) = appconfig {
         dbg!(e);
+        panic!("SHOW ERROR HERE");
+    }
+    let mut appconfig = appconfig.unwrap();
+
+    appconfig.append_project(PathBuf::from(path));
+    if let Err(e) = appconfig.write(&app_handle.path_resolver()) {
+        dbg!(e);
+        panic!("SHOW ERROR HERE");
     }
 }
 
 #[tauri::command]
-pub fn del_project(path: String, app_handle: AppHandle) -> u8 {
-    let data_path = app_handle.path_resolver().app_data_dir().unwrap_or_default();
-    if let Err(e) = data::delete(data_path, vec![path]) {
+pub fn del_project(path: String, app_handle: AppHandle) {
+    let appconfig = AppConfig::load(&app_handle.path_resolver());
+    if let Err(e) = appconfig {
         dbg!(e);
-        todo!("err message");
+        panic!("SHOW ERROR HERE");
     }
-    0
+    let mut appconfig = appconfig.unwrap();
+
+    appconfig.delete_project(path);
+    if let Err(e) = appconfig.write(&app_handle.path_resolver()) {
+        dbg!(e);
+        panic!("SHOW ERROR HERE");
+    }
 }
