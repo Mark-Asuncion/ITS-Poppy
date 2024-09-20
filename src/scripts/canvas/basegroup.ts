@@ -106,6 +106,7 @@ export class BaseGroup extends Group {
     }
 
     // childn focus on the nth child
+    // BUG: FUCKING BROKEN AF
     focus(childn: number) {
         const childs = this.getDiagramGroups();
         if (childs.length == 0 || childs[childn] == undefined) {
