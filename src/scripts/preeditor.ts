@@ -38,6 +38,7 @@ diagramsImg.forEach((elem) => {
         case "endblock":
             img.src = imgStatement;
             break;
+        case "function":
         default:
             img.src = imgStatement;
             break;

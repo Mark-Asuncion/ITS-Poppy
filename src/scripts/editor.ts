@@ -2,7 +2,6 @@
 import { diagramToModules, init } from "./canvasinit";
 import { dialog_one_dir, get_cwd_name, set_cwd, write_diagrams_to_modules } from "./backendconnector";
 import { TerminalInstance } from "./terminal/instance";
-import { notifyPush } from "./notify";
 
 async function set_project_name(input_element: HTMLInputElement) {
     const isUntitled = input_element.value.toLowerCase() === "untitled project";

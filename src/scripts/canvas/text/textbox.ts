@@ -73,11 +73,9 @@ export class TextBox extends BaseText {
             input.remove();
             this.input = null;
 
-            // this.fire("texteditdone", {}, true);
             this.isEditing = false;
 
             this.fire("TextChanged", { value: input.value }, true);
-            // this.fire("OnStateRemove", {}, true);
         });
 
         input.addEventListener("keydown", (e) => {

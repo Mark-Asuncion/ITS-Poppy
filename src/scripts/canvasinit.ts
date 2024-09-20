@@ -6,6 +6,7 @@ import { contextMenuHide, contextMenuShow } from "./contextmenu/contextmenu";
 import { Function } from "./canvas/blocks/function";
 import { Shape, ShapeConfig } from "konva/lib/Shape";
 import { createDiagramFrom, isPointIntersectRect } from "./canvas/utils";
+import { Poppy } from "../poppy/poppy";
 
 function getPlacementPos(stage: Konva.Stage): Konva.Vector2d {
     const basegroup = stage.getChildren()[0].getChildren()[0] as BaseGroup;
@@ -81,7 +82,6 @@ export function init() {
         }
     });
 
-
     // disable default behaviour
     document.addEventListener("keydown", (e) => {
         if (!window.mSelected) {
@@ -110,7 +110,7 @@ export function init() {
 
     domContainer.addEventListener("contextmenu", (e) => {
         e.preventDefault();
-        console.log(window.mContextMenu);
+        // console.log(window.mContextMenu);
         contextMenuHide();
         contextMenuShow();
     });
@@ -151,6 +151,8 @@ export function init() {
                 dgGroup.addDiagram(createDiagramFrom("function"));
                 break;
             default:
+                dgGroup.addDiagram(createDiagramFrom("statement"));
+                console.warn("SHOULD NOT HAPPEN");
                 break;
         }
         bg.add(dgGroup);
@@ -171,6 +173,17 @@ export function init() {
         height: stage.height(),
     });
 
+    window.addEventListener("resize", (_) => {
+        const boundingClient = domContainer.getBoundingClientRect();
+        const size = {
+            width: boundingClient.width,
+            height: boundingClient.height
+        };
+        // console.log(`Set Size`, stage.size(), baseGroup.size(), size);
+        stage.setSize(size);
+        baseGroup.setSize(size);
+    });
+
     __loadModules(stage)
         .then((diagramGroups) => {
             diagramGroups.forEach((v) => {
@@ -179,6 +192,11 @@ export function init() {
 
             baseGroup.focus(0);
         });
+
+    Poppy.init();
+    window["Poppy"] = Poppy;
+    Poppy.loadTutorial(1);
+    Poppy.update();
 
     layer.add(baseGroup);
     stage.add(layer);

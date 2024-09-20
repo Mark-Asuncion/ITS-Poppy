@@ -24,6 +24,10 @@
     background-color: var(--dg-loop);
 }
 
+.diagram-utilities {
+    background-color: var(--dg-statement);
+}
+
 .diagram-title {
     font-weight: bold;
     vertical-align: middle;

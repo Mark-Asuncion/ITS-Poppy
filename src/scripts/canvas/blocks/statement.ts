@@ -31,12 +31,13 @@ export class Statement extends BaseDiagram {
     }
 
     onTextChanged(e: TextChangedEvent) {
+        super.onTextChanged(e);
         if (!e.value) {
             return;
         }
 
         const content = e.value;
-        console.log("content: ", content);
+        // console.log("content: ", content);
         const type = findNodeType(content);
         if (type === "statement") {
             return;
@@ -81,7 +82,7 @@ export class Statement extends BaseDiagram {
 
             node.focus();
         }
-        else if (e.key === "Backspace") {
+        else if (e.key === "Backspace" && indexPos !== 0) {
             console.log(`${ e.value }`, typeof(e.value), e.value?.length);
             if (e.value != undefined && e.value.length === 0) {
                 const nodeToDes = p.nodes[indexPos];

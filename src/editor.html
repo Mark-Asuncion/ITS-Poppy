@@ -11,10 +11,11 @@
         <link rel="stylesheet" href="./styles/xterm.css" />
         <link rel="stylesheet" href="./styles/contextmenu.css" />
         <link rel="stylesheet" href="./styles/notify.css" />
+        <link rel="stylesheet" href="./styles/poppy/dialog.css" />
         <title>ITS Poppy</title>
+        <script type="module" src="./scripts/sidebar.ts" defer></script>
         <script type="module" src="./scripts/preeditor.ts" defer></script>
         <script type="module" src="./scripts/editor.ts" defer></script>
-        <script type="module" src="./scripts/sidebar.ts" defer></script>
         <script type="module" src="./scripts/terminal/terminal.ts" defer></script>
     </head>
     <body>
@@ -38,43 +39,15 @@
             <div class="d-flex flex-dir-row flex-grow" style="height: 1fr;">
                 <div id="sidebar-container" class="d-flex">
                     <div class="sidebar bg-white d-flex flex-dir-col">
-                        <button id="btn-folder-view" aria-role="sidebar-button" aria-target="folder-view" aria-type="folder-tree" type="button" class="aspect-ratio-1 br-none no-radius fill-width">
-                            <i class="fa fa-folder-tree fa-xl"></i>
-                        </button>
+                        <!-- <button id="btn-folder-view" aria-role="sidebar-button" aria-target="folder-view" aria-type="folder-tree" type="button" class="aspect-ratio-1 br-none no-radius fill-width"> -->
+                        <!--     <i class="fa fa-folder-tree fa-xl"></i> -->
+                        <!-- </button> -->
                         <button id="btn-diagram-view" aria-role="sidebar-button" aria-target="diagram-view" aria-type="diagram-view" type="button" class="aspect-ratio-1 br-none no-radius fill-width">
                             <i class="fa fa-cube fa-xl"></i>
                         </button>
                     </div>
-                    <div id="folder-view" class="d-none scrollable"></div>
-                    <div id="diagram-view" class="d-none pad-20 h-100-svh scrollable">
-                        <div class="d-flex flex-dir-col">
-                            <div class="d-flex diagram-title-container">
-                                <div class="diagram-emblem diagram-statement"></div>
-                                <p class="diagram-title">Statement</p>
-                            </div>
-                            <img draggable="true" aria-diagram="true" aria-diagram-type="statement">
-                            <img draggable="true" aria-diagram="true" aria-diagram-type="endblock">
-                        </div>
-                        <div class="d-flex flex-dir-col mg-t-10 mg-b-10">
-                            <div class="d-flex diagram-title-container">
-                                <div class="diagram-emblem diagram-control"></div>
-                                <p class="diagram-title">Control</p>
-                            </div>
-                            <img draggable="true" aria-diagram="true" aria-diagram-type="control-if">
-                            <img draggable="true" aria-diagram="true" aria-diagram-type="control-elif">
-                            <img draggable="true" aria-diagram="true" aria-diagram-type="control-else">
-                        </div>
-                        <div class="d-flex flex-dir-col mg-t-10 mg-b-10">
-                            <div class="d-flex diagram-title-container">
-                                <div class="diagram-emblem diagram-loop"></div>
-                                <p class="diagram-title">Loop</p>
-                            </div>
-                            <img draggable="true" aria-diagram="true" aria-diagram-type="loop-for">
-                            <img draggable="true" aria-diagram="true" aria-diagram-type="loop-while">
-                        </div>
-                        <br>
-                        <br>
-                    </div>
+                    <!-- <div id="folder-view" class="d-none scrollable"></div> -->
+                    <div id="diagram-view" class="d-none pad-20 h-100-svh scrollable"></div>
                 </div>
                 <div id="diagram-container"></div>
                 <div id="term-container" class="d-none flex-dir-col">

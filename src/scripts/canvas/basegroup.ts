@@ -5,6 +5,7 @@ import { Group } from "konva/lib/Group";
 import { KonvaEventObject } from "konva/lib/Node";
 import { DiagramGroup } from "./diagramgroup";
 import { _Selected } from "./utils";
+import { diagramToModules } from "../canvasinit";
 
 export class BaseGroup extends Group {
     // background size multipler
@@ -101,6 +102,7 @@ export class BaseGroup extends Group {
     }
 
     // childn focus on the nth child
+    // BUG: FUCKING BROKEN AF
     focus(childn: number) {
         const childs = this.getDiagramGroups();
         if (childs.length == 0 || childs[childn] == undefined) {

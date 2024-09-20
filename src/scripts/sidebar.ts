@@ -1,3 +1,5 @@
+import { SIDEBAR } from "../themes/diagram";
+
 // const container = document.querySelector("#sidebar-container")! as HTMLDivElement;
 const sidebarBtn = document.querySelectorAll('[aria-role="sidebar-button"]');
 
@@ -25,3 +27,30 @@ sidebarBtn.forEach((elem) => {
         }
     });
 });
+
+// ========================
+// ===== DIAGRAM VIEW =====
+// ========================
+
+const diagramView = document.querySelector("#diagram-view")!;
+const keys = Object.keys(SIDEBAR)
+for (let i=0;i<keys.length;i++) {
+    const div = document.createElement("div");
+    const key = keys[i];
+    div.classList.add("d-flex");
+    div.classList.add("flex-dir-col");
+    const emblemContainer = document.createElement("div");
+    emblemContainer.classList.add("d-flex");
+    emblemContainer.classList.add("diagram-title-container");
+    emblemContainer.innerHTML = `<div class="diagram-emblem diagram-${key.toLowerCase()}"></div><p class="diagram-title">${key}</p>`;
+    div.appendChild(emblemContainer);
+
+    const items: string[] = SIDEBAR[key].items;
+    for (let j=0;j<items.length;j++) {
+        let img = `<img draggable="true" aria-diagram="true" aria-diagram-type="${items[j]}">`;
+        div.innerHTML += img;
+    }
+
+    diagramView.appendChild(div);
+    diagramView.innerHTML += "<br><br>";
+}

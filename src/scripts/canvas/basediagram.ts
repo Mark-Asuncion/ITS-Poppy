@@ -10,6 +10,7 @@ import { BaseText, TextChangedEvent, TextKeyUpEvent } from "./basetext";
 import { clipboard } from "@tauri-apps/api";
 import { notifyPush } from "../notify";
 import { Text } from "konva/lib/shapes/Text";
+import { Poppy } from "../../poppy/poppy";
 
 export type DiagramType = "normal" | "block" | "indent0" | "indent1" | "indent2" | "indent3" | "endblock";
 export interface BaseDiagramConfig extends ContainerConfig {
@@ -346,7 +347,10 @@ export class BaseDiagram extends Group {
         }
     }
 
-    onTextChanged(e: TextChangedEvent) { e }
+    onTextChanged(e: TextChangedEvent) {
+        e;
+        Poppy.onModified();
+    }
 
     registerEvents() {
         this.on("KeyUp", (e: TextKeyUpEvent) => {
