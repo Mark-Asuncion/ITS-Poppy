@@ -1,0 +1,10 @@
+.lintview-p {
+    margin: 0 0 0 10px;
+}
+
+/* .lintview-message-container { */
+/*     padding: 1em; */
+/* } */
+.lintview-message-container:hover {
+    background-color: lightgray;
+}

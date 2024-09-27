@@ -412,6 +412,10 @@ export class BaseDiagram extends Group {
         return this.dgType == "block" || this.dgType == "indent1" || this.dgType == "indent2" || this.dgType == "indent3";
     }
 
+    isNonPrintableBlock() {
+        return this.dgType == "indent1" || this.dgType == "indent2" || this.dgType == "indent3";
+    }
+
     getIndexPos() {
         const parent = this.parent as DiagramGroup
         for (let i=0;i<parent.nodes.length;i++) {

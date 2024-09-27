@@ -8,6 +8,7 @@ mod config;
 mod tests;
 mod pty;
 mod error;
+mod lint;
 
 use std::fs::create_dir_all;
 
@@ -47,7 +48,8 @@ fn main() {
             pty::write_term,
             pty::read_term,
             pty::close_term,
-            pty::restart_term
+            pty::restart_term,
+            lint::lint
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

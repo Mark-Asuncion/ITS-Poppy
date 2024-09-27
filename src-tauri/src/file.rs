@@ -1,8 +1,8 @@
 use serde::{ Serialize, Deserialize };
 use std::{
-    fs::{File, rename, self, create_dir_all, read_dir, ReadDir},
+    fs::{File, rename, create_dir_all, read_dir, ReadDir, remove_file},
     path::{ PathBuf, Path },
-    io::{self, Write, Read}
+    io::{self, Write, Read}, collections::HashSet
 };
 use std::collections::HashMap;
 
@@ -50,7 +50,7 @@ type PositionMap = HashMap<PathBuf, (f32,f32)>;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Module {
-    pub name: String,
+    pub name: String, // not including the extension
     pub content: String,
     pub position: Option<(f32,f32)>
 }
@@ -105,7 +105,7 @@ impl Module {
     }
 }
 
-fn _should_ignore(path: &Path) -> bool {
+pub fn _should_ignore(path: &Path) -> bool {
     let file_name = path.file_name()
         .unwrap()
         .to_string_lossy()
@@ -115,6 +115,64 @@ fn _should_ignore(path: &Path) -> bool {
         _ => return false
     }
 
+}
+
+fn _delete_not_in(rd: io::Result<ReadDir>, cwd: &Path, modules: &Vec<Module>) -> io::Result<()> {
+    let rd: ReadDir = rd?;
+    let mut name_map: HashSet<String> = HashSet::new();
+
+    for module in modules {
+        name_map.insert(module.name.clone());
+    }
+
+    for entry in rd {
+        let entry = entry?;
+        let path = entry.path();
+        if _should_ignore(&path) {
+            continue;
+        }
+
+        if path.is_dir() {
+            let r = read_dir(path);
+            _delete_not_in(r, cwd, &modules)?;
+            continue;
+        }
+
+        let ext = path.extension()
+            .unwrap_or_default()
+            .to_string_lossy()
+            .to_string();
+
+        let mut name = path
+            .to_string_lossy()
+            .to_string();
+
+        let cwd_str = cwd
+            .to_string_lossy()
+            .to_string();
+
+        name = name.replace(cwd_str.as_str(), "");
+        name = name.replace(".py", "");
+        // remove the beginning \\
+        if name.as_bytes()[0] as char == '\\' {
+            name = name[1..].to_string();
+        }
+
+        if name.is_empty() {
+            continue;
+        }
+
+        if ext != "py" {
+            continue;
+        }
+
+        if let None = name_map.get(&name) {
+            dbg!(&path, &name);
+            remove_file(path)?;
+            return Ok(());
+        }
+    }
+    Ok(())
 }
 
 fn _write_cached_module_positions(cwd: PathBuf, positions: PositionMap ) -> io::Result<()> {
@@ -247,6 +305,11 @@ pub async fn write_diagrams_to_modules(modules: String, gs: State<'_, GlobalStat
                     },
                 }
             }
+            let dir = read_dir(&cwd);
+            if let Err(e) = _delete_not_in(dir, &cwd, &modules) {
+                dbg!(e);
+            }
+
             if let Err(e) = _write_cached_module_positions(
                 cwd.clone(),
                 positions

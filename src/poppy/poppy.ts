@@ -2,6 +2,8 @@ import { Module } from "../scripts/backendconnector";
 import { diagramToModules } from "../scripts/canvasinit";
 import { DialogType, PoppyDialog, Tutorial } from "./interface";
 import { Tutorial01 } from "./tutorials/tutorial01";
+import { write_diagrams_to_modules } from "../scripts/backendconnector";
+import { Lint } from "../scripts/lint";
 
 // @ts-ignore
 export class Poppy {
@@ -142,6 +144,12 @@ export class Poppy {
         Poppy.onModifiedMutex = true;
 
         const contents = diagramToModules(window.mCvStage);
+        let lint = async () => {
+            write_diagrams_to_modules(contents);
+            Lint.lint();
+        }
+        lint();
+
         // TODO: save then
         // send contents to pylint
 

@@ -7,11 +7,11 @@
         <link rel="stylesheet" href="./styles/styles.css" />
         <link rel="stylesheet" href="./styles/sidebar.css" />
         <link rel="stylesheet" href="./styles/diagram.css" />
-        <link rel="stylesheet" href="./styles/canvas.css" />
         <link rel="stylesheet" href="./styles/xterm.css" />
         <link rel="stylesheet" href="./styles/contextmenu.css" />
         <link rel="stylesheet" href="./styles/notify.css" />
         <link rel="stylesheet" href="./styles/poppy/dialog.css" />
+        <link rel="stylesheet" href="./styles/lint.css" />
         <title>ITS Poppy</title>
         <script type="module" src="./scripts/sidebar.ts" defer></script>
         <script type="module" src="./scripts/preeditor.ts" defer></script>
@@ -45,9 +45,13 @@
                         <button id="btn-diagram-view" aria-role="sidebar-button" aria-target="diagram-view" aria-type="diagram-view" type="button" class="aspect-ratio-1 br-none no-radius fill-width">
                             <i class="fa fa-cube fa-xl"></i>
                         </button>
+                        <button id="btn-diagram-error" aria-role="sidebar-button" aria-target="diagram-error" aria-type="diagram-error" type="button" class="aspect-ratio-1 br-none no-radius fill-width">
+                            <i class="fa fa-list fa-xl"></i>
+                        </button>
                     </div>
                     <!-- <div id="folder-view" class="d-none scrollable"></div> -->
                     <div id="diagram-view" class="d-none pad-20 h-100-svh scrollable"></div>
+                    <div id="diagram-error" class="d-none pad-10 h-100-svh scrollable"></div>
                 </div>
                 <div id="diagram-container"></div>
                 <div id="term-container" class="d-none flex-dir-col">

@@ -50,6 +50,24 @@ playBtn?.addEventListener("click", async () => {
     }
 });
 
+// document.addEventListener("mousedown", (e) => {
+//     // draggable
+//     const el = e.target;
+//     if (el instanceof HTMLDivElement && el.id !== "diagram-container") {
+//         e.preventDefault();
+//         e.stopPropagation();
+//         const isDraggable = el.classList.contains("draggable");
+//         if (isDraggable)
+//             window.mDragDiv = el;
+//     }
+// });
+//
+// document.addEventListener("mouseup", (_) => {
+//     // remove draggable
+//     if (window.mDragDiv)
+//         window.mDragDiv = null;
+// });
+
 document.body.addEventListener("mousemove", (e) => {
     if (!window.mCursor) {
         window.mCursor = {

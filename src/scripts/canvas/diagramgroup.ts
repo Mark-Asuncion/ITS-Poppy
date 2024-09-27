@@ -375,4 +375,18 @@ export class DiagramGroup extends Konva.Group {
         dg.refresh();
         return dg;
     }
+
+    getNodeByLineN(linen: number): BaseDiagram | null {
+        let curr_line = 0;
+        for (let i=0;i<this.nodes.length;i++) {
+            if (this.nodes[i].isNonPrintableBlock()) {
+                continue;
+            }
+            curr_line++;
+            if (linen == curr_line) {
+                return this.nodes[i];
+            }
+        }
+        return null;
+    }
 }

@@ -3,6 +3,7 @@ import { SIDEBAR } from "../themes/diagram";
 // const container = document.querySelector("#sidebar-container")! as HTMLDivElement;
 const sidebarBtn = document.querySelectorAll('[aria-role="sidebar-button"]');
 
+let gOpenedView: HTMLElement | null = null;
 sidebarBtn.forEach((elem) => {
     const tname = elem.getAttribute("aria-target")
     if (!tname) {
@@ -17,10 +18,15 @@ sidebarBtn.forEach((elem) => {
     elem.addEventListener("click", (e) => {
         e.stopPropagation();
         if (target.classList.replace("d-none", "d-block")) {
+            if (gOpenedView != null && gOpenedView.classList.contains("active")) {
+                gOpenedView.click();
+            }
+            gOpenedView = elem as HTMLElement;
             elem.classList.add("active");
             target.classList.add("sidebar-content")
         }
         else {
+            gOpenedView = null;
             elem.classList.remove("active");
             target.classList.replace("d-block", "d-none");
             target.classList.remove("sidebar-content");
@@ -54,3 +60,4 @@ for (let i=0;i<keys.length;i++) {
     diagramView.appendChild(div);
     diagramView.innerHTML += "<br><br>";
 }
+// ========================

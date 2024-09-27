@@ -7,6 +7,7 @@ import { Function } from "./canvas/blocks/function";
 import { Shape, ShapeConfig } from "konva/lib/Shape";
 import { createDiagramFrom, isPointIntersectRect } from "./canvas/utils";
 import { Poppy } from "../poppy/poppy";
+import { Lint } from "./lint";
 
 function getPlacementPos(stage: Konva.Stage): Konva.Vector2d {
     const basegroup = stage.getChildren()[0].getChildren()[0] as BaseGroup;
@@ -16,6 +17,7 @@ function getPlacementPos(stage: Konva.Stage): Konva.Vector2d {
         x: container.x + container.width * .2,
         y: container.y + container.height * .2,
     };
+
     let transform = basegroup.getAbsoluteTransform()
         .copy()
         .invert();
@@ -44,6 +46,7 @@ async function __loadModules(stage: Konva.Stage): Promise<DiagramGroup[]> {
         }
         else {
             dg.setPosition(pos);
+            console.log("placed in: ", pos);
             pos.x += 100;
             pos.y += 100;
         }
@@ -191,6 +194,7 @@ export function init() {
             });
 
             baseGroup.focus(0);
+            Lint.lint();
         });
 
     Poppy.init();

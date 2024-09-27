@@ -11,7 +11,9 @@ pub enum Error {
     FILE_OPEN_FAIL,
 
     DATA_DIR_FAIL,
-    DATA_DIR_CREATE_FAIL
+    DATA_DIR_CREATE_FAIL,
+
+    LINT_COMMAND_FAIL,
 }
 
 impl fmt::Display for Error {
@@ -24,6 +26,7 @@ impl fmt::Display for Error {
             Error::FILE_OPEN_FAIL => f.write_str("FILE::Failed to open file"),
             Error::DATA_DIR_FAIL => f.write_str("DATA_DIR::Failed to obtain Data Directory"),
             Error::DATA_DIR_CREATE_FAIL => f.write_str("DATA_DIR::Failed to Create Data Directory"),
+            Error::LINT_COMMAND_FAIL => f.write_str("LINT::Command Failed to Run"),
         }
     }
 }

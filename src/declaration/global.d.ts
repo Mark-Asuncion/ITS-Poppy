@@ -6,6 +6,7 @@ import { _ContextMenuItem } from "../scripts/contextmenu/interface";
 declare global {
     interface Window {
         mSelected: _Selected | null;
+        mDragDiv: HTMLDivElement | null;
         mCvRootNode: {
             getDiagramGroups: () => DiagramGroup[]
         };
