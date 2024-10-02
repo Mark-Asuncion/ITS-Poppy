@@ -2,7 +2,6 @@
 import { diagramToModules, init } from "./canvasinit";
 import { dialog_one_dir, get_cwd_name, set_cwd, write_diagrams_to_modules } from "./backendconnector";
 import { TerminalInstance } from "./terminal/instance";
-import { notifyPush } from "./notify";
 
 async function set_project_name(input_element: HTMLInputElement) {
     const isUntitled = input_element.value.toLowerCase() === "untitled project";
@@ -50,6 +49,24 @@ playBtn?.addEventListener("click", async () => {
         TerminalInstance.write("python main.py");
     }
 });
+
+// document.addEventListener("mousedown", (e) => {
+//     // draggable
+//     const el = e.target;
+//     if (el instanceof HTMLDivElement && el.id !== "diagram-container") {
+//         e.preventDefault();
+//         e.stopPropagation();
+//         const isDraggable = el.classList.contains("draggable");
+//         if (isDraggable)
+//             window.mDragDiv = el;
+//     }
+// });
+//
+// document.addEventListener("mouseup", (_) => {
+//     // remove draggable
+//     if (window.mDragDiv)
+//         window.mDragDiv = null;
+// });
 
 document.body.addEventListener("mousemove", (e) => {
     if (!window.mCursor) {

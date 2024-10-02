@@ -80,3 +80,30 @@ export const Theme = {
         arrow_right: "M400-280v-400l200 200-200 200Z"
     }
 };
+
+export const SIDEBAR = {
+    Statement: {
+        items: [
+            "statement",
+            "endblock",
+        ]
+    },
+    Control: {
+        items: [
+            "control-if",
+            "control-elif",
+            "control-else",
+        ]
+    },
+    Loop: {
+        items: [
+            "loop-for",
+            "loop-while",
+        ]
+    },
+    Utilities: {
+        items: [
+            "function"
+        ]
+    }
+}

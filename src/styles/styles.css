@@ -65,6 +65,10 @@ body {
     margin-bottom: 10px;
 }
 
+.pad-10 {
+    padding: 10px;
+}
+
 .pad-20 {
     padding: 20px;
 }
@@ -206,4 +210,31 @@ button:hover {
 
 .border-info {
     border: 2px solid var(--info);
+}
+
+.vt-center {
+    vertical-align: middle;
+}
+
+.gap-10 {
+    gap: 10px;
+}
+
+.hover-item {
+    padding: 0.5em;
+    background-color: white;
+    color: black;
+    border: 1px solid lightgray;
+    border-radius: 0.5em;
+
+    position: absolute;
+    left: 0;
+    top: 0;
+
+    z-index: 99;
+    height: max-content;
+}
+
+.hover-item * {
+    text-align: center;
 }

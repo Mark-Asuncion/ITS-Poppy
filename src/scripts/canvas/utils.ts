@@ -1,4 +1,3 @@
-import Konva from "konva";
 import { DiagramGroup } from "./diagramgroup";
 import { Statement } from "./blocks/statement";
 import { If, Elif, Else } from "./blocks/control";
@@ -188,4 +187,51 @@ export function createDiagramFrom(type: string, line: string = ""): BaseDiagram 
             break;
     }
     return  new Statement(line);
+}
+
+let gHoverTimerMap = new Map<HTMLElement, number | undefined>();
+window["gHoverTimerMap"] = gHoverTimerMap;
+
+export function setHover(
+    source: HTMLElement,
+    message: string,
+    timeout: number = 1000
+) {
+    let id = gHoverTimerMap.get(source);
+    if (id != undefined) {
+        clearTimeout(id);
+        gHoverTimerMap.delete(source);
+        return;
+    }
+
+    source.addEventListener("mouseenter", (e) => {
+        let id = setTimeout(() =>  {
+            const div = document.createElement("div");
+            div.classList.add("hover-item");
+            div.innerHTML = `<p style="margin: 0">${message}</p>`;
+
+            div.style.left = `${e.x}px`;
+            div.style.top = `${e.y}px`;
+            document.body.appendChild(div);
+        }, timeout);
+        gHoverTimerMap.set(source, id as unknown as number);
+    });
+
+    source.addEventListener("mouseleave", () => {
+        let id = gHoverTimerMap.get(source);
+        if (id != undefined) {
+            clearTimeout(id);
+            let items = document.querySelectorAll(".hover-item");
+            items.forEach((v) => {
+                v.remove();
+            });
+            gHoverTimerMap.set(source, undefined);
+            return;
+        }
+    })
+
+}
+
+export function clamp(val: number, min: number, max: number) {
+    return Math.max(min, Math.min(val, max));
 }

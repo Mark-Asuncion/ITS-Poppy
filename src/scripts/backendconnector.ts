@@ -12,6 +12,18 @@ export interface ProjectInfo {
     projectName: string,
 }
 
+export interface LintItem {
+    linen: number,
+    message: string,
+    errorCode: string,
+    errorTypeName: string
+}
+
+export interface LintInfo {
+    moduleName: string,
+    messages: LintItem[]
+}
+
 // export function write_with_temp_to(path: string, content: String) {
 //     try {
 //         invoke("write_with_temp_to", { p: path, content });
@@ -50,10 +62,10 @@ export async function get_cwd_name(): Promise<string> {
     return "";
 }
 
-export function write_diagrams_to_modules(arrContents: Array<Module>) {
+export async function write_diagrams_to_modules(arrContents: Array<Module>) {
     try {
         const asStr = JSON.stringify(arrContents);
-        invoke("write_diagrams_to_modules", {
+        await invoke("write_diagrams_to_modules", {
             modules: asStr
         });
     }
@@ -166,3 +178,13 @@ export async function restart_term(): Promise<void | string> {
     }
 }
 
+
+export async function lint(): Promise<LintInfo[] | string> {
+    try {
+        return await invoke("lint");
+    }
+    catch (e) {
+        console.error(e);
+        return e as string;
+    }
+}

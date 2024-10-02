@@ -4,11 +4,12 @@ import { Rect } from "konva/lib/shapes/Rect";
 import { Group } from "konva/lib/Group";
 import { KonvaEventObject } from "konva/lib/Node";
 import { DiagramGroup } from "./diagramgroup";
-import { _Selected } from "./utils";
+import { _Selected, clamp } from "./utils";
 
 export class BaseGroup extends Group {
     // background size multipler
     mtpSize: number ;
+    bg: Rect;
     constructor(opts: Konva.ContainerConfig, size: number = 10) {
         super(opts);
         this.mtpSize = size;
@@ -28,6 +29,7 @@ export class BaseGroup extends Group {
         im.onload = () => backgroundRect.fillPatternImage(im);
         im.src = diagramBackground;
         this.add(backgroundRect);
+        this.bg = backgroundRect;
 
         window.mCvRootNode = {
             getDiagramGroups: this.getDiagramGroups.bind(this)
@@ -107,17 +109,13 @@ export class BaseGroup extends Group {
             return;
         }
         const ch = childs[childn];
+        // console.log(ch.position());
 
-        // TODO: FIX
         const stage = this.getStage()!;
         const container = stage.container().getBoundingClientRect();
-        const offset = {
-            x: container.x + container.width * .1,
-            y: container.y + container.height * .1
-        };
         const pos = {
-            x: this.x() + ch.x() - offset.x,
-            y: this.y() + ch.y() - offset.y
+            x: clamp( ch.x() - container.width, 0, this.bg.width() - container.width ),
+            y: clamp( ch.y() - container.height, 0, this.bg.height() - container.height )
         };
 
         // console.log(this.position(), ch.position(), pos);
