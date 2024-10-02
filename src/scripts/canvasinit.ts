@@ -5,26 +5,10 @@ import { DiagramGroup } from "./canvas/diagramgroup";
 import { contextMenuHide, contextMenuShow } from "./contextmenu/contextmenu";
 import { Function } from "./canvas/blocks/function";
 import { Shape, ShapeConfig } from "konva/lib/Shape";
-import { createDiagramFrom, isPointIntersectRect } from "./canvas/utils";
+import { createDiagramFrom, getPlacementPos, isPointIntersectRect } from "./canvas/utils";
 import { Poppy } from "../poppy/poppy";
 import { Lint } from "./lint";
 
-function getPlacementPos(stage: Konva.Stage): Konva.Vector2d {
-    const basegroup = stage.getChildren()[0].getChildren()[0] as BaseGroup;
-    const container = stage.container().getBoundingClientRect();
-    const containerCenter = {
-        x: container.x + container.width * .5,
-        y: container.y + container.height * .5,
-    };
-
-    let transform = basegroup.getAbsoluteTransform()
-        .copy()
-        .invert();
-
-    const p = transform.point(containerCenter);
-    console.log(p);
-    return p;
-}
 
 async function __loadModules(stage: Konva.Stage): Promise<DiagramGroup[]> {
     const cwd = await get_cwd();
@@ -119,12 +103,16 @@ export function init() {
     });
 
     document.addEventListener("diagramdrop", ((e: any) => {
-        const type = e.detail;
+        const type = e.detail.type;
         if (!type) {
             return;
         }
         const bg = stage.children[0].children[0] as BaseGroup;
-        const pos = getPlacementPos(stage);
+        let pos = getPlacementPos(stage);
+        if (e.detail.pos) {
+            pos = e.detail.pos;
+        }
+
         const dgGroup = new DiagramGroup(pos);
         switch (type) {
             case "statement":
@@ -158,6 +146,7 @@ export function init() {
                 console.warn("SHOULD NOT HAPPEN");
                 break;
         }
+        dgGroup.refresh();
         bg.add(dgGroup);
     }) as EventListener);
 

@@ -50,36 +50,96 @@ playBtn?.addEventListener("click", async () => {
     }
 });
 
-// document.addEventListener("mousedown", (e) => {
-//     // draggable
-//     const el = e.target;
-//     if (el instanceof HTMLDivElement && el.id !== "diagram-container") {
-//         e.preventDefault();
-//         e.stopPropagation();
-//         const isDraggable = el.classList.contains("draggable");
-//         if (isDraggable)
-//             window.mDragDiv = el;
-//     }
-// });
-//
-// document.addEventListener("mouseup", (_) => {
-//     // remove draggable
-//     if (window.mDragDiv)
-//         window.mDragDiv = null;
-// });
+// =========================
+// ===== DRAG AND DROP =====
+// =========================
+
+document.addEventListener("mousedown", (e) => {
+    // draggable
+    const el = e.target;
+    if (el instanceof Element) {
+        const isDraggable = el.classList.contains("draggable");
+        if (isDraggable) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.mDragDiv = el;
+        }
+    }
+});
+
+document.addEventListener("mouseup", (_) => {
+    // remove draggable
+    if (window.mDragDiv) {
+        let container = document.querySelector(".drag-item-container");
+        let type = container?.getAttribute("aria-diagram-type");
+        container?.remove();
+
+        let pointer = window.mCvRootNode.node.getRelativePointerPosition();
+        if (pointer == null) {
+            return;
+        }
+        window.mDragDiv = null;
+
+        if (type)
+            document.dispatchEvent(new CustomEvent("diagramdrop", {
+                bubbles: true,
+                detail: { type: type, pos: pointer },
+            }));
+    }
+});
 
 document.body.addEventListener("mousemove", (e) => {
-    if (!window.mCursor) {
-        window.mCursor = {
-            x: e.clientX,
-            y: e.clientY
-        };
-        return;
-    }
-
-    window.mCursor.x = e.clientX;
-    window.mCursor.y = e.clientY;
+    window.mCursor = {
+        x: e.clientX,
+        y: e.clientY
+    };
     // console.log(`cursor: ${window.mCursor.x}, ${window.mCursor.y}`);
+
+    if (window.mDragDiv) {
+        let container = document.querySelector(".drag-item-container");
+        if (container) {
+            let div = container as HTMLDivElement;
+            div.style.left = `${e.x}px`;
+            div.style.top = `${e.y}px`;
+        }
+        else {
+            let type = window.mDragDiv.getAttribute("aria-diagram-type");
+            
+            if (type == null) {
+                return;
+            }
+            let realType = type;
+            let name = type;
+
+            if (type.startsWith("loop")) {
+                type = "loop";
+                name = name.replace("loop-","");
+            }
+
+            if (type.startsWith("control")) {
+                type = "control";
+                name = name.replace("control-","");
+            }
+
+            const div = document.createElement("div");
+            div.classList.add("drag-item-container");
+            div.classList.add("d-flex");
+            div.classList.add("diagram-title-container");
+            div.setAttribute("aria-diagram-type", realType);
+
+            div.innerHTML = `<div class="diagram-emblem diagram-${type}"></div>`;
+            div.innerHTML += `<p class="diagram-title">${name}</p>`;
+
+            console.log(div.innerHTML);
+
+            div.style.left = `${e.x}px`;
+            div.style.top = `${e.y}px`;
+
+            document.body.appendChild(div);
+        }
+    }
 })
+
+// =========================
 
 window.mContextMenu = [];

@@ -32,6 +32,7 @@ export class BaseGroup extends Group {
         this.bg = backgroundRect;
 
         window.mCvRootNode = {
+            node: this,
             getDiagramGroups: this.getDiagramGroups.bind(this)
         };
         this.registerEvents();

@@ -3,6 +3,7 @@
     --dg-statement: #F9F9F9;
     --dg-control: #1AC673;
     --dg-loop: #ED9227;
+    --dg-utilities: #2782ED;
 }
 
 div#diagram-container {
@@ -45,7 +46,11 @@ input.canvas-edit, textarea.canvas-edit {
 }
 
 .diagram-utilities {
-    background-color: var(--dg-statement);
+    background-color: var(--dg-utilities);
+}
+
+.diagram-function {
+    background-color: var(--dg-utilities);
 }
 
 .diagram-title {
@@ -80,4 +85,17 @@ img[aria-diagram="true"] {
     position: absolute;
     /* left: 10; */
     /* top: 10; */
+}
+
+.drag-item-container {
+    position: absolute;
+    padding: .3em;
+    min-width: 80px;
+    /* border-radius: 50px; */
+    /* background-color: white; */
+}
+
+.drag-item-container > div {
+    width: 30px;
+    height: 30px;
 }

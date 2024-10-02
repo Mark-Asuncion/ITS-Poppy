@@ -337,7 +337,8 @@ export class DiagramGroup extends Konva.Group {
             nodeInfo.type = findNodeType(line);
 
             if (prevNodeInfo && tabCount === prevNodeInfo.tabCount) {
-                if (prevNodeInfo.type !== "statement") {
+                if (prevNodeInfo.type !== "statement" &&
+                    prevNodeInfo.type !== "function") {
                     nodeInfos.push({
                         text: "",
                         tabCount: tabCount,
