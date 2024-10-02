@@ -84,6 +84,8 @@ export class BaseGroup extends Group {
             const maxUpY = -(this.height() * this.mtpSize - this.height());
             e.target.x( Math.max( Math.min(0, e.target.x()), maxLeftX ) );
             e.target.y( Math.max( Math.min(0, e.target.y()), maxUpY ) );
+
+            console.log(this.position());
         })
     }
 
@@ -118,7 +120,7 @@ export class BaseGroup extends Group {
             y: clamp( ch.y() - container.height, 0, this.bg.height() - container.height )
         };
 
-        // console.log(this.position(), ch.position(), pos);
+        console.log("focus: ", pos);
         this.setPosition(pos);
     }
 }

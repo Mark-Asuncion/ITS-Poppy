@@ -34,7 +34,8 @@ export class Function extends BaseDiagram {
             fill: "#ffffff",
             fontSize: Theme.Text.fontSize + 6
         };
-        let splitParams = param.split(",");
+
+        let splitParams = this.argSplit(param);
         for (let i=0;i<splitParams.length;i++) {
             let v = splitParams[i].trim();
             if (i !== 0) {
@@ -60,15 +61,53 @@ export class Function extends BaseDiagram {
         this.add(...this.components);
     }
 
+    argSplit(args: string): string[] {
+        let split = args.split(",");
+        let ret: string[] = [];
+        let i = 0;
+        while (i < split.length) {
+
+            if (split[i][0] == "\"") {
+                let endOfStr = split[i+1];
+                if (endOfStr[endOfStr.length-1] == "\"") {
+                    let join = split[i].concat(...[",", endOfStr]);
+                    ret.push(join);
+                    i++;
+                }
+            }
+            i++
+        }
+
+        return ret;
+    }
+
     onKeyUp(e: TextKeyUpEvent) {
         super.onKeyUp(e);
 
         let tb = (e.target as unknown as TextBox);
-        if (tb === this.components[0]) {
+
+        if (this.creatingComponent) {
             return;
         }
 
-        if (this.creatingComponent) {
+        if (tb === this.components[0]) {
+            if (e.key == "(") {
+                this.creatingComponent = true;
+                let newComponent = new TextBox({
+                        text: "",
+                        width: (this.components[2] as TextBox).minWidth,
+                        fill: "#00",
+                        ...Theme.Text,
+                    });
+                this.add(newComponent);
+                this.components.splice(2, 0, newComponent);
+                this.refresh();
+                this.components[0].removeFocus();
+                let rmBracket = this.components[0].text!.text();
+                rmBracket = rmBracket.substring(0, rmBracket.length-1);
+                this.components[0].text!.text(rmBracket);
+                newComponent.focus()
+            }
             return;
         }
 

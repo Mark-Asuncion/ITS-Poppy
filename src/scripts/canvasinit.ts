@@ -12,10 +12,9 @@ import { Lint } from "./lint";
 function getPlacementPos(stage: Konva.Stage): Konva.Vector2d {
     const basegroup = stage.getChildren()[0].getChildren()[0] as BaseGroup;
     const container = stage.container().getBoundingClientRect();
-    // offset because if half it is on the right side
     const containerCenter = {
-        x: container.x + container.width * .2,
-        y: container.y + container.height * .2,
+        x: container.x + container.width * .5,
+        y: container.y + container.height * .5,
     };
 
     let transform = basegroup.getAbsoluteTransform()
@@ -23,6 +22,7 @@ function getPlacementPos(stage: Konva.Stage): Konva.Vector2d {
         .invert();
 
     const p = transform.point(containerCenter);
+    console.log(p);
     return p;
 }
 
