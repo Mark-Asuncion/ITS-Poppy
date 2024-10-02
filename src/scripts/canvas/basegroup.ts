@@ -111,16 +111,15 @@ export class BaseGroup extends Group {
             return;
         }
         const ch = childs[childn];
-        // console.log(ch.position());
 
         const stage = this.getStage()!;
         const container = stage.container().getBoundingClientRect();
         const pos = {
-            x: clamp( ch.x() - container.width, 0, this.bg.width() - container.width ),
-            y: clamp( ch.y() - container.height, 0, this.bg.height() - container.height )
+            x: clamp( container.width * .5 - ch.x(), -this.bg.width(), this.bg.width() - container.width ),
+            y: clamp( container.height * .5 - ch.y(), -this.bg.height(), this.bg.height() - container.height )
         };
 
-        console.log("focus: ", pos);
+        // console.log("focus: ", pos);
         this.setPosition(pos);
     }
 }
