@@ -200,7 +200,7 @@ export function setHover(
     let id = gHoverTimerMap.get(source);
     if (id != undefined) {
         clearTimeout(id);
-        gHoverTimerMap.set(source, undefined);
+        gHoverTimerMap.delete(source);
         return;
     }
 
