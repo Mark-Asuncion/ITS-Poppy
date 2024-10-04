@@ -20,3 +20,16 @@ export class Tutorial {
     cursor: number = 0;
     update() { }
 }
+
+export enum PoppyState {
+    IDLE,
+    WALKING,
+}
+
+export class PoppyAnimation {
+    frames: number = 0;
+    currFrame: number = 0;
+    ms: number = 0; // how many milliseconds when changing frame
+    accumulator: number = 0;
+    update(elapsed: number) {} // called once per frame
+}

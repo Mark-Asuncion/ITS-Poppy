@@ -64,6 +64,12 @@ export class Lint {
                 row.classList.add("d-flex");
                 row.classList.add("gap-10");
                 row.classList.add("lintview-message-container");
+                if (message.errorCode[0] == "E") {
+                    row.classList.add("lint-error");
+                }
+                else if (message.errorCode[0] == "W") {
+                    row.classList.add("lint-warn");
+                }
                 row.classList.add("pad-10");
 
                 {

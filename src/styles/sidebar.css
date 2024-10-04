@@ -17,7 +17,7 @@
     position: relative;
     width: 200px;
     background-color: white;
-    z-index: 99;
+    z-index: 10;
     border-right: 1px solid lightgray;
 }
 
