@@ -86,7 +86,7 @@ export class BaseGroup extends Group {
             e.target.x( Math.max( Math.min(0, e.target.x()), maxLeftX ) );
             e.target.y( Math.max( Math.min(0, e.target.y()), maxUpY ) );
 
-            console.log(this.position());
+            // console.log(this.position());
         })
     }
 

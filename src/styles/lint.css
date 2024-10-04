@@ -8,3 +8,19 @@
 .lintview-message-container:hover {
     background-color: lightgray;
 }
+
+.lintview-message-container.lint-error {
+    background-color: var(--error-light);
+}
+
+.lintview-message-container.lint-error:hover {
+    background-color: var(--error-light2);
+}
+
+.lintview-message-container.lint-warn {
+    background-color: var(--warning-light);
+}
+
+.lintview-message-container.lint-warn:hover {
+    background-color: var(--warning-light2);
+}
