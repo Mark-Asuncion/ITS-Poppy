@@ -5,6 +5,8 @@ import { For, While } from "./blocks/loop";
 import { BaseDiagram } from "./basediagram";
 import { Theme } from "../../themes/diagram";
 import { Function } from "./blocks/function";
+import Konva from "konva";
+import { BaseGroup } from "./basegroup";
 
 export function isPointIntersectRect(
     point: { x: number, y: number },
@@ -234,4 +236,21 @@ export function setHover(
 
 export function clamp(val: number, min: number, max: number) {
     return Math.max(min, Math.min(val, max));
+}
+
+export function getPlacementPos(stage: Konva.Stage): Konva.Vector2d {
+    const basegroup = stage.getChildren()[0].getChildren()[0] as BaseGroup;
+    const container = stage.container().getBoundingClientRect();
+    const containerCenter = {
+        x: container.x + container.width * .5,
+        y: container.y + container.height * .5,
+    };
+
+    let transform = basegroup.getAbsoluteTransform()
+        .copy()
+        .invert();
+
+    const p = transform.point(containerCenter);
+    console.log(p);
+    return p;
 }

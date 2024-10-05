@@ -32,6 +32,7 @@ export class BaseGroup extends Group {
         this.bg = backgroundRect;
 
         window.mCvRootNode = {
+            node: this,
             getDiagramGroups: this.getDiagramGroups.bind(this)
         };
         this.registerEvents();
@@ -84,6 +85,8 @@ export class BaseGroup extends Group {
             const maxUpY = -(this.height() * this.mtpSize - this.height());
             e.target.x( Math.max( Math.min(0, e.target.x()), maxLeftX ) );
             e.target.y( Math.max( Math.min(0, e.target.y()), maxUpY ) );
+
+            console.log(this.position());
         })
     }
 
@@ -109,16 +112,15 @@ export class BaseGroup extends Group {
             return;
         }
         const ch = childs[childn];
-        // console.log(ch.position());
 
         const stage = this.getStage()!;
         const container = stage.container().getBoundingClientRect();
         const pos = {
-            x: clamp( ch.x() - container.width, 0, this.bg.width() - container.width ),
-            y: clamp( ch.y() - container.height, 0, this.bg.height() - container.height )
+            x: clamp( container.width * .5 - ch.x(), -this.bg.width(), this.bg.width() - container.width ),
+            y: clamp( container.height * .5 - ch.y(), -this.bg.height(), this.bg.height() - container.height )
         };
 
-        // console.log(this.position(), ch.position(), pos);
+        // console.log("focus: ", pos);
         this.setPosition(pos);
     }
 }

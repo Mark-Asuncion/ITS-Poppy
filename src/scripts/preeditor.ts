@@ -56,7 +56,7 @@ diagramsImg.forEach((elem) => {
         e.stopPropagation();
         document.dispatchEvent(new CustomEvent("diagramdrop", {
             bubbles: true,
-            detail: type,
+            detail: { type: type },
         }));
     });
 

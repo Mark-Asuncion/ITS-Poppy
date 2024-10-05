@@ -53,7 +53,7 @@ for (let i=0;i<keys.length;i++) {
 
     const items: string[] = SIDEBAR[key].items;
     for (let j=0;j<items.length;j++) {
-        let img = `<img draggable="true" aria-diagram="true" aria-diagram-type="${items[j]}">`;
+        let img = `<img aria-diagram="true" aria-diagram-type="${items[j]}" class="draggable">`;
         div.innerHTML += img;
     }
 
