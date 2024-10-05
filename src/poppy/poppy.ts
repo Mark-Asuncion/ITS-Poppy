@@ -9,22 +9,26 @@ import { Walk } from "./animation/walk";
 
 // @ts-ignore
 export class Poppy {
-    static source: HTMLElement;
-    static scale = 1.5;
-    static pos: { x: number, y: number };
+    static id = "character";
     static tutorial: Tutorial | null = null;
     static onModifiedCB: ((contents: Module[]) => void) | null = null;
     static onModifiedMutex = false;
     static qTimeout: null | NodeJS.Timeout = null
     static qDialog: PoppyDialog[] = [];
 
+    // Poppy related vars
+    static source: HTMLElement;
     static state: PoppyState;
     static animator: PoppyAnimation | null;
+    static pos: { x: number, y: number };
     static targetPos: { x: number, y: number } | null = null;
+    static moveSpeed = 5;
+    static scale = 1.5;
+    // move dialog to top middle
+    static focusedInDiagram = false;
 
     static lastTimestamp = 0;
     static frameSizeWxH = 64;
-    static moveSpeed = 5;
 
     static getSize() {
         return {
@@ -48,9 +52,13 @@ export class Poppy {
             if (offset.x < 0) {
                 x -= dialog.clientWidth - 50;
             }
+            if (Poppy.focusedInDiagram) {
+                offset.y = -dialog.clientHeight - ( Poppy.frameSizeWxH / 2 );
+                x = ( Poppy.pos.x + Poppy.frameSizeWxH / 2 ) - dialog.clientWidth / 2;
+            }
             dialog.style.left = `${x}px`;
             dialog.style.top = `${Poppy.pos.y + offset.y}px`;
-            console.log(dialog);
+            // console.log(dialog);
         }
     }
 
@@ -113,6 +121,10 @@ export class Poppy {
         }
     }
 
+    static qDialogFirst(dialog: PoppyDialog) {
+        Poppy.qDialog = [dialog, ...Poppy.qDialog];
+    }
+
     static init() {
         Poppy.source = document.createElement("div");
         Poppy.source.id = "poppy-div";
@@ -146,18 +158,65 @@ export class Poppy {
         Poppy.lastTimestamp = timestamp;
 
         switch (Poppy.state) {
-            case PoppyState.IDLE: 
-                if (Poppy.qDialog.length !== 0) {
+            case PoppyState.IDLE:
+                if (!(Poppy.animator instanceof Idle)) {
+                    Poppy.animator = new Idle();
+                }
+                if (Poppy.targetPos) {
+                    Poppy.state = PoppyState.WALKING;
+                    break;
+                }
+                const containers = document.querySelectorAll(".dialog-container");
+                if (Poppy.qDialog.length !== 0 && containers.length === 0) {
                     let dialog = Poppy.qDialog.shift()!;
-                    this.display(dialog);
+                    Poppy.display(dialog);
                 }
                 break;
             case PoppyState.WALKING:
-            default: break;
+                if (!(Poppy.animator instanceof Walk)) {
+                    Poppy.animator = new Walk();
+                }
+                if (Poppy.targetPos == null) {
+                    Poppy.state = PoppyState.IDLE;
+                    break;
+                }
+                const distance = {
+                    x: Math.abs(Poppy.pos.x - Poppy.targetPos!.x),
+                    y: Math.abs(Poppy.pos.y - Poppy.targetPos!.y)
+                };
+
+                if (distance.x == 0 && distance.y == 0) {
+                    Poppy.targetPos = null;
+                    Poppy.state = PoppyState.IDLE;
+                    break;
+                }
+
+                let isLeft = (Poppy.targetPos!.x - Poppy.pos.x) < 0;
+                let isTop = (Poppy.targetPos!.y - Poppy.pos.y) < 0;
+                if (!isLeft) {
+                    ( Poppy.animator as Walk ).direction = 1;
+                }
+                let velo = {
+                    x: (isLeft)? -Poppy.moveSpeed:Poppy.moveSpeed,
+                    y: (isTop)? -Poppy.moveSpeed:Poppy.moveSpeed
+                };
+                velo.x = Math.min(velo.x, distance.x);
+                velo.y = Math.min(velo.y, distance.y);
+                Poppy.moveCharacter({
+                    x: Poppy.pos.x + velo.x,
+                    y: Poppy.pos.y + velo.y
+                });
+                break;
+            default:
+                Poppy.state = PoppyState.IDLE;
+                break;
         }
 
         if (Poppy.animator) {
             Poppy.animator.update(elapsed);
+        }
+        else {
+            Poppy.source.remove();
         }
 
         window.requestAnimationFrame(Poppy.poppyOnFrame)
@@ -220,15 +279,6 @@ export class Poppy {
         if (Poppy.tutorial) {
             setTimeout(() => Poppy.tutorial!.update(), 300);
         }
-    }
-
-    static onError() {
-    }
-
-    static onWarning() {
-    }
-
-    static onPraise() {
     }
 
     static addOnModified(modules: Module[], onSuccess: () => void, onFail: () => void) {
@@ -294,5 +344,31 @@ export class Poppy {
         }
 
         setTimeout(() => Poppy.onModifiedMutex = false, 100);
+    }
+
+    static evMouseDown() {
+        window.mDragDiv = Poppy.source;
+    }
+
+    static evMouseUp() {
+        window.mDragDiv = null;
+        Poppy.targetPos = window.mCursor;
+        let pin = document.querySelector(".character-loc-pin")
+        pin?.remove();
+    }
+
+    static evMouseMove() {
+        let pin = document.querySelector(".character-loc-pin");
+        if (!pin){
+            const div = document.createElement("div");
+            div.classList.add("character-loc-pin");
+            div.classList.add("accent");
+            div.innerHTML = `<i class="fa-solid fa-location-dot fa-xl"></i>`;
+            pin = div;
+            document.body.appendChild(pin);
+        }
+        let el = ( pin as HTMLElement );
+        el.style.left = `${window.mCursor.x - el.clientWidth/2}px`;
+        el.style.top = `${window.mCursor.y - el.clientHeight}px`;
     }
 }

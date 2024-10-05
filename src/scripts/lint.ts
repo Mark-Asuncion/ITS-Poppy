@@ -1,3 +1,6 @@
+import { DialogType } from "../poppy/interface";
+import { Poppy } from "../poppy/poppy";
+import { PoppyErrMessages } from "../themes/lint";
 import { LintInfo, lint } from "./backendconnector";
 import { setHover } from "./canvas/utils";
 import { notifyPush } from "./notify";
@@ -6,6 +9,7 @@ import { notifyPush } from "./notify";
 // @ts-ignore
 export class Lint {
     static list: LintInfo[] = [];
+    static lastOpenedAuto: number = 0;
 
     static async lint() {
         let lintinfo = await lint();
@@ -18,17 +22,22 @@ export class Lint {
 
         if (lintinfo.length != 0)
             notifyPush("Error/Warning Detected", "info", 3000);
-        Lint.open();
+        Lint.fill();
+
+        if (Lint.list.length !== 0 && (Date.now() - Lint.lastOpenedAuto < 5000 || Lint.lastOpenedAuto == 0)) {
+            Lint.open();
+            Lint.lastOpenedAuto = Date.now();
+        }
     }
 
-    static open() {
-        if (Lint.list.length === 0) {
-            return;
-        }
-
+    static fill() {
         // const btn = document.querySelector("#btn-diagram-error")! as HTMLButtonElement;
         const view = document.querySelector("#diagram-error")! as HTMLDivElement;
         view.innerHTML = "";
+
+        if (Lint.list.length === 0) {
+            return;
+        }
 
         for (let i=0;i<Lint.list.length;i++) {
             const lintinfo = Lint.list[i];
@@ -121,6 +130,24 @@ export class Lint {
                             }
                             let node = dg.getNodeByLineN(message.linen);
                             node?.focus();
+                            let absPos = node?.getAbsolutePosition();
+                            if (absPos) {
+                                let friendlyMessage = PoppyErrMessages[message.errorCode];
+                                console.log(friendlyMessage, message.errorCode);
+                                if (friendlyMessage) {
+                                    Poppy.targetPos = absPos;
+                                    Poppy.focusedInDiagram = true;
+                                    let dialog = {
+                                        message: friendlyMessage,
+                                        dialogType: DialogType.NEXT,
+                                        cb: () => {
+                                            Poppy.focusedInDiagram = false;
+                                        }
+                                    };
+                                    Poppy.qDialogFirst(dialog);
+                                    Lint.close();
+                                }
+                            }
                             break;
                         }
                     });
@@ -141,9 +168,25 @@ export class Lint {
         }
     }
 
-    static close() {
+    static isOpen() {
         const btn = document.querySelector("#btn-diagram-error")! as HTMLButtonElement;
-        btn.click();
+        const tname = btn.getAttribute("aria-target")!;
+        const target = document.querySelector("#" + tname)!;
+        return target.classList.contains("d-block");
+    }
+
+    static open() {
+        if (!Lint.isOpen()) {
+            const btn = document.querySelector("#btn-diagram-error")! as HTMLButtonElement;
+            btn.click();
+        }
+    }
+
+    static close() {
+        if (Lint.isOpen()) {
+            const btn = document.querySelector("#btn-diagram-error")! as HTMLButtonElement;
+            btn.click();
+        }
     }
 }
 

@@ -192,6 +192,10 @@ button:hover {
     overflow: auto;
 }
 
+.accent {
+    color: var(--accent);
+}
+
 .error {
     color: var(--error);
 }
