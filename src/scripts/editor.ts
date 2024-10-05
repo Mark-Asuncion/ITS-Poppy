@@ -2,6 +2,7 @@
 import { diagramToModules, init } from "./canvasinit";
 import { dialog_one_dir, get_cwd_name, set_cwd, write_diagrams_to_modules } from "./backendconnector";
 import { TerminalInstance } from "./terminal/instance";
+import { Poppy } from "../poppy/poppy";
 
 async function set_project_name(input_element: HTMLInputElement) {
     const isUntitled = input_element.value.toLowerCase() === "untitled project";
@@ -64,27 +65,42 @@ document.addEventListener("mousedown", (e) => {
             e.stopPropagation();
             window.mDragDiv = el;
         }
+
+        if (el.id == Poppy.id) {
+            e.preventDefault();
+            e.stopPropagation();
+            Poppy.evMouseDown();
+        }
     }
 });
 
-document.addEventListener("mouseup", (_) => {
+document.addEventListener("mouseup", (e) => {
     // remove draggable
     if (window.mDragDiv) {
         let container = document.querySelector(".drag-item-container");
-        let type = container?.getAttribute("aria-diagram-type");
-        container?.remove();
+        if (container) {
+            e.preventDefault();
+            e.stopPropagation();
+            let type = container?.getAttribute("aria-diagram-type");
+            container?.remove();
 
-        let pointer = window.mCvRootNode.node.getRelativePointerPosition();
-        if (pointer == null) {
-            return;
-        }
-        window.mDragDiv = null;
+            let pointer = window.mCvRootNode.node.getRelativePointerPosition();
+            if (pointer == null) {
+                return;
+            }
+            window.mDragDiv = null;
 
-        if (type)
+            if (type)
             document.dispatchEvent(new CustomEvent("diagramdrop", {
                 bubbles: true,
                 detail: { type: type, pos: pointer },
             }));
+        }
+        else if (window.mDragDiv === Poppy.source) {
+            e.preventDefault();
+            e.stopPropagation();
+            Poppy.evMouseUp();
+        }
     }
 });
 
@@ -98,11 +114,20 @@ document.body.addEventListener("mousemove", (e) => {
     if (window.mDragDiv) {
         let container = document.querySelector(".drag-item-container");
         if (container) {
+            e.preventDefault();
+            e.stopPropagation();
             let div = container as HTMLDivElement;
             div.style.left = `${e.x}px`;
             div.style.top = `${e.y}px`;
         }
+        else if (window.mDragDiv === Poppy.source) {
+            e.preventDefault();
+            e.stopPropagation();
+            Poppy.evMouseMove();
+        }
         else {
+            e.preventDefault();
+            e.stopPropagation();
             let type = window.mDragDiv.getAttribute("aria-diagram-type");
             
             if (type == null) {

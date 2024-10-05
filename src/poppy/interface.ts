@@ -31,5 +31,15 @@ export class PoppyAnimation {
     currFrame: number = 0;
     ms: number = 0; // how many milliseconds when changing frame
     accumulator: number = 0;
-    update(elapsed: number) {} // called once per frame
+    update(elapsed: number) { // called once per frame
+        this.accumulator += elapsed;
+        if (this.accumulator > this.ms) {
+            this.accumulator -= this.ms;
+            this.currFrame++;
+        }
+
+        if (this.currFrame >= this.frames) {
+            this.currFrame = 0;
+        }
+    }
 }

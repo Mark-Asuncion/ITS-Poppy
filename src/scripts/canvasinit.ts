@@ -8,6 +8,7 @@ import { Shape, ShapeConfig } from "konva/lib/Shape";
 import { createDiagramFrom, getPlacementPos, isPointIntersectRect } from "./canvas/utils";
 import { Poppy } from "../poppy/poppy";
 import { Lint } from "./lint";
+import { BaseDiagram } from "./canvas/basediagram";
 
 
 async function __loadModules(stage: Konva.Stage): Promise<DiagramGroup[]> {
@@ -78,6 +79,13 @@ export function init() {
         if (e.key == "Tab") {
             e.preventDefault();
             e.stopPropagation();
+        }
+        else if (e.key == "Delete") {
+            e.preventDefault();
+            e.stopPropagation();
+            if (window.mSelected instanceof BaseDiagram) {
+                window.mSelected.delete();
+            }
         }
     });
 
