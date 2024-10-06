@@ -62,23 +62,13 @@ export class Function extends BaseDiagram {
     }
 
     argSplit(args: string): string[] {
-        let split = args.split(",");
-        let ret: string[] = [];
-        let i = 0;
-        while (i < split.length) {
-
-            if (split[i][0] == "\"") {
-                let endOfStr = split[i+1];
-                if (endOfStr[endOfStr.length-1] == "\"") {
-                    let join = split[i].concat(...[",", endOfStr]);
-                    ret.push(join);
-                    i++;
-                }
-            }
-            i++
+        // gpt generated regex
+        const regex = /'[^']*'|"[^"]*"|[^,]+/g;
+        const matches = args.match(regex);
+        if (matches) {
+            return matches.map(arg => arg.trim());
         }
-
-        return ret;
+        return [];
     }
 
     onKeyUp(e: TextKeyUpEvent) {

@@ -4,9 +4,10 @@ import { If, Elif, Else } from "./blocks/control";
 import { For, While } from "./blocks/loop";
 import { BaseDiagram } from "./basediagram";
 import { Theme } from "../../themes/diagram";
-import { Function } from "./blocks/function";
 import Konva from "konva";
 import { BaseGroup } from "./basegroup";
+import { Function } from "./blocks/function";
+import { Class } from "./blocks/class";
 
 export function isPointIntersectRect(
     point: { x: number, y: number },
@@ -121,6 +122,11 @@ export function findNodeType(line: string) {
         return "function";
     }
 
+    let classMatch = lineTrim.match(/class\s.*:/);
+    if (classMatch && classMatch.length > 0) {
+        return "class";
+    }
+
     return "statement";
 }
 
@@ -169,6 +175,11 @@ export function createDiagramFrom(type: string, line: string = ""): BaseDiagram 
             else {
                 return new Function();
             }
+        case "class":
+            if (line.length > 0) {
+                content = line.replace(/class|:/g, "").trim();
+            }
+            return new Class(content);
         case "endblock":
             return new BaseDiagram({
                 name: type,

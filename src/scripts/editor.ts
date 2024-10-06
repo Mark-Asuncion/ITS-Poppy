@@ -34,6 +34,7 @@ window["mSave"] = () => {
 playBtn?.addEventListener("click", async () => {
     await set_project_name(inpProjName);
     const contents = diagramToModules(canvasStage);
+    console.log(contents);
     write_diagrams_to_modules(contents);
 
     let termbtn = document.querySelector("#term-btn") as HTMLButtonElement
