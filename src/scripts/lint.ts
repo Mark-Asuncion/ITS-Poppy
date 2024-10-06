@@ -13,16 +13,16 @@ export class Lint {
 
     static async lint() {
         let lintinfo = await lint();
+        Lint.list = lintinfo as LintInfo[];
+        Lint.fill();
         if (lintinfo instanceof String) {
             // show err
             console.warn(lintinfo);
             return;
         }
-        Lint.list = lintinfo as LintInfo[];
 
         if (lintinfo.length != 0)
             notifyPush("Error/Warning Detected", "info", 3000);
-        Lint.fill();
 
         if (Lint.list.length !== 0 && (Date.now() - Lint.lastOpenedAuto < 5000 || Lint.lastOpenedAuto == 0)) {
             Lint.open();
@@ -145,7 +145,7 @@ export class Lint {
                                         }
                                     };
                                     Poppy.qDialogFirst(dialog);
-                                    Lint.close();
+                                    // Lint.close();
                                 }
                             }
                             break;

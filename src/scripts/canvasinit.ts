@@ -3,12 +3,12 @@ import { BaseGroup } from "./canvas/basegroup";
 import { Module, get_cwd, load_modules } from "./backendconnector";
 import { DiagramGroup } from "./canvas/diagramgroup";
 import { contextMenuHide, contextMenuShow } from "./contextmenu/contextmenu";
-import { Function } from "./canvas/blocks/function";
 import { Shape, ShapeConfig } from "konva/lib/Shape";
 import { createDiagramFrom, getPlacementPos, isPointIntersectRect } from "./canvas/utils";
 import { Poppy } from "../poppy/poppy";
 import { Lint } from "./lint";
 import { BaseDiagram } from "./canvas/basediagram";
+import { Function } from "./canvas/blocks/function";
 
 
 async function __loadModules(stage: Konva.Stage): Promise<DiagramGroup[]> {
@@ -148,6 +148,9 @@ export function init() {
                 break;
             case "function":
                 dgGroup.addDiagram(createDiagramFrom("function"));
+                break;
+            case "class":
+                dgGroup.addDiagram(createDiagramFrom("class"));
                 break;
             default:
                 dgGroup.addDiagram(createDiagramFrom("statement"));
