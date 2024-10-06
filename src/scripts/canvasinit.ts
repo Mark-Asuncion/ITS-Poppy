@@ -10,7 +10,6 @@ import { Lint } from "./lint";
 import { BaseDiagram } from "./canvas/basediagram";
 import { Function } from "./canvas/blocks/function";
 
-
 async function __loadModules(stage: Konva.Stage): Promise<DiagramGroup[]> {
     const cwd = await get_cwd();
     if (cwd.length == 0) {
