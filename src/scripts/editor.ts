@@ -18,6 +18,7 @@ async function set_project_name(input_element: HTMLInputElement) {
 const canvasStage = init();
 const inpProjName = document.querySelector("#project-name") as HTMLInputElement;
 const playBtn = document.querySelector("#play-btn") as HTMLButtonElement;
+const backBtn = document.querySelector("#back-btn") as HTMLButtonElement;
 
 if (inpProjName) {
     inpProjName.addEventListener("focus", async () => {
@@ -30,6 +31,12 @@ window["mSave"] = () => {
     const contents = diagramToModules(canvasStage);
     write_diagrams_to_modules(contents);
 };
+
+backBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    localStorage.setItem("info", "");
+    window.open("../index.html", "_self");
+});
 
 playBtn?.addEventListener("click", async () => {
     await set_project_name(inpProjName);

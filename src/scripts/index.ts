@@ -1,3 +1,4 @@
+import { TUTORIALS } from "../themes/tutorials";
 import { ProjectInfo, load_projects, dialog_one_dir, new_project, load_open_project } from "./backendconnector";
 const btn = document.querySelector("#npbutton")! as HTMLButtonElement;
 const span = document.getElementsByClassName("close")[0]! as HTMLSpanElement;
@@ -62,14 +63,22 @@ const modal = document.getElementById("npmodal")!;
 registerModalEvents(modal);
 registerNewProjectDialogEvents(modal);
 
-function createProjectInfoElement(info: ProjectInfo) {
+function createProjectInfoElement(info: ProjectInfo, isTutorial = false, tutorialId = 0) {
     const root = document.createElement("div");
     root.classList.add("info-container");
     root.classList.add("d-flex");
     root.classList.add("project-container");
     root.addEventListener("click", (e) => {
         e.stopPropagation();
-        localStorage.setItem("info", JSON.stringify(info));
+        if (!isTutorial) {
+            localStorage.setItem("info", JSON.stringify(info));
+        }
+        else {
+            localStorage.setItem("info", JSON.stringify({
+                ...info,
+                tutorialId: tutorialId
+            }));
+        }
         window.open("../editor.html", "_self");
     });
 
@@ -124,6 +133,17 @@ async function listProjects(root: HTMLElement, filter?: string) {
             }
         }
         root.appendChild(createProjectInfoElement(project));
+    }
+
+    for (let i = 0; i < TUTORIALS.length; i++) {
+        const project = TUTORIALS[i];
+        if (filter) {
+            const regRes = project.projectName.match(filter+".\\+*");
+            if (regRes == null || (regRes && regRes[0] == project.projectName)) {
+                continue;
+            }
+        }
+        root.appendChild(createProjectInfoElement(project, true, i));
     }
 }
 

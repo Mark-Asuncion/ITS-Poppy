@@ -1,3 +1,4 @@
+use std::fs::create_dir_all;
 use std::path::PathBuf;
 use std::sync::Mutex;
 use tauri::State;
@@ -47,10 +48,31 @@ impl GlobalState {
 }
 
 #[tauri::command]
-pub fn set_cwd(p: String, gs: State<GlobalState>) {
-    let path = PathBuf::from(p);
-    // dbg!(&path);
-    gs.set_work_path(path);
+pub fn set_cwd(p: String, isTutorial: bool, gs: State<GlobalState>) {
+    if !isTutorial {
+        let path = PathBuf::from(p);
+        // dbg!(&path);
+        gs.set_work_path(path);
+    }
+    else {
+        let exec_path = std::env::current_exe();
+        if let Err(e) = exec_path {
+            dbg!(e);
+            panic!("CANNOT OBTAIN THE EXEC PATH");
+        }
+        let mut exec_path = exec_path.unwrap();
+        exec_path = PathBuf::from(exec_path.parent().expect("INSTALLATION PATH HAS NO PARENT DIR"));
+        exec_path.push("tutorials");
+        let p = p.replace(".\\", "");
+        exec_path.push(&p);
+        if !exec_path.exists() {
+            if let Err(e) = create_dir_all(&exec_path) {
+                dbg!(e);
+            }
+        }
+        dbg!(&exec_path);
+        gs.set_work_path(exec_path);
+    }
 }
 
 #[tauri::command]
