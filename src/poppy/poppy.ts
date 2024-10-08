@@ -115,6 +115,8 @@ export class Poppy {
 
     static loadTutorial(id: number) {
         switch(id) {
+            case 0:
+                break;
             case 1:
                 Poppy.tutorial = new Tutorial01();
                 break;

@@ -1,6 +1,6 @@
 import Konva from "konva";
 import { BaseGroup } from "./canvas/basegroup";
-import { Module, get_cwd, load_modules } from "./backendconnector";
+import { Module, get_cwd, load_modules, write_diagrams_to_modules } from "./backendconnector";
 import { DiagramGroup } from "./canvas/diagramgroup";
 import { contextMenuHide, contextMenuShow } from "./contextmenu/contextmenu";
 import { Shape, ShapeConfig } from "konva/lib/Shape";
@@ -9,6 +9,7 @@ import { Poppy } from "../poppy/poppy";
 import { Lint } from "./lint";
 import { BaseDiagram } from "./canvas/basediagram";
 import { Function } from "./canvas/blocks/function";
+import { notifyPush } from "./notify";
 
 
 async function __loadModules(stage: Konva.Stage): Promise<DiagramGroup[]> {
@@ -72,6 +73,12 @@ export function init() {
 
     // disable default behaviour
     document.addEventListener("keydown", (e) => {
+        if (e.ctrlKey && e.key == "s") {
+            const contents = diagramToModules(window.mCvStage);
+            write_diagrams_to_modules(contents);
+            notifyPush("Saving...");
+        }
+
         if (!window.mSelected) {
             return;
         }
@@ -199,7 +206,6 @@ export function init() {
 
     Poppy.init();
     window["Poppy"] = Poppy;
-    Poppy.loadTutorial(1);
     Poppy.update();
 
     layer.add(baseGroup);

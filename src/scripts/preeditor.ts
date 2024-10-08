@@ -3,13 +3,17 @@ import imgIf from "../assets/blocks/If.png";
 import imgElif from "../assets/blocks/Elif.png";
 import imgElse from "../assets/blocks/Else.png";
 import imgFor from "../assets/blocks/For.png";
-import { set_cwd, ProjectInfo } from "./backendconnector";
+import { set_cwd, ProjectInfoEx } from "./backendconnector";
+import { Poppy } from "../poppy/poppy";
 const info = localStorage.getItem("info");
 if (info) {
     const projectName = document.querySelector("#project-name")! as HTMLInputElement;
-    const parsed = JSON.parse(info) as ProjectInfo;
+    const parsed = JSON.parse(info) as ProjectInfoEx;
     projectName.value = parsed.projectName;
-    set_cwd(parsed.path);
+    set_cwd(parsed.path, parsed.tutorialId != undefined);
+    if (parsed.tutorialId) {
+        Poppy.loadTutorial(parsed.tutorialId);
+    }
 }
 
 const diagramsImg = document.querySelectorAll('[aria-diagram="true"]');

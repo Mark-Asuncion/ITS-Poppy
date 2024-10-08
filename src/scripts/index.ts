@@ -53,7 +53,15 @@ function createProjectInfoElement(info: ProjectInfo) {
             return;
         }
         e.stopPropagation();
-        localStorage.setItem("info", JSON.stringify(info));
+        if (!isTutorial) {
+            localStorage.setItem("info", JSON.stringify(info));
+        }
+        else {
+            localStorage.setItem("info", JSON.stringify({
+                ...info,
+                tutorialId: tutorialId
+            }));
+        }
         window.open("../editor.html", "_self");
     });
     rmBtn.addEventListener("click", (e) => {
@@ -74,6 +82,17 @@ async function listProjects(root: HTMLElement) {
             }
         }
         root.appendChild(createProjectInfoElement(project));
+    }
+
+    for (let i = 0; i < TUTORIALS.length; i++) {
+        const project = TUTORIALS[i];
+        if (filter) {
+            const regRes = project.projectName.match(filter+".\\+*");
+            if (regRes == null || (regRes && regRes[0] == project.projectName)) {
+                continue;
+            }
+        }
+        root.appendChild(createProjectInfoElement(project, true, i));
     }
 }
 

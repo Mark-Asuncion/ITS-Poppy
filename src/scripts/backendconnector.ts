@@ -12,6 +12,10 @@ export interface ProjectInfo {
     projectName: string,
 }
 
+export interface ProjectInfoEx extends ProjectInfo {
+    tutorialId: number | undefined
+}
+
 export interface LintItem {
     linen: number,
     message: string,
@@ -33,9 +37,9 @@ export interface LintInfo {
 //     }
 // }
 //
-export function set_cwd(path: string) {
+export function set_cwd(path: string, isTutorial = false) {
     try {
-        invoke("set_cwd", { p: path });
+        invoke("set_cwd", { p: path, isTutorial });
     }
     catch (e) {
         console.error(e);
