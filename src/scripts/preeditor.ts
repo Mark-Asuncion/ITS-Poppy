@@ -11,7 +11,7 @@ if (info) {
     const parsed = JSON.parse(info) as ProjectInfoEx;
     projectName.value = parsed.projectName;
     set_cwd(parsed.path, parsed.tutorialId != undefined);
-    if (parsed.tutorialId) {
+    if (parsed.tutorialId != undefined) {
         Poppy.loadTutorial(parsed.tutorialId);
     }
 }

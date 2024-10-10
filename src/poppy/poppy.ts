@@ -6,6 +6,7 @@ import { write_diagrams_to_modules } from "../scripts/backendconnector";
 import { Lint } from "../scripts/lint";
 import { Idle } from "./animation/idle";
 import { Walk } from "./animation/walk";
+import { Tutorial00 } from "./tutorials/tutorial00";
 
 // @ts-ignore
 export class Poppy {
@@ -69,11 +70,17 @@ export class Poppy {
         let y = 0;
         switch (anchor) {
             case 0:
+                x = size.x;
+                y = size.y;
+                break;
             case 3:
                 x = size.x;
                 y = -size.y;
                 break;
             case 1:
+                x = -size.x;
+                y = size.y;
+                break;
             case 2:
                 x = -size.x;
                 y = -size.y;
@@ -116,6 +123,7 @@ export class Poppy {
     static loadTutorial(id: number) {
         switch(id) {
             case 0:
+                Poppy.tutorial = new Tutorial00();
                 break;
             case 1:
                 Poppy.tutorial = new Tutorial01();
@@ -254,7 +262,7 @@ export class Poppy {
                 Poppy.qTimeout = setTimeout(() => {
                     if (dialog.cb) dialog.cb();
                     Poppy.hide();
-                }, 10000);
+                }, (dialog.timeout != undefined)? dialog.timeout:10000);
                 break;
             case DialogType.NEXT:
                 // console.log(this.tutorial?.cursor);
@@ -272,6 +280,8 @@ export class Poppy {
                 console.warn("SHOULD NOT HAPPEN");
                 break;
         }
+        if (dialog.onDisplay)
+            dialog.onDisplay()
         document.body.appendChild(div);
         Poppy.setDialogPosition(div);
     }
