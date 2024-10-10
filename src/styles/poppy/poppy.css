@@ -25,3 +25,9 @@
 .character-loc-pin {
     position: absolute;
 }
+
+.highlighter {
+    border: 2px solid var(--accent);
+    border-radius: .3em;
+    position: absolute;
+}

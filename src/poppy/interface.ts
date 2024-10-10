@@ -12,7 +12,9 @@ export enum DialogType {
 export interface PoppyDialog {
     message: string,
     dialogType: DialogType,
-    cb?: () => void
+    timeout?: number, // only used if type is NONE
+    cb?: () => void,
+    onDisplay?: () => void
 }
 
 export class Tutorial {
