@@ -3,11 +3,11 @@ import { ProjectInfo } from "../scripts/backendconnector";
 export const TUTORIALS: ProjectInfo[] = [
     {
         path: ".\\00",
-        projectName: "Learn the App"
+        projectName: "Hello World"
     },
     {
         path: ".\\01",
-        projectName: "Hello World"
+        projectName: "Variables"
     }
 ];
 

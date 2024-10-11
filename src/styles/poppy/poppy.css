@@ -30,4 +30,5 @@
     border: 2px solid var(--accent);
     border-radius: .3em;
     position: absolute;
+    z-index: 60;
 }
