@@ -1,0 +1,243 @@
+body {
+    background-color: #e2e2e2;
+    height: 100vh;
+
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    grid-template-rows: 100px 1fr;
+
+    grid-template-areas: 
+        "side header"
+        "side main";
+}
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+.header {
+    background-color: #e2e2e2;
+    grid-area: header;
+
+    display: grid;
+    grid-template-columns: 2.5fr 1fr;
+    /* grid-template-rows: 1fr 1fr; */
+    grid-template-areas: 
+        "searchbar buttons";
+
+    padding: 25px;
+    gap: 10px;
+}
+
+.buttons {grid-area: buttons; white-space: nowrap;}
+
+.newproj, .openproj{
+    background-color: #f8f9fb;
+    font-size: 16px;
+    padding: 8px 20px;
+    border: 1px solid #c3c5ca; /* Border color */
+    border-radius: 10px;
+    outline: none;
+    cursor: pointer;
+}
+
+.newproj:hover, .openproj:hover{
+    background-color: #c3c5ca;
+    transition: 0.3s;
+
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1)inset, 
+                inset -5px -5px 5px #c3c5ca;
+}
+
+.searchbar {
+    grid-area: searchbar;
+    display: grid;
+
+    grid-template-columns: 50px 1fr;
+    gap: 5px;
+}
+
+.search {
+    padding: 5px;
+    font-size: 1.3rem;
+}
+
+.fa-magnifying-glass {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.textbox > input {
+    background-color: #e2e2e2;
+    margin-top: 5px;
+    width: 80%;
+    font-size: 20px;
+    border: none;
+}
+
+.sidebar {
+    background-color: #e2e2e2;
+    grid-area: side;
+}
+
+.sidebar > .container:nth-child(1) {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    grid-template-rows: 1fr 1fr;
+    grid-template-areas: 
+        "logo name"
+        "logo ver";
+    
+    padding: 25px;
+    grid-column-gap: 10px;
+    grid-row-gap: 0px;
+    margin-top: 10px;
+}
+
+.logo {
+    grid-area: logo;
+
+    background-color: black;
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+}
+
+.TPoppy {
+    grid-area: name;
+    font-size: 1.2rem;
+}
+
+.ver{
+    grid-area: ver;
+}
+
+.sidebar > .container:nth-child(2) {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    grid-template-areas: 
+        "projects"
+        "learn"
+        "aboutus";
+    
+    padding: 10px 10px 10px 10px;
+    gap: 10px;
+}
+
+.highlight {
+    background-color: #e31c17;
+    color: white;
+
+    padding: 10px;
+    border-radius: 20px;
+}
+
+.sidemenu > h4 {
+    padding: 5px;
+    cursor: pointer;
+}
+
+.sidemenu:nth-child(2):hover, .sidemenu:nth-child(3):hover{
+    background: #f6c8c7;
+    transition: 0.3s;
+
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1)inset, 
+                inset -5px -5px 5px #f6c8c7;
+}
+.sidemenu:nth-child(1){grid-area: projects;}
+.sidemenu:nth-child(2){grid-area: learn; padding: 5px; border-radius: 10px}
+.sidemenu:nth-child(3){grid-area: aboutus; padding: 5px; border-radius: 10px}
+
+
+.main {
+    background-color: white;
+    padding: 12px;
+    border-radius: 20px 0px 0px 0px;
+    grid-area: main;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-areas: 
+        "c1 c2 c3"
+        "c4 c5 c6";
+
+    gap: 15px;
+
+}
+
+/* Cards and Card Design */
+
+.card {
+    background-color: #f9f9f9;
+    border-radius: 20px;
+    padding: 15px;
+    cursor: pointer;
+
+    display: grid;
+    grid-template-columns: 2fr 0.5fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-areas: 
+        "name settings";
+}
+
+.card:hover {
+    transition: 0.3s;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1), 
+                -5px -5px 5px white;
+}
+
+.card:nth-child(1) { grid-area: c1;}
+.card:nth-child(2) { grid-area: c2;}
+.card:nth-child(3) { grid-area: c3;}
+.card:nth-child(4) { grid-area: c4;}
+.card:nth-child(5) { grid-area: c5;}
+.card:nth-child(6) { grid-area: c6;}
+
+/* Icons */
+
+.fa-gear {
+    grid-area: settings;
+
+    padding-top: 10px;
+    font-size: 2rem;
+}
+
+.fa-gear:hover {
+    opacity: 0.5;
+    transition: 0.3s;
+}
+
+/* Modal Design */
+
+.btn-danger {
+    background-color: #e31c17;
+}
+
+/* Responsiveness */
+
+@media (max-width: 1350px) {
+    .main{
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: (auto, 300px);   
+        grid-template-areas: initial;
+    }
+
+    .card{
+        grid-area: initial !important;
+    }
+}
+
+@media (max-width: 1020px) {
+    .main{
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        grid-template-areas: initial;
+    }
+
+    .card{
+        grid-area: initial !important;
+    }
+}
