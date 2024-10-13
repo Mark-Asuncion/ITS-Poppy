@@ -112,6 +112,7 @@ export class BaseGroup extends Group {
             return;
         }
         const ch = childs[childn];
+        // console.log(ch.position());
 
         const stage = this.getStage()!;
         const container = stage.container().getBoundingClientRect();

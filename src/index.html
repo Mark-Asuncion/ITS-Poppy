@@ -1,90 +1,151 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
     <head>
-        <title>Starting Page</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="styles/styles.css" rel="stylesheet">
-        <link href="styles/startingpage.css" rel="stylesheet">
-        <script type="module" src="scripts/index.ts" defer></script>
+        <title>Poppy</title>
+        <!-- Required meta tags -->
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
+
         <script src="https://kit.fontawesome.com/75227f5090.js" crossorigin="anonymous"></script>
-        <script type="module">
-            import { getVersion } from '@tauri-apps/api/app';
-            async function setVersion() {
-                document.querySelector("#version").innerText = `Version ${ await getVersion() }`;
-            }
-        </script>
+
+        <!-- Bootstrap CSS v5.2.1 -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+            crossorigin="anonymous"
+        />
+        <script type="module" src="scripts/index.ts" defer></script>
+        <link rel="stylesheet" href="./styles/new-init-page.css">
     </head>
+
     <body>
-        <div class="grid-container d-grid">
-            <div class="left-container">
-                <div class="info-container d-flex">
-                    <div class="logo">
-                        <div class="rect"></div>
-                    </div>
-
-                    <div class="info-details d-flex">
-                        <p class="app-name">Teacher Poppy</p>
-                        <p id="version" class="p-small">Version x.x.x</p>
-                    </div>
+        
+        <header class="header">
+            <div class="searchbar">
+                <div class="search">
+                    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
                 </div>
-
-                <div class="links d-flex">
-                    <a href="#" id="Projects" class="highlight-red">Projects</a>
-                    <a href="#" id="AboutUs">About Us</a>
+                <div class="textbox">
+                    <input type="text" placeholder="Search Project">
                 </div>
             </div>
-            <div class="right-container">
-                <div class="search d-flex">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="search-bar" class="search-bar" placeholder="Search Projects">
+            
+            <div class="buttons text-end">
+                <button class="newproj" data-bs-toggle="modal" data-bs-target="#npmodal">New Project</button>
+                <button class="openproj">Open</button>
+            </div>
 
-                    <div class="btn-container d-flex">
-                        <button id="npbutton" class="btn">
-                            <p>New Project</p>
-                        </button>
-
-                        <button id="open-button" class="btn">
-                            <p>Open</p>
-                        </button>
+            <!-- Modal -->
+            <div class="modal fade modal-md" id="npmodal" tabindex="-1" aria-labelledby="npmodalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="npmodalLabel">New Project</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                          <div class="row mb-3">
+                            <div class="col-4">
+                              <label for="projectName" class="col-form-label">Name:</label>
+                            </div>
+                            <div class="col-8">
+                              <input type="text" class="form-control" id="projectName" placeholder="Enter project name">
+                            </div>
+                          </div>
+                      
+                          <div class="row mb-3">
+                            <div class="col-4">
+                              <label for="projectFolder" class="col-form-label">Folder:</label>
+                            </div>
+                            <div class="col-8">
+                              <div class="input-group">
+                                <input type="text" class="form-control" id="projectFolder" placeholder="Choose folder">
+                                <span class="input-group-text">
+                                  <i class="fa-solid fa-folder"></i>
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </form>
+                      </div>                      
+                    <div class="modal-footer d-flex justify-content-center">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button id="projectCreate" type="button" class="btn btn-danger">+ Create</button>
                     </div>
                 </div>
-
-                <hr>
-
-                <div id="projects-list">
                 </div>
             </div>
-        </div>
-        <div id="npmodal" class="modal">
-            <div class="npmodal-content">
-                <div class="header">
-                    <p>Create New Project</p>
-                    <span class="close">&times;</span>
+        </header>
+
+        <section class="sidebar">
+            <div class="container">
+                <div class="logo">
+
                 </div>
-                <div class="proj-details">
-                    <div class="name-section">
-                        <label for="name" class="name">Name</label>
-                        <div class="name-icon-input">
-                            <i class="fa-regular fa-folder-open"></i>
-                            <input type="text" id="name" class="name-input">
+                <div class="TPoppy">
+                    <h3>Teacher Poppy</h3>
+                </div>
+                <div class="ver">
+                    <small>Ver 0.0</small>
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="sidemenu highlight">
+                    <h4>Projects</h4>
+                </div>
+                <div class="sidemenu">
+                    <h4><a href="#">Learn</a></h4>
+                </div>
+                <div class="sidemenu">
+                    <h4><a href="#">About Us</a></h4>
+                </div>
+            </div>
+        </section>
+
+        <main id="projects-list" class="main">
+            <!-- <div class="card border-light"> -->
+            <!--     <h4 class="p-2">Project 1</h4> -->
+            <!---->
+            <!--     <div class="proj-settings d-flex align-items-start justify-content-end p-2"> -->
+            <!--         <i class="fa-solid btn-close" data-bs-toggle="modal" data-bs-target="#removeModal"></i> -->
+            <!--     </div> -->
+            <!---->
+            <!--     <div class="path"> -->
+            <!--         <small class="text-muted">C:\user\name\path\to\project</small> -->
+            <!--     </div> -->
+            <!-- </div> -->
+
+            <!-- Remove Project Modal -->
+            <div class="modal fade" id="removeModal" tabindex="-1" aria-labelledby="removeModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="removeModalLabel">Remove Project</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to remove this project?
+                        </div>
+                            <div class="modal-footer d-flex justify-content-center">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button id="removeProject" type="button" class="btn btn-danger">Remove</button>
                         </div>
                     </div>
-                    <div class="folder-section">
-                        <label for="folder" class="folder">Folder</label>
-                        <div class="folder-icon-input">
-                            <a href="#" class="folder-link">
-                                <i class="fa-regular fa-folder-open c-black"></i>
-                            </a>
-                            <input type="text" id="folder" class="folder-input">
-                        </div>
-                    </div>
-                </div>
-                <div class="npmodal-buttons">
-                    <button class="back-button">Back</button>
-                    <button id="create" class="create-button">+ Create</button>
                 </div>
             </div>
-        </div>
+  
+        </main>
+
+
+        <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
     </body>
 </html>

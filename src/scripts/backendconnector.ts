@@ -117,6 +117,15 @@ export function new_project(name: string, path: string) {
     }
 }
 
+export function del_project(path: string) {
+    try {
+        invoke("del_project", { path });
+    }
+    catch (e) {
+        console.error(e);
+    }
+}
+
 export function load_open_project(path: string) {
     try {
         invoke("load_open_project", { path });
