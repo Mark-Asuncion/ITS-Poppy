@@ -40,20 +40,22 @@ function createProjectInfoElement(info: ProjectInfo) {
     const root = document.createElement("div");
     root.classList.add("card");
     root.classList.add("border-light");
-    root.addEventListener("click", (e) => {
-        if (e.target !== root) {
-            return;
-        }
-        e.stopPropagation();
-        localStorage.setItem("info", JSON.stringify(info));
-        window.open("../editor.html", "_self");
-    });
 
     let innerHtml = `<h4 class="p-2">${info.projectName}</h4>`;
     innerHtml += `<div id="removeBtn" class="proj-settings d-flex align-items-start justify-content-end p-2"> <i class="fa-solid btn-close" data-bs-toggle="modal" data-bs-target="#removeModal"></i> </div>`;
     innerHtml += `<div class="path"><small class="text-muted">${info.path}</small></div>`;
     root.innerHTML = innerHtml;
     const rmBtn = root.querySelector("#removeBtn")!;
+    const rmITag = rmBtn.querySelector("i")!;
+    root.addEventListener("click", (e) => {
+
+        if (e.target === rmBtn || e.target === rmITag) {
+            return;
+        }
+        e.stopPropagation();
+        localStorage.setItem("info", JSON.stringify(info));
+        window.open("../editor.html", "_self");
+    });
     rmBtn.addEventListener("click", (e) => {
         e.preventDefault();
         rmProject = info;
