@@ -1,123 +1,71 @@
-import { ProjectInfo, load_projects, dialog_one_dir, new_project, load_open_project } from "./backendconnector";
-const btn = document.querySelector("#npbutton")! as HTMLButtonElement;
-const span = document.getElementsByClassName("close")[0]! as HTMLSpanElement;
-const projectsList = document.querySelector("#projects-list")! as HTMLDivElement;
-const searchbar = document.querySelector("#search-bar")! as HTMLInputElement;
+import { ProjectInfo, load_projects, dialog_one_dir, new_project, load_open_project, del_project } from "./backendconnector";
+import { getVersion } from '@tauri-apps/api/app';
 
-function registerSearchBarEvents(searchbar: HTMLInputElement) {
-    searchbar.addEventListener("input", (e) => {
-        e.stopPropagation();
-        projectsList.replaceChildren();
-        const filter = searchbar.value.trim();
-        listProjects(projectsList, (filter.length != 0)? filter:undefined);
-    });
+// === Set Version ===
+async function setVersion() {
+    document.querySelector(".ver")!.innerHTML = `<small>Version ${ await getVersion() }</small>`;
 }
-registerSearchBarEvents(searchbar);
+setVersion();
+// ===================
 
-//---- Open And Load Project ------
-const openBtn = document.querySelector("#open-button")! as HTMLButtonElement;
-openBtn.addEventListener("click", async (e) => {
+// const newProject = document.querySelector("#npbutton")! as HTMLButtonElement;
+// const span = document.getElementsByClassName("close")[0]! as HTMLSpanElement;
+const projectsList = document.querySelector("#projects-list")! as HTMLDivElement;
+let filter: string = "";
+
+//=== Searchbar ===
+const searchbar = document.querySelector(".searchbar > .textbox > input")! as HTMLInputElement;
+searchbar.addEventListener("input", (e) => {
     e.stopPropagation();
-    const folder = await dialog_one_dir("Pick A Project Folder");
-    if (folder) {
-        load_open_project(folder);
-        window.location.reload();
+    projectsList.innerHTML = "";
+    filter = searchbar.value.trim();
+    listProjects(projectsList);
+});
+//=============================
+
+//=== List Projects ===
+let rmProject: ProjectInfo | null = null;
+const rmProjectBtn = document.querySelector("#removeProject")! as HTMLButtonElement;
+rmProjectBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    console.log("remove: ", rmProject);
+    if (rmProject) {
+        del_project(rmProject.path);
+        projectsList.innerHTML = "";
+        listProjects(projectsList);
     }
 });
 
-function registerModalEvents(modal: HTMLElement) {
-    btn.onclick = function () {
-        modal.style.display = "block";
-    }
-    span.onclick = function () {
-        modal.style.display = "none";
-    }
-    window.onclick = function (event: Event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-    }
-}
-
-function registerNewProjectDialogEvents(modal: HTMLElement) {
-    const createBtn = modal.querySelector("#create")!;
-    const folderInp = modal.querySelector("#folder")! as HTMLInputElement;
-    folderInp.addEventListener("focusin", async (e) => {
-        e.stopPropagation();
-        folderInp.blur();
-        const folder = await dialog_one_dir("Pick A Folder");
-        folderInp.value = folder;
-    });
-
-    createBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const name = (modal.querySelector("#name")! as HTMLInputElement).value;
-        const path = (modal.querySelector("#folder")! as HTMLInputElement).value;
-        new_project(name, path);
-        window.location.reload();
-    });
-}
-
-const modal = document.getElementById("npmodal")!;
-registerModalEvents(modal);
-registerNewProjectDialogEvents(modal);
-
 function createProjectInfoElement(info: ProjectInfo) {
     const root = document.createElement("div");
-    root.classList.add("info-container");
-    root.classList.add("d-flex");
-    root.classList.add("project-container");
+    root.classList.add("card");
+    root.classList.add("border-light");
     root.addEventListener("click", (e) => {
+        if (e.target !== root) {
+            return;
+        }
         e.stopPropagation();
         localStorage.setItem("info", JSON.stringify(info));
         window.open("../editor.html", "_self");
     });
 
-    const emblem = document.createElement("div");
-    emblem.classList.add("project-emblem");
-    root.appendChild(emblem);
-
-    const projectDetails = document.createElement("div");
-    projectDetails.classList.add("info-project");
-    projectDetails.classList.add("d-flex");
-    root.appendChild(projectDetails);
-
-    const projectName = document.createElement("p");
-    projectName.classList.add("project-name");
-    projectName.innerText = info.projectName;
-    projectDetails.appendChild(projectName);
-
-    const projectPath = document.createElement("p");
-    projectPath.classList.add("p-small");
-    projectPath.classList.add("p-small-hover");
-    projectPath.innerText = info.path;
-    projectDetails.appendChild(projectPath);
-
-    const gear = document.createElement("i");
-    gear.classList.add("fa-solid");
-    gear.classList.add("fa-gear");
-    gear.classList.add("fa-xl");
-    // TODO add click listener
-    root.appendChild(gear);
-
-    const dropdown = document.createElement("div");
-    dropdown.classList.add("dropdown-content");
-    const remove = document.createElement("a");
-    remove.innerText = "remove";
-    remove.addEventListener("click", (e) => {
-        e.stopPropagation();
-        console.error("NOT IMPLEMENTED");
-    })
-    dropdown.appendChild(remove);
-    root.appendChild(dropdown);
+    let innerHtml = `<h4 class="p-2">${info.projectName}</h4>`;
+    innerHtml += `<div id="removeBtn" class="proj-settings d-flex align-items-start justify-content-end p-2"> <i class="fa-solid btn-close" data-bs-toggle="modal" data-bs-target="#removeModal"></i> </div>`;
+    innerHtml += `<div class="path"><small class="text-muted">${info.path}</small></div>`;
+    root.innerHTML = innerHtml;
+    const rmBtn = root.querySelector("#removeBtn")!;
+    rmBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        rmProject = info;
+    });
     return root;
 }
 
-async function listProjects(root: HTMLElement, filter?: string) {
+async function listProjects(root: HTMLElement) {
     const projects = await load_projects();
     for (let i = 0; i < projects.length; i++) {
         const project = projects[i];
-        if (filter) {
+        if (filter.length !== 0) {
             const regRes = project.projectName.match(filter+".\\+*");
             if (regRes == null || (regRes && regRes[0] == project.projectName)) {
                 continue;
@@ -128,3 +76,55 @@ async function listProjects(root: HTMLElement, filter?: string) {
 }
 
 listProjects(projectsList);
+//=============================
+
+//=== Open And Load Project ===
+const openBtn = document.querySelector(".openproj")! as HTMLButtonElement;
+openBtn.addEventListener("click", async (e) => {
+    e.stopPropagation();
+    const folder = await dialog_one_dir("Pick A Project Folder");
+    if (folder) {
+        load_open_project(folder);
+        window.location.reload();
+    }
+});
+//=============================
+
+// function registerModalEvents(modal: HTMLElement) {
+//     newProject.onclick = function () {
+//         modal.style.display = "block";
+//     }
+//     span.onclick = function () {
+//         modal.style.display = "none";
+//     }
+//     window.onclick = function (event: Event) {
+//         if (event.target == modal) {
+//             modal.style.display = "none";
+//         }
+//     }
+// }
+
+// === New Project ===
+function registerNewProjectDialogEvents(modal: HTMLElement) {
+    const name = modal.querySelector("#projectName")! as HTMLInputElement;
+    const folderInp = modal.querySelector("#projectFolder")! as HTMLInputElement;
+
+    const createBtn = modal.querySelector("#projectCreate")! as HTMLButtonElement;
+    folderInp.addEventListener("focusin", async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        folderInp.blur();
+        const folder = await dialog_one_dir("Pick A Folder");
+        folderInp.value = folder;
+    });
+
+    createBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        new_project(name.value, folderInp.value);
+        window.location.reload();
+    });
+}
+const modal = document.getElementById("npmodal")!;
+registerNewProjectDialogEvents(modal);
+// ===================
+
