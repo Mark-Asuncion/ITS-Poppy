@@ -135,6 +135,10 @@ a {
     border-radius: 20px;
 }
 
+.highlight a {
+    color: white;
+}
+
 .sidemenu > h4 {
     padding: 5px;
     cursor: pointer;
