@@ -93,30 +93,32 @@ export class Lint {
                 col.classList.add("flex-dir-col");
                 col.classList.add("gap-10");
 
-                {
-                    let questionBtn = document.createElement("button") as HTMLButtonElement;
-                    questionBtn.type = "button";
-                    questionBtn.classList.add("aspect-ratio-1");
-                    questionBtn.classList.add("br-none");
-                    questionBtn.classList.add("no-radius");
-                    questionBtn.classList.add("fill-width");
-                    questionBtn.classList.add("h-max-content");
-
-                    let questionIcon = document.createElement("i");
-                    questionIcon.classList.add("fa-solid");
-                    questionIcon.classList.add("fa-question");
-
-                    questionBtn.appendChild(questionIcon);
-                    col.appendChild(questionBtn);
-                }
+                // {
+                //     let questionBtn = document.createElement("button") as HTMLButtonElement;
+                //     questionBtn.type = "button";
+                //     questionBtn.classList.add("d-flex");
+                //     questionBtn.classList.add("br-none");
+                //     questionBtn.classList.add("no-radius");
+                //     questionBtn.classList.add("fill-width");
+                //     questionBtn.classList.add("h-max-content");
+                //     questionBtn.classList.add("vt-center");
+                //
+                //     let questionIcon = document.createElement("i");
+                //     questionIcon.classList.add("fa-solid");
+                //     questionIcon.classList.add("fa-question");
+                //
+                //     questionBtn.appendChild(questionIcon);
+                //     col.appendChild(questionBtn);
+                // }
                 {
                     let gotoBtn = document.createElement("button") as HTMLButtonElement;
                     gotoBtn.type = "button";
-                    gotoBtn.classList.add("aspect-ratio-1");
+                    gotoBtn.classList.add("d-flex");
                     gotoBtn.classList.add("br-none");
                     gotoBtn.classList.add("no-radius");
                     gotoBtn.classList.add("fill-width");
                     gotoBtn.classList.add("h-max-content");
+                    gotoBtn.classList.add("vt-center");
 
                     setHover(gotoBtn, "Go To Diagram");
 
@@ -145,7 +147,7 @@ export class Lint {
                                         }
                                     };
                                     Poppy.qDialogFirst(dialog);
-                                    // Lint.close();
+                                    Lint.close();
                                 }
                             }
                             break;

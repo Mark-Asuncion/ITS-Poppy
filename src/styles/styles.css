@@ -226,6 +226,7 @@ button:hover {
 
 .vt-center {
     vertical-align: middle;
+    align-items: center;
 }
 
 .gap-10 {
