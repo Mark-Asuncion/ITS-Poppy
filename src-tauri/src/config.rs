@@ -250,11 +250,11 @@ impl ProjectConfig {
 // ================================
 
 #[tauri::command]
-pub fn load_projects(app_handle: AppHandle) -> Vec<ProjectInfo> {
+pub fn load_projects(app_handle: AppHandle) -> Result<Vec<ProjectInfo>, String> {
     let appconfig = AppConfig::load(&app_handle.path_resolver());
     if let Err(e) = appconfig {
-        dbg!(e);
-        panic!("SHOW ERROR HERE");
+        dbg!(&e);
+        return Err(e.to_string());
     }
     let mut appconfig = appconfig.unwrap();
     let projects_path = appconfig.projects.clone();
@@ -279,92 +279,95 @@ pub fn load_projects(app_handle: AppHandle) -> Vec<ProjectInfo> {
     }
 
     if let Err(e) = appconfig.write(&app_handle.path_resolver()) {
-        dbg!(e);
-        panic!("SHOW ERROR HERE");
+        dbg!(&e);
+        return Err(e.to_string());
     }
 
-    projects_config
+    Ok(projects_config)
 }
 
 #[tauri::command]
-pub fn new_project(name: String, path: String, app_handle: AppHandle) {
+pub fn new_project(name: String, path: String, app_handle: AppHandle) -> Result<(), String> {
     let path_to_proj = PathBuf::from(path.clone());
     if !path_to_proj.exists() {
         if let Err(e) = create_dir(&path_to_proj) {
-            dbg!(e);
-            panic!("SHOW ERROR HERE");
+            dbg!(&e);
+            return Err(e.to_string());
         }
     }
     let proj_conf = ProjectConfig::new(name);
     if let Err(e) = proj_conf.write(path_to_proj.clone()) {
-        dbg!(e);
-        panic!("SHOW ERROR HERE");
+        dbg!(&e);
+        return Err(e.to_string());
     }
 
     let appconfig = AppConfig::load(&app_handle.path_resolver());
     if let Err(e) = appconfig {
-        dbg!(e);
-        panic!("SHOW ERROR HERE");
+        dbg!(&e);
+        return Err(e.to_string());
     }
 
     let mut appconfig = appconfig.unwrap();
     appconfig.append_project(PathBuf::from(path));
     if let Err(e) = appconfig.write(&app_handle.path_resolver()) {
-        dbg!(e);
-        panic!("SHOW ERROR HERE");
+        dbg!(&e);
+        return Err(e.to_string());
     }
+    Ok(())
 }
 
 #[tauri::command]
-pub fn open_project(path: String, gs: State<GlobalState>) {
+pub fn open_project(path: String, gs: State<GlobalState>) -> Result<(), String> {
     let path = PathBuf::from(path);
     let proj_conf = ProjectConfig::from_path(path.clone());
     if proj_conf.is_empty() {
-        dbg!("Not a project directory");
-        panic!("SHOW ERROR HERE");
+        return Err(String::from("Not a Project Directory"));
     }
     gs.set_work_path(path);
+    Ok(())
 }
 
 // Load a poppy projects and append it to the list
 // doesn't actually open the project
 #[tauri::command]
-pub fn load_open_project(path: String, app_handle: AppHandle) {
+pub fn load_open_project(path: String, app_handle: AppHandle) -> Result<(), String> {
     let pathb = PathBuf::from(path.as_str());
     if !pathb.exists() {
-        return;
+        return Ok(());
     }
     let proj_conf = ProjectConfig::from_path(pathb.clone());
     if proj_conf.is_empty() {
-        return;
+        return Ok(());
     }
 
     let appconfig = AppConfig::load(&app_handle.path_resolver());
     if let Err(e) = appconfig {
-        dbg!(e);
-        panic!("SHOW ERROR HERE");
+        dbg!(&e);
+        return Err(e.to_string());
     }
     let mut appconfig = appconfig.unwrap();
 
     appconfig.append_project(PathBuf::from(path));
     if let Err(e) = appconfig.write(&app_handle.path_resolver()) {
-        dbg!(e);
-        panic!("SHOW ERROR HERE");
+        dbg!(&e);
+        return Err(e.to_string());
     }
+    Ok(())
 }
 
 #[tauri::command]
-pub fn del_project(path: String, app_handle: AppHandle) {
+pub fn del_project(path: String, app_handle: AppHandle) -> Result<(), String> {
     let appconfig = AppConfig::load(&app_handle.path_resolver());
     if let Err(e) = appconfig {
-        dbg!(e);
-        panic!("SHOW ERROR HERE");
+        dbg!(&e);
+        return Err(e.to_string());
     }
     let mut appconfig = appconfig.unwrap();
 
     appconfig.delete_project(path);
     if let Err(e) = appconfig.write(&app_handle.path_resolver()) {
-        dbg!(e);
-        panic!("SHOW ERROR HERE");
+        dbg!(&e);
+        return Err(e.to_string());
     }
+    Ok(())
 }

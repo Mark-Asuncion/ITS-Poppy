@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/tauri";
 import { open } from '@tauri-apps/api/dialog';
+import { createErrorModal } from "./error";
 
 export interface Module {
     name: string,
@@ -75,6 +76,7 @@ export async function write_diagrams_to_modules(arrContents: Array<Module>) {
     }
     catch (e) {
         console.error(e);
+        createErrorModal(e as string);
     }
 }
 
@@ -84,6 +86,7 @@ export async function load_modules(): Promise<Module[]> {
     }
     catch (e) {
         console.error(e);
+        createErrorModal(e as string);
     }
     return [];
 }
@@ -108,44 +111,51 @@ export async function load_projects(): Promise<ProjectInfo[]> {
     }
     catch (e) {
         console.error(e);
+        createErrorModal(e as string);
     }
     return [];
 }
 
-export function new_project(name: string, path: string) {
+export async function new_project(name: string, path: string) {
     try {
-        invoke("new_project", { name, path });
+        await invoke("new_project", { name, path });
     }
     catch (e) {
         console.error(e);
+        createErrorModal(e as string);
     }
 }
 
-export function del_project(path: string) {
+export async function del_project(path: string) {
     try {
-        invoke("del_project", { path });
+        await invoke("del_project", { path });
     }
     catch (e) {
         console.error(e);
+        createErrorModal(e as string);
     }
 }
 
-export function load_open_project(path: string) {
+export async function load_open_project(path: string): Promise<boolean> {
     try {
-        invoke("load_open_project", { path });
-    }
-    catch (e) {
-        console.error(e);
-    }
-}
-
-export async function spawn_term(): Promise<boolean> {
-    try {
-        invoke("spawn_term");
+        await invoke("load_open_project", { path });
         return true;
     }
     catch (e) {
         console.error(e);
+        createErrorModal(e as string);
+    }
+    return false;
+}
+
+export async function spawn_term(): Promise<boolean> {
+    try {
+        await invoke("spawn_term");
+        return true;
+    }
+    catch (e) {
+        console.error(e);
+        createErrorModal(JSON.stringify(e));
     }
     return false;
 }
@@ -156,6 +166,7 @@ export async function write_term(command: string): Promise<number> {
     }
     catch (e) {
         console.error(e);
+        createErrorModal(JSON.stringify(e));
     }
     return 0;
 }
@@ -166,6 +177,7 @@ export async function read_term(): Promise<string> {
     }
     catch (e) {
         console.error(e);
+        createErrorModal(JSON.stringify(e));
     }
     return "";
 }
@@ -187,6 +199,7 @@ export async function restart_term(): Promise<void | string> {
     }
     catch (e) {
         console.error(e);
+        createErrorModal(JSON.stringify(e));
         return (e as Error).message;
     }
 }
@@ -198,6 +211,7 @@ export async function lint(): Promise<LintInfo[] | string> {
     }
     catch (e) {
         console.error(e);
+        createErrorModal(JSON.stringify(e));
         return e as string;
     }
 }

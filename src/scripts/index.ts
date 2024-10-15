@@ -142,8 +142,12 @@ openBtn.addEventListener("click", async (e) => {
     e.stopPropagation();
     const folder = await dialog_one_dir("Pick A Project Folder");
     if (folder) {
-        load_open_project(folder);
-        window.location.reload();
+        load_open_project(folder)
+            .then((e) => {
+                if (e) {
+                    window.location.reload();
+                }
+            });
     }
 });
 //=============================
@@ -165,7 +169,8 @@ function registerNewProjectDialogEvents(modal: HTMLElement) {
     createBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         new_project(name.value, folderInp.value);
-        window.location.reload();
+        contentsContainer.innerHTML = "";
+        listContents(contentsContainer);
     });
 }
 const modal = document.getElementById("npmodal")!;

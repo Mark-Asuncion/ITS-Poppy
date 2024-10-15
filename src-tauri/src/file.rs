@@ -255,29 +255,29 @@ fn _load_modules(cwd: &Path, rd: ReadDir, positions: &PositionMap) -> io::Result
 }
 
 #[tauri::command]
-pub fn load_modules(gs: State<GlobalState>) -> Vec<Module> {
+pub fn load_modules(gs: State<GlobalState>) -> Result<Vec<Module>, String> {
     let work_path = gs.get_work_path_clone();
     if !work_path.exists() {
-        return vec![];
+        return Ok(vec![]);
     }
 
     let dirs = read_dir(&work_path);
     if let Err(e) = dirs {
-        dbg!(e);
-        todo!("display err");
+        dbg!(&e);
+        return Err(e.to_string());
     }
     let positions = _read_cached_module_positions(work_path.clone())
         .unwrap_or_default();
     let list = _load_modules(&work_path, dirs.unwrap(), &positions);
     if let Err(e) = list {
-        dbg!(e);
-        todo!("display err");
+        dbg!(&e);
+        return Err(e.to_string());
     }
-    list.unwrap()
+    Ok(list.unwrap())
 }
 
 #[tauri::command]
-pub async fn write_diagrams_to_modules(modules: String, gs: State<'_, GlobalState>) -> Result<(),()> {
+pub async fn write_diagrams_to_modules(modules: String, gs: State<'_, GlobalState>) -> Result<(),String> {
     use std::collections::HashMap;
     match serde_json::from_str(modules.as_str()) {
         Ok(v) => {
@@ -294,9 +294,8 @@ pub async fn write_diagrams_to_modules(modules: String, gs: State<'_, GlobalStat
                 }
                 // dbg!(&module);
                 if let Err(e) = module.write(cwd.clone(), &mut positions).await {
-                    dbg!(e);
-                    todo!("display err");
-                    continue;
+                    dbg!(&e);
+                    return Err(e.to_string());
                 }
                 match names.get_mut(&module.name) {
                     Some(v) => *v += 1,
@@ -319,7 +318,8 @@ pub async fn write_diagrams_to_modules(modules: String, gs: State<'_, GlobalStat
             // dbg!(&modules);
         }
         Err(e) => {
-            dbg!(e);
+            dbg!(&e);
+            return Err(e.to_string());
         }
     }
     Ok(())
