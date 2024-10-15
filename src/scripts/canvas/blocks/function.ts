@@ -36,6 +36,9 @@ export class Function extends BaseDiagram {
         };
 
         let splitParams = this.argSplit(param);
+        if (splitParams.length == 0) {
+            splitParams.push("");
+        }
         for (let i=0;i<splitParams.length;i++) {
             let v = splitParams[i].trim();
             if (i !== 0) {

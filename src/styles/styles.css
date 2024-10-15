@@ -171,7 +171,7 @@ button.br-none {
 }
 
 button:hover {
-    background-color: lightgray;
+    background-color: lightgray !important;
     /* color: var(--accent); */
 }
 
@@ -213,15 +213,15 @@ button:hover {
 }
 
 .border-error {
-    border: 2px solid var(--error);
+    border: 2px solid var(--error) !important;
 }
 
 .border-warning {
-    border: 2px solid var(--warning);
+    border: 2px solid var(--warning) !important;
 }
 
 .border-info {
-    border: 2px solid var(--info);
+    border: 2px solid var(--info) !important;
 }
 
 .vt-center {

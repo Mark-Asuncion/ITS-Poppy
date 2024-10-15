@@ -56,13 +56,13 @@ diagramsImg.forEach((elem) => {
     //     localStorage.setItem("diagram-drag-over", type);
     // });
 
-    img.addEventListener("click", (e) => {
-        e.stopPropagation();
-        document.dispatchEvent(new CustomEvent("diagramdrop", {
-            bubbles: true,
-            detail: { type: type },
-        }));
-    });
+    // img.addEventListener("click", (e) => {
+    //     e.stopPropagation();
+    //     document.dispatchEvent(new CustomEvent("diagramdrop", {
+    //         bubbles: true,
+    //         detail: { type: type },
+    //     }));
+    // });
 
     // const canvasContainer = document.createElement("div");
     // const stage = createStageForDiagramImage(canvasContainer);

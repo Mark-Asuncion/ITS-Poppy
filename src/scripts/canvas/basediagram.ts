@@ -246,6 +246,15 @@ export class BaseDiagram extends Group {
             name: "Delete",
             callback: this.delete.bind(this)
         });
+        window.mContextMenu.push({
+            name: "Delete Module",
+            callback: (() => {
+                if (this.parent) {
+                    this.parent.remove();
+                    this.parent.destroy();
+                }
+            }).bind(this)
+        });
     }
 
     onKeyUp(e: TextKeyUpEvent) {

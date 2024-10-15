@@ -122,5 +122,11 @@ export class BaseGroup extends Group {
 
         // console.log("focus: ", pos);
         this.setPosition(pos);
+
+        // clamp
+        const maxLeftX = -(this.width() * this.mtpSize - this.width());
+        const maxUpY = -(this.height() * this.mtpSize - this.height());
+        this.x( Math.max( Math.min(0, this.x()), maxLeftX ) );
+        this.y( Math.max( Math.min(0, this.y()), maxUpY ) );
     }
 }
