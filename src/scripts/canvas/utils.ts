@@ -254,3 +254,33 @@ export function getPlacementPos(stage: Konva.Stage): Konva.Vector2d {
     console.log(p);
     return p;
 }
+
+// Error Modal
+
+function createErrorModal() {
+    const modalRoot = document.createElement("div");
+    modalRoot.classList.add("modal", "fade");
+    modalRoot.id = "errorModal";
+    modalRoot.tabIndex = -1;
+    modalRoot.setAttribute("aria-labelledby", "errorModalLabel");
+    modalRoot.setAttribute("aria-hidden", "true");
+
+    let innerHtml = `
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="errorModalLabel">Error Occurred</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    An unexpected error has occurred while processing your request.
+                </div>
+                <div class="modal-footer d-flex justify-content-center">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Okay</button>
+                </div>
+            </div>
+        </div>`;
+
+    modalRoot.innerHTML = innerHtml;
+    document.body.appendChild(modalRoot);
+}
