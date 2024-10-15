@@ -5,6 +5,10 @@
     --secondary: #11A960;
     --warning: #DDCA1E;
     --error: #F51313;
+    --warning-light: #f2eaa0;
+    --warning-light2: #f6f0ba;
+    --error-light: #fcbbbb;
+    --error-light2: #fdcbcb;
     --info: #0B80F4;
 
     font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
@@ -167,8 +171,8 @@ button.br-none {
 }
 
 button:hover {
-    /* background-color: var(--accent); */
-    color: var(--accent);
+    background-color: lightgray !important;
+    /* color: var(--accent); */
 }
 
 .bright:hover {
@@ -188,6 +192,14 @@ button:hover {
     overflow: auto;
 }
 
+.accent {
+    color: var(--accent);
+}
+
+.secondary {
+    color: var(--secondary);
+}
+
 .error {
     color: var(--error);
 }
@@ -201,15 +213,15 @@ button:hover {
 }
 
 .border-error {
-    border: 2px solid var(--error);
+    border: 2px solid var(--error) !important;
 }
 
 .border-warning {
-    border: 2px solid var(--warning);
+    border: 2px solid var(--warning) !important;
 }
 
 .border-info {
-    border: 2px solid var(--info);
+    border: 2px solid var(--info) !important;
 }
 
 .vt-center {

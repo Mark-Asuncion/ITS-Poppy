@@ -1,5 +1,42 @@
+import { TUTORIALS } from "../themes/tutorials";
 import { ProjectInfo, load_projects, dialog_one_dir, new_project, load_open_project, del_project } from "./backendconnector";
 import { getVersion } from '@tauri-apps/api/app';
+
+const contentsContainer = document.querySelector("#projects-list")! as HTMLDivElement;
+
+// === Sidebar ===
+const sidebarMenus = [
+    document.querySelector("#sdprojects")! as HTMLDivElement,
+    document.querySelector("#sdlearn")! as HTMLDivElement,
+    document.querySelector("#sdaboutus")! as HTMLDivElement
+];
+
+sidebarMenus[0].parentElement!.addEventListener("click", (e) => {
+    if (sidebarMenus[0].contains(e.target as Node) &&
+        !sidebarMenus[0].classList.contains("highlight")) {
+        sidebarMenus[0].classList.add("highlight");
+        sidebarMenus[1].classList.remove("highlight");
+        sidebarMenus[2].classList.remove("highlight");
+    }
+    else if (sidebarMenus[1].contains(e.target as Node) &&
+        !sidebarMenus[1].classList.contains("highlight")) {
+        sidebarMenus[1].classList.add("highlight");
+        sidebarMenus[0].classList.remove("highlight");
+        sidebarMenus[2].classList.remove("highlight");
+    }
+
+    else if (sidebarMenus[2].contains(e.target as Node) &&
+        !sidebarMenus[2].classList.contains("highlight")) {
+        sidebarMenus[2].classList.add("highlight");
+        sidebarMenus[0].classList.remove("highlight");
+        sidebarMenus[1].classList.remove("highlight");
+    }
+
+    contentsContainer.innerHTML = "";
+    listContents(contentsContainer);
+});
+
+// ===============
 
 // === Set Version ===
 async function setVersion() {
@@ -8,18 +45,15 @@ async function setVersion() {
 setVersion();
 // ===================
 
-// const newProject = document.querySelector("#npbutton")! as HTMLButtonElement;
-// const span = document.getElementsByClassName("close")[0]! as HTMLSpanElement;
-const projectsList = document.querySelector("#projects-list")! as HTMLDivElement;
 let filter: string = "";
 
 //=== Searchbar ===
 const searchbar = document.querySelector(".searchbar > .textbox > input")! as HTMLInputElement;
 searchbar.addEventListener("input", (e) => {
     e.stopPropagation();
-    projectsList.innerHTML = "";
+    contentsContainer.innerHTML = "";
     filter = searchbar.value.trim();
-    listProjects(projectsList);
+    listContents(contentsContainer);
 });
 //=============================
 
@@ -31,12 +65,12 @@ rmProjectBtn.addEventListener("click", (e) => {
     console.log("remove: ", rmProject);
     if (rmProject) {
         del_project(rmProject.path);
-        projectsList.innerHTML = "";
-        listProjects(projectsList);
+        contentsContainer.innerHTML = "";
+        listContents(contentsContainer);
     }
 });
 
-function createProjectInfoElement(info: ProjectInfo) {
+function createProjectInfoElement(info: ProjectInfo, isTutorial = false, tutorialId = 0) {
     const root = document.createElement("div");
     root.classList.add("card");
     root.classList.add("border-light");
@@ -53,7 +87,15 @@ function createProjectInfoElement(info: ProjectInfo) {
             return;
         }
         e.stopPropagation();
-        localStorage.setItem("info", JSON.stringify(info));
+        if (!isTutorial) {
+            localStorage.setItem("info", JSON.stringify(info));
+        }
+        else {
+            localStorage.setItem("info", JSON.stringify({
+                ...info,
+                tutorialId: tutorialId
+            }));
+        }
         window.open("../editor.html", "_self");
     });
     rmBtn.addEventListener("click", (e) => {
@@ -63,21 +105,35 @@ function createProjectInfoElement(info: ProjectInfo) {
     return root;
 }
 
-async function listProjects(root: HTMLElement) {
-    const projects = await load_projects();
-    for (let i = 0; i < projects.length; i++) {
-        const project = projects[i];
-        if (filter.length !== 0) {
-            const regRes = project.projectName.match(filter+".\\+*");
-            if (regRes == null || (regRes && regRes[0] == project.projectName)) {
-                continue;
+async function listContents(root: HTMLElement) {
+    if (sidebarMenus[0].classList.contains("highlight")) {
+        const projects = await load_projects();
+        for (let i = 0; i < projects.length; i++) {
+            const project = projects[i];
+            if (filter.length !== 0) {
+                const regRes = project.projectName.match(filter+".\\+*");
+                if (regRes == null || (regRes && regRes[0] == project.projectName)) {
+                    continue;
+                }
             }
+            root.appendChild(createProjectInfoElement(project));
         }
-        root.appendChild(createProjectInfoElement(project));
+    }
+    else if (sidebarMenus[1].classList.contains("highlight")) {
+        for (let i = 0; i < TUTORIALS.length; i++) {
+            const project = TUTORIALS[i];
+            if (filter) {
+                const regRes = project.projectName.match(filter+".\\+*");
+                if (regRes == null || (regRes && regRes[0] == project.projectName)) {
+                    continue;
+                }
+            }
+            root.appendChild(createProjectInfoElement(project, true, i));
+        }
     }
 }
 
-listProjects(projectsList);
+listContents(contentsContainer);
 //=============================
 
 //=== Open And Load Project ===
@@ -86,25 +142,15 @@ openBtn.addEventListener("click", async (e) => {
     e.stopPropagation();
     const folder = await dialog_one_dir("Pick A Project Folder");
     if (folder) {
-        load_open_project(folder);
-        window.location.reload();
+        load_open_project(folder)
+            .then((e) => {
+                if (e) {
+                    window.location.reload();
+                }
+            });
     }
 });
 //=============================
-
-// function registerModalEvents(modal: HTMLElement) {
-//     newProject.onclick = function () {
-//         modal.style.display = "block";
-//     }
-//     span.onclick = function () {
-//         modal.style.display = "none";
-//     }
-//     window.onclick = function (event: Event) {
-//         if (event.target == modal) {
-//             modal.style.display = "none";
-//         }
-//     }
-// }
 
 // === New Project ===
 function registerNewProjectDialogEvents(modal: HTMLElement) {
@@ -123,7 +169,8 @@ function registerNewProjectDialogEvents(modal: HTMLElement) {
     createBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         new_project(name.value, folderInp.value);
-        window.location.reload();
+        contentsContainer.innerHTML = "";
+        listContents(contentsContainer);
     });
 }
 const modal = document.getElementById("npmodal")!;

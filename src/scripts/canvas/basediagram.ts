@@ -224,6 +224,16 @@ export class BaseDiagram extends Group {
         }
     }
 
+    delete() {
+        const parent = (this.parent! as DiagramGroup);
+        parent.detach(this);
+        if (parent.nodes.length === 0) {
+            parent.remove();
+            parent.destroy();
+        }
+        notifyPush("Deleted a Diagram", "info", 1000);
+    }
+
     onContextMenu() {
         window.mContextMenu = [];
         window.mContextMenu.push({ name: "Copy Diagram",
@@ -234,15 +244,16 @@ export class BaseDiagram extends Group {
         });
         window.mContextMenu.push({
             name: "Delete",
-            callback: () => {
-                const parent = (this.parent! as DiagramGroup);
-                parent.detach(this);
-                if (parent.nodes.length === 0) {
-                    parent.remove();
-                    parent.destroy();
+            callback: this.delete.bind(this)
+        });
+        window.mContextMenu.push({
+            name: "Delete Module",
+            callback: (() => {
+                if (this.parent) {
+                    this.parent.remove();
+                    this.parent.destroy();
                 }
-                notifyPush("Deleted a Diagram", "info", 1000);
-            }
+            }).bind(this)
         });
     }
 

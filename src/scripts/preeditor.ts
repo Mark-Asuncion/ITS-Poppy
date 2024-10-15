@@ -3,13 +3,17 @@ import imgIf from "../assets/blocks/If.png";
 import imgElif from "../assets/blocks/Elif.png";
 import imgElse from "../assets/blocks/Else.png";
 import imgFor from "../assets/blocks/For.png";
-import { set_cwd, ProjectInfo } from "./backendconnector";
+import { set_cwd, ProjectInfoEx } from "./backendconnector";
+import { Poppy } from "../poppy/poppy";
 const info = localStorage.getItem("info");
 if (info) {
     const projectName = document.querySelector("#project-name")! as HTMLInputElement;
-    const parsed = JSON.parse(info) as ProjectInfo;
+    const parsed = JSON.parse(info) as ProjectInfoEx;
     projectName.value = parsed.projectName;
-    set_cwd(parsed.path);
+    set_cwd(parsed.path, parsed.tutorialId != undefined);
+    if (parsed.tutorialId != undefined) {
+        Poppy.loadTutorial(parsed.tutorialId);
+    }
 }
 
 const diagramsImg = document.querySelectorAll('[aria-diagram="true"]');
@@ -52,13 +56,13 @@ diagramsImg.forEach((elem) => {
     //     localStorage.setItem("diagram-drag-over", type);
     // });
 
-    img.addEventListener("click", (e) => {
-        e.stopPropagation();
-        document.dispatchEvent(new CustomEvent("diagramdrop", {
-            bubbles: true,
-            detail: { type: type },
-        }));
-    });
+    // img.addEventListener("click", (e) => {
+    //     e.stopPropagation();
+    //     document.dispatchEvent(new CustomEvent("diagramdrop", {
+    //         bubbles: true,
+    //         detail: { type: type },
+    //     }));
+    // });
 
     // const canvasContainer = document.createElement("div");
     // const stage = createStageForDiagramImage(canvasContainer);

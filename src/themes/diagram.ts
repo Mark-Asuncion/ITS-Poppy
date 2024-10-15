@@ -103,7 +103,8 @@ export const SIDEBAR = {
     },
     Utilities: {
         items: [
-            "function"
+            "function",
+            "class"
         ]
     }
 }
