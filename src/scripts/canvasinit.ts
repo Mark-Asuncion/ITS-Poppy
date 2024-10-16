@@ -4,13 +4,47 @@ import { Module, get_cwd, load_modules, write_diagrams_to_modules } from "./back
 import { DiagramGroup } from "./canvas/diagramgroup";
 import { contextMenuHide, contextMenuShow } from "./contextmenu/contextmenu";
 import { Shape, ShapeConfig } from "konva/lib/Shape";
-import { createDiagramFrom, getPlacementPos, isPointIntersectRect } from "./canvas/utils";
+import { createDiagramFrom, getPlacementPos, isPointIntersectRect, setHover } from "./canvas/utils";
 import { Poppy } from "../poppy/poppy";
 import { Lint } from "./lint";
 import { BaseDiagram } from "./canvas/basediagram";
 import { Function } from "./canvas/blocks/function";
 import { notifyPush } from "./notify";
 
+function setEditorContextButtons(container: HTMLDivElement) {
+    const div = document.createElement("div");
+    div.classList.add("d-flex", "editor-ctx-btns");
+    if (Poppy.tutorial !== null) {
+        div.innerHTML = `
+            <button id="poppy-help" class="bg-white br-none self-align-center" type="button">
+                <img class="aspect-ratio-1" src="./assets/poppy-help.png"></img>
+            </button>`;
+    }
+    div.innerHTML += `
+            <button id="editor-save" class="bg-white br-none self-align-center" type="button">
+                <i class="fa fa-save fa-xl aspect-ratio-1"></i>
+            </button>`;
+
+    container.appendChild(div);
+    let hbtn = div.querySelector("#editor-save")! as HTMLButtonElement;
+    hbtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const contents = diagramToModules(window.mCvStage);
+        write_diagrams_to_modules(contents);
+        notifyPush("Saving...");
+    });
+    setHover(hbtn, "Save");
+
+    if (Poppy.tutorial !== null) {
+        hbtn = div.querySelector("#poppy-help")! as HTMLButtonElement;
+        hbtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            Poppy.update();
+        });
+        setHover(hbtn, "Display Last Tutorial Message");
+    }
+
+}
 
 async function __loadModules(stage: Konva.Stage): Promise<DiagramGroup[]> {
     const cwd = await get_cwd();
@@ -207,6 +241,8 @@ export function init() {
     Poppy.init();
     window["Poppy"] = Poppy;
     Poppy.update();
+
+    setEditorContextButtons(domContainer);
 
     layer.add(baseGroup);
     stage.add(layer);

@@ -1,13 +1,15 @@
-import { ProjectInfo } from "../scripts/backendconnector";
+import { ProjectInfoEx } from "../scripts/backendconnector";
 
-export const TUTORIALS: ProjectInfo[] = [
+export const TUTORIALS: ProjectInfoEx[] = [
     {
         path: ".\\00",
-        projectName: "Hello World"
+        projectName: "01 - Hello World",
+        tutorialId: 0
     },
     {
         path: ".\\01",
-        projectName: "Variables"
+        projectName: "02 - Variables",
+        tutorialId: 1
     }
 ];
 

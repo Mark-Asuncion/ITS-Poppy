@@ -128,7 +128,7 @@ async function listContents(root: HTMLElement) {
                     continue;
                 }
             }
-            root.appendChild(createProjectInfoElement(project, true, i));
+            root.appendChild(createProjectInfoElement(project, true, project.tutorialId));
         }
     }
 }
