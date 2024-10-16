@@ -3,6 +3,7 @@ import { diagramToModules, init } from "./canvasinit";
 import { dialog_one_dir, get_cwd_name, set_cwd, write_diagrams_to_modules } from "./backendconnector";
 import { TerminalInstance } from "./terminal/instance";
 import { Poppy } from "../poppy/poppy";
+import { setHover } from "./canvas/utils";
 
 async function set_project_name(input_element: HTMLInputElement) {
     const isUntitled = input_element.value.toLowerCase() === "untitled project";
@@ -38,6 +39,7 @@ backBtn?.addEventListener("click", (e) => {
     window.open("../index.html", "_self");
 });
 
+setHover(playBtn, "Save and Run");
 playBtn?.addEventListener("click", async () => {
     await set_project_name(inpProjName);
     const contents = diagramToModules(canvasStage);
