@@ -10,6 +10,7 @@ import { Lint } from "./lint";
 import { BaseDiagram } from "./canvas/basediagram";
 import { Function } from "./canvas/blocks/function";
 import { notifyPush } from "./notify";
+import poppyHelpImg from "../assets/poppy-help.png";
 
 function setEditorContextButtons(container: HTMLDivElement) {
     const div = document.createElement("div");
@@ -17,7 +18,7 @@ function setEditorContextButtons(container: HTMLDivElement) {
     if (Poppy.tutorial !== null) {
         div.innerHTML = `
             <button id="poppy-help" class="bg-white br-none self-align-center" type="button">
-                <img class="aspect-ratio-1" src="./assets/poppy-help.png"></img>
+                <img class="aspect-ratio-1" src="${poppyHelpImg}"></img>
             </button>`;
     }
     div.innerHTML += `
