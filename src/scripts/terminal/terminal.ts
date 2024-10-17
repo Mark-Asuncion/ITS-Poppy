@@ -1,9 +1,11 @@
+import { setHover } from "../canvas/utils";
 import { TerminalInstance } from "./instance";
 const btns = document.querySelectorAll('[aria-role="term-button"]');
 const close = document.querySelector('[aria-role="term-close"]');
 const restart = document.querySelector('[aria-role="term-restart"]');
 
 btns.forEach(async (elem) => {
+    setHover(elem as HTMLElement, "Terminal");
     const tname = elem.getAttribute("aria-target");
     if (!tname) {
         return;

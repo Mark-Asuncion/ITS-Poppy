@@ -235,9 +235,9 @@ button:hover {
 
 .hover-item {
     padding: 0.5em;
-    background-color: white;
+    background-color: var(--background);
     color: black;
-    border: 1px solid lightgray;
+    /* border: 1px solid lightgray; */
     border-radius: 0.5em;
 
     position: absolute;

@@ -288,7 +288,8 @@ pub fn load_projects(app_handle: AppHandle) -> Result<Vec<ProjectInfo>, String> 
 
 #[tauri::command]
 pub fn new_project(name: String, path: String, app_handle: AppHandle) -> Result<(), String> {
-    let path_to_proj = PathBuf::from(path.clone());
+    let mut path_to_proj = PathBuf::from(path.clone());
+    path_to_proj.push(&name);
     if !path_to_proj.exists() {
         if let Err(e) = create_dir(&path_to_proj) {
             dbg!(&e);
@@ -308,7 +309,7 @@ pub fn new_project(name: String, path: String, app_handle: AppHandle) -> Result<
     }
 
     let mut appconfig = appconfig.unwrap();
-    appconfig.append_project(PathBuf::from(path));
+    appconfig.append_project(PathBuf::from(path_to_proj));
     if let Err(e) = appconfig.write(&app_handle.path_resolver()) {
         dbg!(&e);
         return Err(e.to_string());
