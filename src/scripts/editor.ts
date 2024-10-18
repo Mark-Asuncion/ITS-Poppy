@@ -3,7 +3,7 @@ import { diagramToModules, init } from "./canvasinit";
 import { dialog_one_dir, get_cwd_name, set_cwd, write_diagrams_to_modules } from "./backendconnector";
 import { TerminalInstance } from "./terminal/instance";
 import { Poppy } from "../poppy/poppy";
-import { setHover } from "./canvas/utils";
+import { setHover } from "./canvas/tooltip";
 
 async function set_project_name(input_element: HTMLInputElement) {
     const isUntitled = input_element.value.toLowerCase() === "untitled project";
@@ -38,6 +38,7 @@ backBtn?.addEventListener("click", (e) => {
     localStorage.setItem("info", "");
     window.open("../index.html", "_self");
 });
+setHover(backBtn, "Back");
 
 setHover(playBtn, "Save and Run");
 playBtn?.addEventListener("click", async () => {
@@ -91,7 +92,7 @@ document.addEventListener("mouseup", (e) => {
         if (container) {
             e.preventDefault();
             e.stopPropagation();
-            let type = container?.getAttribute("aria-diagram-type");
+            let type = container?.getAttribute("data-diagram-type");
             container?.remove();
 
             let pointer = window.mCvRootNode.node.getRelativePointerPosition();
@@ -138,7 +139,7 @@ document.body.addEventListener("mousemove", (e) => {
         else {
             e.preventDefault();
             e.stopPropagation();
-            let type = window.mDragDiv.getAttribute("aria-diagram-type");
+            let type = window.mDragDiv.getAttribute("data-diagram-type");
             
             if (type == null) {
                 return;
@@ -160,12 +161,12 @@ document.body.addEventListener("mousemove", (e) => {
             div.classList.add("drag-item-container");
             div.classList.add("d-flex");
             div.classList.add("diagram-title-container");
-            div.setAttribute("aria-diagram-type", realType);
+            div.setAttribute("data-diagram-type", realType);
 
             div.innerHTML = `<div class="diagram-emblem diagram-${type}"></div>`;
             div.innerHTML += `<p class="diagram-title">${name}</p>`;
 
-            console.log(div.innerHTML);
+            // console.log(div.innerHTML);
 
             div.style.left = `${e.x}px`;
             div.style.top = `${e.y}px`;

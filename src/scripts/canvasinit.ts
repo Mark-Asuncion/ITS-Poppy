@@ -4,13 +4,14 @@ import { Module, get_cwd, load_modules, write_diagrams_to_modules } from "./back
 import { DiagramGroup } from "./canvas/diagramgroup";
 import { contextMenuHide, contextMenuShow } from "./contextmenu/contextmenu";
 import { Shape, ShapeConfig } from "konva/lib/Shape";
-import { createDiagramFrom, getPlacementPos, isPointIntersectRect, setHover } from "./canvas/utils";
+import { createDiagramFrom, getPlacementPos, isPointIntersectRect } from "./canvas/utils";
 import { Poppy } from "../poppy/poppy";
 import { Lint } from "./lint";
 import { BaseDiagram } from "./canvas/basediagram";
 import { Function } from "./canvas/blocks/function";
 import { notifyPush } from "./notify";
 import poppyHelpImg from "../assets/poppy-help.png";
+import { setHover } from "./canvas/tooltip";
 
 function setEditorContextButtons(container: HTMLDivElement) {
     const div = document.createElement("div");
@@ -23,7 +24,7 @@ function setEditorContextButtons(container: HTMLDivElement) {
     }
     div.innerHTML += `
             <button id="editor-save" class="bg-white br-none self-align-center" type="button">
-                <i class="fa fa-save fa-xl aspect-ratio-1"></i>
+                <i class="fa fa-save aspect-ratio-1"></i>
             </button>`;
 
     container.appendChild(div);
@@ -34,7 +35,7 @@ function setEditorContextButtons(container: HTMLDivElement) {
         write_diagrams_to_modules(contents);
         notifyPush("Saving...");
     });
-    setHover(hbtn, "Save");
+    setHover(hbtn, "Save <code>ctrl + s</code>");
 
     if (Poppy.tutorial !== null) {
         hbtn = div.querySelector("#poppy-help")! as HTMLButtonElement;
@@ -59,19 +60,21 @@ async function __loadModules(stage: Konva.Stage): Promise<DiagramGroup[]> {
     modules.forEach((module) => {
         // console.log("__loadModules", module);
         const dg = DiagramGroup.deserialize(module);
-        if (module.position) {
-            dg.setPosition({
-                x: module.position[0],
-                y: module.position[1]
-            });
+        if (dg) {
+            if (module.position) {
+                dg.setPosition({
+                    x: module.position[0],
+                    y: module.position[1]
+                });
+            }
+            else {
+                dg.setPosition(pos);
+                console.log("placed in: ", pos);
+                pos.x += 100;
+                pos.y += 100;
+            }
+            list.push(dg);
         }
-        else {
-            dg.setPosition(pos);
-            console.log("placed in: ", pos);
-            pos.x += 100;
-            pos.y += 100;
-        }
-        list.push(dg);
     });
     return list;
 }

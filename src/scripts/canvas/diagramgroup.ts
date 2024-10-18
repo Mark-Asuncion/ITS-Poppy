@@ -286,10 +286,14 @@ export class DiagramGroup extends Konva.Group {
         return res;
     }
 
-    static deserialize(data: Module): DiagramGroup {
+    static deserialize(data: Module): DiagramGroup | null {
         const dg = new DiagramGroup({
             name: data.name
         });
+        if (data.content.length == 0) {
+            return null;
+        }
+
         let d = data.content
             .split('\r')
             .join()

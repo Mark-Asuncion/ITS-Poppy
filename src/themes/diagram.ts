@@ -86,6 +86,10 @@ export const SIDEBAR = {
         items: [
             "statement",
             "endblock",
+        ],
+        tooltip: [
+            "This is a statement diagram.",
+            "This is a endblock diagram. this is used to end a block",
         ]
     },
     Control: {
@@ -93,18 +97,31 @@ export const SIDEBAR = {
             "control-if",
             "control-elif",
             "control-else",
+        ],
+        tooltip: [
+            "This is a If diagram.",
+            "This is a Elif diagram.",
+            "This is a Else diagram.",
         ]
     },
     Loop: {
         items: [
             "loop-for",
             "loop-while",
+        ],
+        tooltip: [
+            "This is a For loop diagram.",
+            "This is a While loop diagram.",
         ]
     },
     Utilities: {
         items: [
             "function",
             "class"
+        ],
+        tooltip: [
+            "This is a Function diagram.",
+            "This is a Class diagram.",
         ]
     }
 }

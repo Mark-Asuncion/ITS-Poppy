@@ -59,7 +59,7 @@ export class Tutorial00 extends Tutorial {
                     message: `Let's try printing <span class="secondary">\"Hello, World!\"</span>. First, to create a line of code <span class="info">drag the diagram</span> I am pointing at into the editor view.`,
                     dialogType: DialogType.NEXT,
                     onDisplay: ( () => {
-                        const btn = document.querySelector("img[aria-diagram-type=\"statement\"]")! as HTMLElement;
+                        const btn = document.querySelector("img[data-diagram-type=\"statement\"]")! as HTMLElement;
                         console.log("onDisplay");
                         this.highlight(btn, () => {});
                         const rect = btn.getBoundingClientRect();
