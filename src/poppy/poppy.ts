@@ -7,6 +7,7 @@ import { Lint } from "../scripts/lint";
 import { Idle } from "./animation/idle";
 import { Walk } from "./animation/walk";
 import { Tutorial00 } from "./tutorials/tutorial00";
+import { isPointIntersectRect, clamp } from "../scripts/canvas/utils";
 
 // @ts-ignore
 export class Poppy {
@@ -25,6 +26,7 @@ export class Poppy {
     static targetPos: { x: number, y: number } | null = null;
     static moveSpeed = 5;
     static scale = 1.5;
+    static mouseIntersectElapsed = 0.0;
     // move dialog to top middle
     static focusedInDiagram = false;
 
@@ -51,7 +53,7 @@ export class Poppy {
             let offset = Poppy.getDialogOffset();
             let x = Poppy.pos.x + offset.x;
             if (offset.x < 0) {
-                x -= dialog.clientWidth - 50;
+                x = Poppy.pos.x - dialog.clientWidth - 20;
             }
             if (Poppy.focusedInDiagram) {
                 offset.y = -dialog.clientHeight - ( Poppy.frameSizeWxH / 2 );
@@ -167,6 +169,26 @@ export class Poppy {
         const elapsed = timestamp - Poppy.lastTimestamp;
         Poppy.lastTimestamp = timestamp;
 
+        const rect = {
+            ...Poppy.pos,
+            width: Poppy.frameSizeWxH * Poppy.scale,
+            height: Poppy.frameSizeWxH * Poppy.scale
+        };
+        if (window.mCursor && isPointIntersectRect(window.mCursor, rect)) {
+            Poppy.mouseIntersectElapsed += elapsed;
+            if (Poppy.mouseIntersectElapsed > 500) {
+                const offset = Poppy.getDialogOffset();
+                Poppy.targetPos = {
+                    x: Poppy.pos.x + offset.x,
+                    y: Poppy.pos.y + offset.y
+                };
+                Poppy.mouseIntersectElapsed = 0.0;
+            }
+        }
+        else {
+            Poppy.mouseIntersectElapsed = 0.0;
+        }
+
         switch (Poppy.state) {
             case PoppyState.IDLE:
                 if (!(Poppy.animator instanceof Idle)) {
@@ -174,6 +196,10 @@ export class Poppy {
                 }
                 if (Poppy.targetPos) {
                     Poppy.state = PoppyState.WALKING;
+                    // clamp targetPos
+                    const size = Poppy.frameSizeWxH * Poppy.scale;
+                    Poppy.targetPos.x = clamp(Poppy.targetPos.x, 0, window.innerWidth - size);
+                    Poppy.targetPos.y = clamp(Poppy.targetPos.y, 0, window.innerHeight - size);
                     break;
                 }
                 const containers = document.querySelectorAll(".dialog-container");
