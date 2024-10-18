@@ -17,6 +17,8 @@ export class Poppy {
     static onModifiedMutex = false;
     static qTimeout: null | NodeJS.Timeout = null
     static qDialog: PoppyDialog[] = [];
+    static swapDialog: PoppyDialog | null = null;
+    static currDialog: PoppyDialog | null = null;
 
     // Poppy related vars
     static source: HTMLElement;
@@ -50,17 +52,26 @@ export class Poppy {
     static setDialogPosition(source?: HTMLElement) {
         const dialog = (source)? source:document.querySelector(".dialog-container");
         if (dialog && dialog instanceof HTMLElement) {
+            dialog.classList.remove("bottom", "lower-left", "lower-right", "lower-top");
+
             let offset = Poppy.getDialogOffset();
             let x = Poppy.pos.x + offset.x;
-            if (offset.x < 0) {
-                x = Poppy.pos.x - dialog.clientWidth - 20;
-            }
             if (Poppy.focusedInDiagram) {
-                offset.y = -dialog.clientHeight - ( Poppy.frameSizeWxH / 2 );
+                offset.y = -dialog.clientHeight - ( Poppy.frameSizeWxH / 2 ) - 30;
                 x = ( Poppy.pos.x + Poppy.frameSizeWxH / 2 ) - dialog.clientWidth / 2;
+                dialog.classList.add("bottom");
             }
+            else if (offset.x < 0) {
+                x = Poppy.pos.x - dialog.clientWidth - 20;
+                dialog.classList.add("lower-right");
+            }
+            else {
+                dialog.classList.add("lower-left");
+            }
+
             dialog.style.left = `${x}px`;
-            dialog.style.top = `${Poppy.pos.y + offset.y}px`;
+            dialog.style.top = `${Poppy.pos.y + ((offset.y > 0)? -50:offset.y + 30)}px`;
+
             // console.log(dialog);
         }
     }
@@ -176,7 +187,7 @@ export class Poppy {
         };
         if (window.mCursor && isPointIntersectRect(window.mCursor, rect)) {
             Poppy.mouseIntersectElapsed += elapsed;
-            if (Poppy.mouseIntersectElapsed > 500) {
+            if (Poppy.mouseIntersectElapsed > 1000) {
                 const offset = Poppy.getDialogOffset();
                 Poppy.targetPos = {
                     x: Poppy.pos.x + offset.x,
@@ -188,6 +199,8 @@ export class Poppy {
         else {
             Poppy.mouseIntersectElapsed = 0.0;
         }
+
+        Poppy.setSwapDialog();
 
         switch (Poppy.state) {
             case PoppyState.IDLE:
@@ -263,9 +276,38 @@ export class Poppy {
         if (Poppy.qTimeout)
             clearTimeout(Poppy.qTimeout);
         Poppy.qTimeout = null;
+        Poppy.currDialog = null;
         containers.forEach((v) => {
             v.remove();
         });
+    }
+
+    static setSwapDialog() {
+        if (Poppy.swapDialog == undefined)
+            return;
+
+        if (Poppy.qDialog.length > 0 && Poppy.qDialog[0].hover)
+            Poppy.qDialog.splice(0,1);
+
+        if (Poppy.currDialog != undefined) {
+            if (Poppy.currDialog.message == Poppy.swapDialog.message) {
+                return;
+            }
+
+            switch(Poppy.currDialog.dialogType) {
+                case DialogType.NONE:
+                    if (Poppy.qTimeout) {
+                        clearTimeout(Poppy.qTimeout);
+                        Poppy.qTimeout = null;
+                    }
+                    break;
+                // case DialogType.NEXT:
+            }
+            Poppy.qDialogFirst(Poppy.currDialog);
+        }
+        Poppy.hide();
+        Poppy.display(Poppy.swapDialog);
+        Poppy.swapDialog = null;
     }
 
     static display(dialog: PoppyDialog) {
@@ -292,15 +334,16 @@ export class Poppy {
                 break;
             case DialogType.NEXT:
                 // console.log(this.tutorial?.cursor);
-                const btn = document.createElement("button");
-                btn.classList.add("dialog-button");
-                btn.innerText = "Next"
-                btn.addEventListener("click", () => {
+                const p = document.createElement("p");
+                p.classList.add("dialog-tocontinue");
+                p.innerHTML = `<small>Press to continue</small>`;
+                div.appendChild(p);
+                div.addEventListener("click", (e) => {
+                    e.preventDefault();
                     if (dialog.cb)
                         dialog.cb();
                     Poppy.update();
                 });
-                div.appendChild(btn);
                 break;
             default:
                 console.warn("SHOULD NOT HAPPEN");
@@ -309,6 +352,7 @@ export class Poppy {
         if (dialog.onDisplay)
             dialog.onDisplay()
         document.body.appendChild(div);
+        Poppy.currDialog = dialog;
         Poppy.setDialogPosition(div);
     }
 

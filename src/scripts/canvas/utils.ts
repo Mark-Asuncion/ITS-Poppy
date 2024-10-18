@@ -202,67 +202,6 @@ export function createDiagramFrom(type: string, line: string = ""): BaseDiagram 
     return  new Statement(line);
 }
 
-let gHoverTimerMap = new Map<HTMLElement, number | undefined>();
-window["gHoverTimerMap"] = gHoverTimerMap;
-
-export function setHover(
-    source: HTMLElement,
-    message: string,
-    timeout: number = 1000
-) {
-    let id = gHoverTimerMap.get(source);
-    if (id != undefined) {
-        clearTimeout(id);
-        gHoverTimerMap.delete(source);
-        return;
-    }
-
-    source.addEventListener("mouseenter", (e) => {
-        let id = setTimeout(() =>  {
-            const div = document.createElement("div");
-            div.classList.add("hover-item");
-            div.innerHTML = `<p style="margin: 0">${message}</p>`;
-
-            const center = {
-                x: window.innerWidth / 2,
-                y: window.innerHeight / 2
-            };
-
-            document.body.appendChild(div);
-
-            const pos = {
-                x: e.x,
-                y: e.y
-            };
-            const rect = div.getBoundingClientRect();
-            if (pos.x > center.x) {
-                pos.x -= rect.width;
-            }
-            if (pos.y > center.y) {
-                pos.y -= rect.height;
-            }
-
-            div.style.left = `${pos.x}px`;
-            div.style.top = `${pos.y}px`;
-        }, timeout);
-        gHoverTimerMap.set(source, id as unknown as number);
-    });
-
-    source.addEventListener("mouseleave", () => {
-        let id = gHoverTimerMap.get(source);
-        if (id != undefined) {
-            clearTimeout(id);
-            let items = document.querySelectorAll(".hover-item");
-            items.forEach((v) => {
-                v.remove();
-            });
-            gHoverTimerMap.set(source, undefined);
-            return;
-        }
-    })
-
-}
-
 export function clamp(val: number, min: number, max: number) {
     return Math.max(min, Math.min(val, max));
 }

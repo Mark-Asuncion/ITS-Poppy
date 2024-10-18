@@ -1,4 +1,4 @@
-import { setHover } from "../canvas/utils";
+import { setHover } from "../canvas/tooltip";
 import { TerminalInstance } from "./instance";
 const btns = document.querySelectorAll('[aria-role="term-button"]');
 const close = document.querySelector('[aria-role="term-close"]');

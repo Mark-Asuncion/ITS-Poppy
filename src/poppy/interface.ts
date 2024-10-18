@@ -14,7 +14,8 @@ export interface PoppyDialog {
     dialogType: DialogType,
     timeout?: number, // only used if type is NONE
     cb?: () => void,
-    onDisplay?: () => void
+    onDisplay?: () => void,
+    hover?: boolean
 }
 
 export class Tutorial {

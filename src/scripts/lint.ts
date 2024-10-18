@@ -2,7 +2,7 @@ import { DialogType } from "../poppy/interface";
 import { Poppy } from "../poppy/poppy";
 import { PoppyErrMessages } from "../themes/lint";
 import { LintInfo, lint } from "./backendconnector";
-import { setHover } from "./canvas/utils";
+import { setHover } from "./canvas/tooltip";
 import { notifyPush } from "./notify";
 
 // TODO
@@ -131,6 +131,7 @@ export class Lint {
                                 continue;
                             }
                             let node = dg.getNodeByLineN(message.linen);
+                            Lint.close();
                             node?.focus();
                             let absPos = node?.getAbsolutePosition();
                             if (absPos) {
@@ -146,8 +147,7 @@ export class Lint {
                                             Poppy.focusedInDiagram = false;
                                         }
                                     };
-                                    Poppy.qDialogFirst(dialog);
-                                    Lint.close();
+                                    Poppy.swapDialog = dialog;
                                 }
                             }
                             break;

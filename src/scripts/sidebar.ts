@@ -1,4 +1,10 @@
 import { SIDEBAR } from "../themes/diagram";
+import { setHover } from "./canvas/tooltip";
+import imgStatement from "../assets/blocks/Statement.png";
+import imgIf from "../assets/blocks/If.png";
+import imgElif from "../assets/blocks/Elif.png";
+import imgElse from "../assets/blocks/Else.png";
+import imgFor from "../assets/blocks/For.png";
 
 // const container = document.querySelector("#sidebar-container")! as HTMLDivElement;
 const sidebarBtn = document.querySelectorAll('[aria-role="sidebar-button"]');
@@ -14,6 +20,8 @@ sidebarBtn.forEach((elem) => {
     if (!(target && type)) {
         return;
     }
+
+    setHover(elem as HTMLElement, elem.getAttribute("aria-roledescription")!);
 
     elem.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -52,12 +60,45 @@ for (let i=0;i<keys.length;i++) {
     div.appendChild(emblemContainer);
 
     const items: string[] = SIDEBAR[key].items;
+    const tooltipMsg = SIDEBAR[key].tooltip;
     for (let j=0;j<items.length;j++) {
-        let img = `<img aria-diagram="true" aria-diagram-type="${items[j]}" class="draggable">`;
-        div.innerHTML += img;
+        // let dv = document.createElement("div");
+        let img = document.createElement("img");
+        img.id = `data-diagram-${items[j]}`;
+        img.setAttribute("data-diagram", "true");
+        img.setAttribute("data-diagram-type", items[j]);
+        img.classList.add("draggable");
+
+        switch (items[j]) {
+            case "control-if":
+                img.src = imgIf;
+                break;
+            case "control-elif":
+                img.src = imgElif;
+                break;
+            case "control-else":
+                img.src = imgElse;
+                break;
+            case "loop-while":
+            case "loop-for":
+                img.src = imgFor;
+                break;
+            case "endblock":
+                img.src = imgStatement;
+                break;
+            case "function":
+            default:
+                img.src = imgStatement;
+                break;
+        }
+
+        div.appendChild(img);
+
+        setHover(img, tooltipMsg[j], "poppy");
     }
 
     diagramView.appendChild(div);
-    diagramView.innerHTML += "<br><br>";
+    diagramView.appendChild(document.createElement("br"));
+    diagramView.appendChild(document.createElement("br"));
 }
 // ========================

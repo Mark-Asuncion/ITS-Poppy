@@ -83,7 +83,7 @@ input.canvas-edit, textarea.canvas-edit {
     margin-bottom: 1em;
 }
 
-img[aria-diagram="true"] {
+img[data-diagram="true"] {
     width: 100%;
     height: 95px;
     object-fit: contain;

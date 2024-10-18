@@ -24,6 +24,7 @@
 
 .character-loc-pin {
     position: absolute;
+    z-index: 98;
 }
 
 .highlighter {
