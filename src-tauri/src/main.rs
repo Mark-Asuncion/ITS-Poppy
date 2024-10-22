@@ -44,6 +44,7 @@ fn main() {
             config::open_project,
             config::del_project,
             config::load_open_project,
+            config::del_tutorial_progress,
             pty::spawn_term,
             pty::write_term,
             pty::read_term,

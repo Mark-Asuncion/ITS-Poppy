@@ -148,6 +148,16 @@ export async function load_open_project(path: string): Promise<boolean> {
     return false;
 }
 
+export async function reset_work_path() {
+    try {
+        await invoke("del_tutorial_progress");
+    }
+    catch (e) {
+        console.error(e);
+        createErrorModal(e as string);
+    }
+}
+
 export async function spawn_term(): Promise<boolean> {
     try {
         await invoke("spawn_term");

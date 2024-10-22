@@ -1,6 +1,6 @@
 // import { invoke } from "@tauri-apps/api/tauri";
 import { diagramToModules, init } from "./canvasinit";
-import { dialog_one_dir, get_cwd_name, set_cwd, write_diagrams_to_modules } from "./backendconnector";
+import { dialog_one_dir, get_cwd_name, reset_work_path, set_cwd, write_diagrams_to_modules } from "./backendconnector";
 import { TerminalInstance } from "./terminal/instance";
 import { Poppy } from "../poppy/poppy";
 import { setHover } from "./canvas/tooltip";
@@ -36,6 +36,7 @@ window["mSave"] = () => {
 backBtn?.addEventListener("click", (e) => {
     e.stopPropagation();
     localStorage.setItem("info", "");
+    reset_work_path();
     window.open("../index.html", "_self");
 });
 setHover(backBtn, "Back");

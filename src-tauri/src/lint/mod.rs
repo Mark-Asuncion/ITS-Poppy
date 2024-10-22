@@ -74,7 +74,7 @@ pub async fn lint(gs: State<'_, GlobalState>) -> Result<Vec<LintInfo>, String> {
     let curr_dir = env::current_dir();
     if let Err(e) = curr_dir {
         dbg!(&e);
-        return Err(format!("lint::lint_FAIL {}", e));
+        return Err(error::Error::LINT_COMMAND_FAIL.to_string());
     }
 
     let curr_dir = curr_dir.unwrap();
@@ -82,8 +82,8 @@ pub async fn lint(gs: State<'_, GlobalState>) -> Result<Vec<LintInfo>, String> {
     if work_path != curr_dir {
         if let Err(e) = env::set_current_dir(&work_path) {
             println!("lint::lint_FAIL");
-        dbg!(&e);
-        return Err(format!("lint::lint_FAIL {}", e));
+            dbg!(&e);
+            return Err(error::Error::LINT_COMMAND_FAIL.to_string());
         }
     }
 
@@ -93,7 +93,7 @@ pub async fn lint(gs: State<'_, GlobalState>) -> Result<Vec<LintInfo>, String> {
     if let Err(e) = fnames {
         println!("lint::lint_FAIL");
         dbg!(&e);
-        return Err(format!("lint::lint_FAIL {}", e));
+        return Ok(vec![]);
     }
     let fnames_str: Vec<String> = {
         let cwd = &work_path.to_string_lossy()
@@ -121,7 +121,7 @@ pub async fn lint(gs: State<'_, GlobalState>) -> Result<Vec<LintInfo>, String> {
 
     if let Err(e) = output {
         dbg!(&e);
-        return Err(format!("lint::lint_FAIL {}", e));
+        return Ok(vec![]);
     }
 
     let output = output.unwrap();
@@ -131,13 +131,13 @@ pub async fn lint(gs: State<'_, GlobalState>) -> Result<Vec<LintInfo>, String> {
 
     let stdout = output.stdout;
     if stdout.is_empty() || !output.stderr.is_empty()  {
-         return Err(error::Error::LINT_COMMAND_FAIL.to_string());
+        return Ok(vec![]);
     }
 
     let output = from_utf8(&stdout);
     if let Err(e) = output {
         dbg!(&e);
-        return Err(format!("lint::lint_FAIL {}", e));
+        return Ok(vec![]);
     }
     let output = output.unwrap();
 
