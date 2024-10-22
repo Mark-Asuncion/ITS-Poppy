@@ -24,7 +24,8 @@ export class Lint {
             Poppy.swapDialog = {
                 message: "There are pending error/s",
                 dialogType: DialogType.NONE,
-                timeout: 5000
+                timeout: 5000,
+                notif: true
             };
         }
 

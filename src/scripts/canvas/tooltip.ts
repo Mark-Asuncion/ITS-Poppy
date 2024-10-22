@@ -51,7 +51,7 @@ export function setHover(
                 Poppy.swapDialog = {
                     message: message,
                     dialogType: DialogType.NEXT,
-                    hover: true
+                    notif: true
                 }
             }
         }, timeout);

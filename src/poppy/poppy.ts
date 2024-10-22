@@ -19,6 +19,7 @@ export class Poppy {
     static qDialog: PoppyDialog[] = [];
     static swapDialog: PoppyDialog | null = null;
     static currDialog: PoppyDialog | null = null;
+    static notifDialogHitimer = 0.0;
 
     // Poppy related vars
     static source: HTMLElement;
@@ -200,6 +201,18 @@ export class Poppy {
             Poppy.mouseIntersectElapsed = 0.0;
         }
 
+        // Poppy Notif Highlight Timer
+        if (Poppy.currDialog && Poppy.currDialog.notif != undefined) {
+            Poppy.notifDialogHitimer += elapsed;
+            if (Poppy.notifDialogHitimer > 5000) {
+                const container = document.querySelector(".dialog-container.highlight")
+                if (container) {
+                    container.classList.remove("highlight");
+                }
+                Poppy.notifDialogHitimer = 0.0;
+            }
+        }
+
         Poppy.setSwapDialog();
 
         switch (Poppy.state) {
@@ -293,14 +306,10 @@ export class Poppy {
         if (Poppy.swapDialog == undefined)
             return;
 
-        if (Poppy.qDialog.length > 0 && Poppy.qDialog[0].hover)
+        if (Poppy.qDialog.length > 0 && Poppy.qDialog[0].notif)
             Poppy.qDialog.splice(0,1);
 
         if (Poppy.currDialog != undefined) {
-            if (Poppy.currDialog.message == Poppy.swapDialog.message) {
-                return;
-            }
-
             switch(Poppy.currDialog.dialogType) {
                 case DialogType.NONE:
                     if (Poppy.qTimeout) {
@@ -310,7 +319,8 @@ export class Poppy {
                     break;
                 // case DialogType.NEXT:
             }
-            Poppy.qDialogFirst(Poppy.currDialog);
+            if (Poppy.currDialog.notif == undefined)
+                Poppy.qDialogFirst(Poppy.currDialog);
         }
         Poppy.hide();
         Poppy.display(Poppy.swapDialog);
@@ -328,6 +338,9 @@ export class Poppy {
 
         div.classList.add("dialog-container");
         div.innerHTML = `<p> ${dialog.message} </p>`;
+        if (dialog.notif != undefined) {
+            div.classList.add("highlight");
+        }
 
         switch (dialog.dialogType) {
             case DialogType.NONE:
