@@ -245,15 +245,22 @@ export class Poppy {
                 if (!isLeft) {
                     ( Poppy.animator as Walk ).direction = 1;
                 }
-                let velo = {
-                    x: (isLeft)? -Poppy.moveSpeed:Poppy.moveSpeed,
-                    y: (isTop)? -Poppy.moveSpeed:Poppy.moveSpeed
+                let direction = {
+                    x: (isLeft)? -1:1,
+                    y: (isTop)? -1:1
                 };
-                velo.x = Math.min(velo.x, distance.x);
-                velo.y = Math.min(velo.y, distance.y);
+                // normalize direction
+                let magnitude = Math.sqrt(Math.pow(direction.x, 2) + Math.pow(direction.y,2));
+                direction.x = direction.x / magnitude;
+                direction.y = direction.y / magnitude;
+
+                let moveSpeed = {
+                    x: Math.min(Poppy.moveSpeed, distance.x),
+                    y: Math.min(Poppy.moveSpeed, distance.y)
+                };
                 Poppy.moveCharacter({
-                    x: Poppy.pos.x + velo.x,
-                    y: Poppy.pos.y + velo.y
+                    x: Poppy.pos.x + moveSpeed.x * direction.x,
+                    y: Poppy.pos.y + moveSpeed.y * direction.y
                 });
                 break;
             default:
