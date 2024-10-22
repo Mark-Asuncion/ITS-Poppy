@@ -205,6 +205,18 @@ export function init() {
         }
         dgGroup.refresh();
         bg.add(dgGroup);
+        let children = bg.getDiagramGroups();
+        for (let i=0;i<children.length;i++) {
+            if (children[i] === dgGroup) {
+                continue;
+            }
+            const child = children[i];
+            const attachedTo = dgGroup.canAttachTo(child);
+            if (attachedTo) {
+                dgGroup.attach(attachedTo);
+                break;
+            }
+        }
     }) as EventListener);
 
     window["addFn"] = () => {

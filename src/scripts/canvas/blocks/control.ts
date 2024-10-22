@@ -16,7 +16,7 @@ export class If extends BaseDiagram {
         this.components.push(new Text({
             text: "if",
             fill: "#ffffff",
-            fontSize: Theme.Text.fontSize + 6,
+            fontSize: Theme.Text.fontSize,
         }));
         this.components.push(new TextBox({
             text: content,
@@ -28,7 +28,7 @@ export class If extends BaseDiagram {
         this.components.push(new Text({
             text: ":",
             fill: "#ffffff",
-            fontSize: Theme.Text.fontSize + 6,
+            fontSize: Theme.Text.fontSize,
         }))
         this.setInitialPos();
 
@@ -111,7 +111,7 @@ export class Elif extends BaseDiagram {
         this.components.push(new Text({
             text: "elif",
             fill: "#ffffff",
-            fontSize: Theme.Text.fontSize + 6,
+            fontSize: Theme.Text.fontSize,
         }));
 
         this.components.push(new TextBox({
@@ -124,7 +124,7 @@ export class Elif extends BaseDiagram {
             ...pos,
             text: ":",
             fill: "#ffffff",
-            fontSize: Theme.Text.fontSize + 6,
+            fontSize: Theme.Text.fontSize,
         }));
         this.setInitialPos();
 
@@ -200,7 +200,7 @@ export class Else extends BaseDiagram {
             y: this.height() / 2,
             text: "else:",
             fill: "#ffffff",
-            fontSize: Theme.Text.fontSize + 6,
+            fontSize: Theme.Text.fontSize,
         }));
         this.components[0].y(this.components[0].y() - this.components[0].height() / 2);
 

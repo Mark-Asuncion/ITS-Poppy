@@ -16,7 +16,7 @@ export class Class extends BaseDiagram {
         this.components.push(new Text({
             text: "class",
             fill: "#ffffff",
-            fontSize: Theme.Text.fontSize + 6,
+            fontSize: Theme.Text.fontSize,
         }))
 
         this.components.push(new TextBox({
@@ -29,7 +29,7 @@ export class Class extends BaseDiagram {
         this.components.push(new Text({
             text: ":",
             fill: "#ffffff",
-            fontSize: Theme.Text.fontSize + 6,
+            fontSize: Theme.Text.fontSize,
         }))
 
         this.setInitialPos();

@@ -26,13 +26,13 @@ export class Function extends BaseDiagram {
         this.components.push(new Text({
             text: "(",
             fill: "#ffffff",
-            fontSize: Theme.Text.fontSize + 6,
+            fontSize: Theme.Text.fontSize,
         }))
 
         let commaOpt = {
             text: ",",
             fill: "#ffffff",
-            fontSize: Theme.Text.fontSize + 6
+            fontSize: Theme.Text.fontSize
         };
 
         let splitParams = this.argSplit(param);
@@ -55,7 +55,7 @@ export class Function extends BaseDiagram {
         this.components.push(new Text({
             text: ")",
             fill: "#ffffff",
-            fontSize: Theme.Text.fontSize + 6,
+            fontSize: Theme.Text.fontSize,
         }))
 
         this.setInitialPos();
@@ -116,7 +116,7 @@ export class Function extends BaseDiagram {
                 new Text({
                     text: ",",
                     fill: "#ffffff",
-                    fontSize: Theme.Text.fontSize + 6,
+                    fontSize: Theme.Text.fontSize,
                 }),
                 new TextBox({
                     text: "",
