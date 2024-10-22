@@ -162,8 +162,9 @@ export function init() {
         }
         const bg = stage.children[0].children[0] as BaseGroup;
         let pos = getPlacementPos(stage);
-        if (e.detail.pos) {
-            pos = e.detail.pos;
+        let relPointer = window.mCvRootNode.node.getRelativePointerPosition();
+        if (relPointer != null) {
+            pos = relPointer;
         }
 
         const dgGroup = new DiagramGroup(pos);

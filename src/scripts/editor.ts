@@ -105,7 +105,7 @@ document.addEventListener("mouseup", (e) => {
             if (type)
             document.dispatchEvent(new CustomEvent("diagramdrop", {
                 bubbles: true,
-                detail: { type: type, pos: pointer },
+                detail: { type: type },
             }));
         }
         else if (window.mDragDiv === Poppy.source) {
