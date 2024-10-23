@@ -25,7 +25,7 @@ export class For extends BaseDiagram {
         this.components.push(new Text({
             text: "for",
             fill: "#ffffff",
-            fontSize: Theme.Text.fontSize,
+            ...Theme.Text
         }));
         this.components.push(
             new TextBox({
@@ -38,7 +38,7 @@ export class For extends BaseDiagram {
         this.components.push(new Text({
             text: "in",
             fill: "#ffffff",
-            fontSize: Theme.Text.fontSize,
+            ...Theme.Text
         }));
 
         this.components.push(
@@ -53,7 +53,7 @@ export class For extends BaseDiagram {
         this.components.push(new Text({
             text: ":",
             fill: "#ffffff",
-            fontSize: Theme.Text.fontSize,
+            ...Theme.Text
         }));
 
         this.setInitialPos();

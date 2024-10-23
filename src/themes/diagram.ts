@@ -72,6 +72,7 @@ export const Theme = {
     },
     Text: {
         fontSize: 20,
+        fontFamily: "Courier New"
     },
     Button: {
         fill: "#6F6F6F",

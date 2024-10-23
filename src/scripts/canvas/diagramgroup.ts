@@ -394,4 +394,23 @@ export class DiagramGroup extends Konva.Group {
         }
         return null;
     }
+
+    highlightRemove() {
+        let rect = this.getChildren((item) => item.name() == "highlight");
+        rect.forEach((r) => {
+            r.remove();
+            r.destroy();
+        });
+    }
+
+    highlight(opt: {x:number,y:number,width:number,height:number}) {
+        let rect = new Konva.Rect({
+            name: "highlight",
+            ...opt,
+            stroke: "red",
+            strokeWidth: 2,
+            fillEnabled: false
+        });
+        this.add(rect);
+    }
 }

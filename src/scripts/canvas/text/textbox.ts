@@ -32,10 +32,12 @@ export class TextBox extends BaseText {
         this.minWidth = this.width();
         this.height(this.text.height());
 
-        this.setSize({
-            width: this.text.width(),
-            height: this.text.height() + this.text.padding(),
-        });
+        // this.setSize({
+        //     width: this.text.width(),
+        //     height: this.text.height() + this.text.padding(),
+        // });
+
+        this.adjustWidth(this.text.text());
 
         this.registerEvents();
         this.add(this.text);
@@ -115,6 +117,7 @@ export class TextBox extends BaseText {
         div.style.visibility = "none";
         div.style.float = "left";
         div.style.fontSize = `${this.text.fontSize()}px`;
+        div.style.fontFamily = this.text.fontFamily();
         document.body.appendChild(div);
         const max = this.minWidth;
         const tWidth = Math.max(max,

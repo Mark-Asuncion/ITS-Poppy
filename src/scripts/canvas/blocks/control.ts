@@ -16,7 +16,7 @@ export class If extends BaseDiagram {
         this.components.push(new Text({
             text: "if",
             fill: "#ffffff",
-            fontSize: Theme.Text.fontSize,
+            ...Theme.Text
         }));
         this.components.push(new TextBox({
             text: content,
@@ -28,7 +28,7 @@ export class If extends BaseDiagram {
         this.components.push(new Text({
             text: ":",
             fill: "#ffffff",
-            fontSize: Theme.Text.fontSize,
+            ...Theme.Text
         }))
         this.setInitialPos();
 

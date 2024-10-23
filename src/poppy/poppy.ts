@@ -20,6 +20,7 @@ export class Poppy {
     static swapDialog: PoppyDialog | null = null;
     static currDialog: PoppyDialog | null = null;
     static notifDialogHitimer = 0.0;
+    static frameListener: ((elapsed: number) => void) | null = null;
 
     // Poppy related vars
     static source: HTMLElement;
@@ -200,6 +201,9 @@ export class Poppy {
         else {
             Poppy.mouseIntersectElapsed = 0.0;
         }
+
+        if (Poppy.frameListener != null)
+            Poppy.frameListener(elapsed);
 
         // Poppy Notif Highlight Timer
         if (Poppy.currDialog && Poppy.currDialog.notif != undefined) {
@@ -383,7 +387,7 @@ export class Poppy {
         }
     }
 
-    static addOnModified(modules: Module[], onSuccess: () => void, onFail: () => void) {
+    static addOnModified(modules: Module[], onSuccess: () => void, onFail?: () => void) {
         Poppy.onModifiedCB = (contents) => {
             let map = new Map<string, string[]>();
             for (let i=0;i<contents.length;i++) {
@@ -416,7 +420,8 @@ export class Poppy {
                 Poppy.onModifiedCB = null;
             }
             else {
-                onFail();
+                if (onFail)
+                    onFail();
             }
         };
     }
