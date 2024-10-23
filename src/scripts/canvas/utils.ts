@@ -117,7 +117,7 @@ export function findNodeType(line: string) {
         return "while";
     }
 
-    let functionMatch = lineTrim.match(/.*\(.*\)/);
+    let functionMatch = lineTrim.match(/^[a-zA-Z_]\w*\(.*\)/);
     if (functionMatch && functionMatch.length > 0) {
         return "function";
     }

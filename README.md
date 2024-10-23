@@ -1,5 +1,6 @@
 # Requirements
-- [Rust](https://www.rust-lang.org/tools/install)
+- [Rust](https://www.rust-lang.org/tools/install) v1.76
+    - run ```rustup default 1.76``` to change version
 - [Nodejs](https://nodejs.org/en) v20.10.0LTS or higher
 - Python 3.1 or higher
 - [Visual Studio 2022 Community](https://visualstudio.microsoft.com/downloads/) and install <br>
@@ -8,7 +9,7 @@
 - before coding install dependencies with
 ```
 npm install
-cargo install tauri-cli
+cargo install tauri-cli --version 1.5.10 --locked
 ```
 # Building and Debugging
 ## Build debug
