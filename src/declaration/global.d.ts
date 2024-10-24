@@ -13,6 +13,7 @@ declare global {
             getDiagramGroups: () => DiagramGroup[]
         };
         mCvStage: Stage;
+        mFocusDiagram: boolean;
 
         mContextMenu: _ContextMenuItem[];
         mCursor: {

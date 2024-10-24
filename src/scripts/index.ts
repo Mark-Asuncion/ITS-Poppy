@@ -1,6 +1,7 @@
 import { TUTORIALS } from "../themes/tutorials";
 import { ProjectInfo, load_projects, dialog_one_dir, new_project, load_open_project, del_project } from "./backendconnector";
 import { getVersion } from '@tauri-apps/api/app';
+import { notifyPush } from "./notify";
 
 const contentsContainer = document.querySelector("#projects-list")! as HTMLDivElement;
 
@@ -168,6 +169,10 @@ function registerNewProjectDialogEvents(modal: HTMLElement) {
 
     createBtn.addEventListener("click", (e) => {
         e.stopPropagation();
+        if (name.value.length == 0 || folderInp.value.length == 0) {
+            notifyPush("Input cannot be empty", "warn");
+            return;
+        }
         new_project(name.value, folderInp.value);
         contentsContainer.innerHTML = "";
         listContents(contentsContainer);

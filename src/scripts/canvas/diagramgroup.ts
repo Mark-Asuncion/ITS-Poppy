@@ -31,7 +31,8 @@ export class DiagramGroup extends Konva.Group {
             x: 0,
             fontSize: Theme.Text.fontSize,
             padding: Theme.TextBox.padding,
-            noBG: true
+            noBG: true,
+            autoFill: false
         });
 
 
@@ -106,6 +107,7 @@ export class DiagramGroup extends Konva.Group {
                 this.setModuleName(e.value.trim());
                 this._moduleName.text!.text(this.name());
                 this._moduleName.adjustWidth(this.name());
+                this._moduleName.setColors(this.name());
                 console.log(`${this.name()} ${this._moduleName.text!.text()}`);
             }
         });
@@ -393,5 +395,24 @@ export class DiagramGroup extends Konva.Group {
             }
         }
         return null;
+    }
+
+    highlightRemove() {
+        let rect = this.getChildren((item) => item.name() == "highlight");
+        rect.forEach((r) => {
+            r.remove();
+            r.destroy();
+        });
+    }
+
+    highlight(opt: {x:number,y:number,width:number,height:number}) {
+        let rect = new Konva.Rect({
+            name: "highlight",
+            ...opt,
+            stroke: "red",
+            strokeWidth: 2,
+            fillEnabled: false
+        });
+        this.add(rect);
     }
 }

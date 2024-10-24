@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/tauri";
 import { open } from '@tauri-apps/api/dialog';
 import { createErrorModal } from "./error";
+import { Lint } from "./lint";
 
 export interface Module {
     name: string,
@@ -27,6 +28,14 @@ export interface LintItem {
 export interface LintInfo {
     moduleName: string,
     messages: LintItem[]
+}
+
+export interface LineCodeTokens {
+    tokenType: string,
+    value: string,
+    index: number,
+    len: number,
+    keyword: boolean
 }
 
 // export function write_with_temp_to(path: string, content: String) {
@@ -73,6 +82,7 @@ export async function write_diagrams_to_modules(arrContents: Array<Module>) {
         await invoke("write_diagrams_to_modules", {
             modules: asStr
         });
+        Lint.lint();
     }
     catch (e) {
         console.error(e);
@@ -148,6 +158,16 @@ export async function load_open_project(path: string): Promise<boolean> {
     return false;
 }
 
+export async function reset_work_path() {
+    try {
+        await invoke("del_tutorial_progress");
+    }
+    catch (e) {
+        console.error(e);
+        createErrorModal(e as string);
+    }
+}
+
 export async function spawn_term(): Promise<boolean> {
     try {
         await invoke("spawn_term");
@@ -204,7 +224,6 @@ export async function restart_term(): Promise<void | string> {
     }
 }
 
-
 export async function lint(): Promise<LintInfo[] | string> {
     try {
         return await invoke("lint");
@@ -214,4 +233,15 @@ export async function lint(): Promise<LintInfo[] | string> {
         createErrorModal(JSON.stringify(e));
         return e as string;
     }
+}
+
+export async function analyze_line(line: string): Promise<LineCodeTokens[]> {
+    try {
+        return await invoke("analyze_line", { line });
+    }
+    catch (e) {
+        console.error(e);
+        createErrorModal(JSON.stringify(e));
+    }
+    return [];
 }

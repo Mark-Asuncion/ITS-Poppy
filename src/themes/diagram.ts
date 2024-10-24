@@ -66,12 +66,15 @@ export const Theme = {
     TextBox: {
         padding: 5,
         wrap: "none",
-        fill: "#FFFFFF",
+        fill: "#ffffff",
         stroke: "#6F6F6F",
         cornerRadius: 3
     },
     Text: {
         fontSize: 20,
+        fontFamily: "Courier New",
+        fontStyle: "bold",
+        padding: 5
     },
     Button: {
         fill: "#6F6F6F",
@@ -125,3 +128,11 @@ export const SIDEBAR = {
         ]
     }
 }
+
+export const SyntaxColors = {
+    STRING    : "#11A960",
+    NUMBER    : "#9db815",
+    NAME      : "#E31C17",
+    KEYWORD   : "#0B80F4",
+    OTHER     : "#393d41"
+};

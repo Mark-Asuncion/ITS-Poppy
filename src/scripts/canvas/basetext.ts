@@ -5,7 +5,8 @@ import { Group } from "konva/lib/Group";
 import { KonvaEventObject } from "konva/lib/Node";
 
 export interface BaseTextConfig extends TextConfig {
-    noBG?: boolean;
+    noBG?: boolean,
+    autoFill?: boolean
 }
 
 export interface TextChangedEvent extends KonvaEventObject<any> {
@@ -23,6 +24,7 @@ export class BaseText extends Group {
     bg: Rect;
     isEditing = false;
     input: HTMLTextAreaElement | null = null;
+    autoFill = true;
     constructor(textConfig: BaseTextConfig) {
         const noBG = textConfig.noBG;
         delete textConfig.noBG;
@@ -92,4 +94,5 @@ export class BaseText extends Group {
     }
 
     adjustWidth(v: string) { return v.length; }
+    setColors() { }
 }

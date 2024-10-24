@@ -17,6 +17,7 @@ pub fn open_write(path: &Path) -> io::Result<File> {
         .open(path)
 }
 
+#[allow(dead_code)]
 pub fn open_append(path: &Path) -> io::Result<File> {
     File::options()
         .create(true)

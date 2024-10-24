@@ -1,7 +1,8 @@
-use tauri::State;
+use tauri::{ State, AppHandle };
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 use std::fs::{read_dir, ReadDir};
+use std::path::PathBuf;
 use std::process::Command;
 use std::env;
 use std::io;
@@ -18,6 +19,16 @@ pub struct LintItem {
     pub message: String,
     pub errorCode: String,
     pub errorTypeName: String
+}
+
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+#[allow(non_snake_case)]
+pub struct LineCodeTokens {
+    pub tokenType: String,
+    pub value: String,
+    pub index: u16,
+    pub len: u16,
+    pub keyword: bool
 }
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
@@ -74,7 +85,7 @@ pub async fn lint(gs: State<'_, GlobalState>) -> Result<Vec<LintInfo>, String> {
     let curr_dir = env::current_dir();
     if let Err(e) = curr_dir {
         dbg!(&e);
-        return Err(format!("lint::lint_FAIL {}", e));
+        return Err(error::Error::LINT_COMMAND_FAIL.to_string());
     }
 
     let curr_dir = curr_dir.unwrap();
@@ -82,8 +93,8 @@ pub async fn lint(gs: State<'_, GlobalState>) -> Result<Vec<LintInfo>, String> {
     if work_path != curr_dir {
         if let Err(e) = env::set_current_dir(&work_path) {
             println!("lint::lint_FAIL");
-        dbg!(&e);
-        return Err(format!("lint::lint_FAIL {}", e));
+            dbg!(&e);
+            return Err(error::Error::LINT_COMMAND_FAIL.to_string());
         }
     }
 
@@ -93,7 +104,7 @@ pub async fn lint(gs: State<'_, GlobalState>) -> Result<Vec<LintInfo>, String> {
     if let Err(e) = fnames {
         println!("lint::lint_FAIL");
         dbg!(&e);
-        return Err(format!("lint::lint_FAIL {}", e));
+        return Ok(vec![]);
     }
     let fnames_str: Vec<String> = {
         let cwd = &work_path.to_string_lossy()
@@ -121,23 +132,20 @@ pub async fn lint(gs: State<'_, GlobalState>) -> Result<Vec<LintInfo>, String> {
 
     if let Err(e) = output {
         dbg!(&e);
-        return Err(format!("lint::lint_FAIL {}", e));
+        return Ok(vec![]);
     }
 
     let output = output.unwrap();
-    // if !output.status.success() {
-    //     return Err(error::Error::LINT_COMMAND_FAIL.to_string());
-    // }
 
     let stdout = output.stdout;
     if stdout.is_empty() || !output.stderr.is_empty()  {
-         return Err(error::Error::LINT_COMMAND_FAIL.to_string());
+        return Ok(vec![]);
     }
 
     let output = from_utf8(&stdout);
     if let Err(e) = output {
         dbg!(&e);
-        return Err(format!("lint::lint_FAIL {}", e));
+        return Ok(vec![]);
     }
     let output = output.unwrap();
 
@@ -217,4 +225,51 @@ pub async fn lint(gs: State<'_, GlobalState>) -> Result<Vec<LintInfo>, String> {
     let out = out.values().cloned().collect();
     // dbg!(&out);
     Ok(out)
+}
+
+#[tauri::command]
+pub fn analyze_line(line: String, app_handle: AppHandle) -> Result<Vec<LineCodeTokens>, String> {
+    let resource_path = app_handle.path_resolver()
+        .resolve_resource("bundle/syntaxanalyze.py")
+        .unwrap_or_default();
+
+    if resource_path == PathBuf::new() {
+        println!("Err::Resource Path to syntaxanalyze.py not found");
+        return Ok(vec![]);
+    }
+
+    let rs_path_str = resource_path.to_string_lossy()
+        .to_string();
+    let output = Command::new("python")
+        .args(&[&rs_path_str, &line])
+        .output();
+
+    if let Err(e) = output {
+        dbg!(&e);
+        return Ok(vec![]);
+    }
+
+    let output = output.unwrap();
+
+    let stdout = output.stdout;
+    if stdout.is_empty() || !output.stderr.is_empty()  {
+        return Ok(vec![]);
+    }
+
+    let output = from_utf8(&stdout);
+    if let Err(e) = output {
+        dbg!(&e);
+        return Ok(vec![]);
+    }
+
+    let output = output.unwrap()
+        .trim();
+
+    let out: Result<Vec<LineCodeTokens>, serde_json::error::Error> = serde_json::from_str(output);
+    if let Err(e) = out {
+        dbg!(&e);
+        return Ok(vec![]);
+    }
+
+    Ok(out.unwrap())
 }

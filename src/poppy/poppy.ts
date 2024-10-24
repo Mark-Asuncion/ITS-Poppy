@@ -19,6 +19,8 @@ export class Poppy {
     static qDialog: PoppyDialog[] = [];
     static swapDialog: PoppyDialog | null = null;
     static currDialog: PoppyDialog | null = null;
+    static notifDialogHitimer = 0.0;
+    static frameListener: ((elapsed: number) => void) | null = null;
 
     // Poppy related vars
     static source: HTMLElement;
@@ -200,6 +202,21 @@ export class Poppy {
             Poppy.mouseIntersectElapsed = 0.0;
         }
 
+        if (Poppy.frameListener != null)
+            Poppy.frameListener(elapsed);
+
+        // Poppy Notif Highlight Timer
+        if (Poppy.currDialog && Poppy.currDialog.notif != undefined) {
+            Poppy.notifDialogHitimer += elapsed;
+            if (Poppy.notifDialogHitimer > 5000) {
+                const container = document.querySelector(".dialog-container.highlight")
+                if (container) {
+                    container.classList.remove("highlight");
+                }
+                Poppy.notifDialogHitimer = 0.0;
+            }
+        }
+
         Poppy.setSwapDialog();
 
         switch (Poppy.state) {
@@ -245,15 +262,22 @@ export class Poppy {
                 if (!isLeft) {
                     ( Poppy.animator as Walk ).direction = 1;
                 }
-                let velo = {
-                    x: (isLeft)? -Poppy.moveSpeed:Poppy.moveSpeed,
-                    y: (isTop)? -Poppy.moveSpeed:Poppy.moveSpeed
+                let direction = {
+                    x: (isLeft)? -1:1,
+                    y: (isTop)? -1:1
                 };
-                velo.x = Math.min(velo.x, distance.x);
-                velo.y = Math.min(velo.y, distance.y);
+                // normalize direction
+                let magnitude = Math.sqrt(Math.pow(direction.x, 2) + Math.pow(direction.y,2));
+                direction.x = direction.x / magnitude;
+                direction.y = direction.y / magnitude;
+
+                let moveSpeed = {
+                    x: Math.min(Poppy.moveSpeed, distance.x),
+                    y: Math.min(Poppy.moveSpeed, distance.y)
+                };
                 Poppy.moveCharacter({
-                    x: Poppy.pos.x + velo.x,
-                    y: Poppy.pos.y + velo.y
+                    x: Poppy.pos.x + moveSpeed.x * direction.x,
+                    y: Poppy.pos.y + moveSpeed.y * direction.y
                 });
                 break;
             default:
@@ -286,14 +310,10 @@ export class Poppy {
         if (Poppy.swapDialog == undefined)
             return;
 
-        if (Poppy.qDialog.length > 0 && Poppy.qDialog[0].hover)
+        if (Poppy.qDialog.length > 0 && Poppy.qDialog[0].notif)
             Poppy.qDialog.splice(0,1);
 
         if (Poppy.currDialog != undefined) {
-            if (Poppy.currDialog.message == Poppy.swapDialog.message) {
-                return;
-            }
-
             switch(Poppy.currDialog.dialogType) {
                 case DialogType.NONE:
                     if (Poppy.qTimeout) {
@@ -303,7 +323,8 @@ export class Poppy {
                     break;
                 // case DialogType.NEXT:
             }
-            Poppy.qDialogFirst(Poppy.currDialog);
+            if (Poppy.currDialog.notif == undefined)
+                Poppy.qDialogFirst(Poppy.currDialog);
         }
         Poppy.hide();
         Poppy.display(Poppy.swapDialog);
@@ -321,6 +342,9 @@ export class Poppy {
 
         div.classList.add("dialog-container");
         div.innerHTML = `<p> ${dialog.message} </p>`;
+        if (dialog.notif != undefined) {
+            div.classList.add("highlight");
+        }
 
         switch (dialog.dialogType) {
             case DialogType.NONE:
@@ -363,7 +387,7 @@ export class Poppy {
         }
     }
 
-    static addOnModified(modules: Module[], onSuccess: () => void, onFail: () => void) {
+    static addOnModified(modules: Module[], onSuccess: () => void, onFail?: () => void) {
         Poppy.onModifiedCB = (contents) => {
             let map = new Map<string, string[]>();
             for (let i=0;i<contents.length;i++) {
@@ -396,7 +420,8 @@ export class Poppy {
                 Poppy.onModifiedCB = null;
             }
             else {
-                onFail();
+                if (onFail)
+                    onFail();
             }
         };
     }

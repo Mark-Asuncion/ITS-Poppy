@@ -29,7 +29,7 @@ export class Tutorial00 extends Tutorial {
             }
             case 2: {
                 Poppy.display({
-                    message: `Click the <span class="accent">highlighted</span> button to display this list of available diagrams`,
+                    message: `Click the <span class="accent">highlighted</span> button to display the list of available diagrams`,
                     dialogType: DialogType.NONE,
                     onDisplay: ( () => {
                         const btn = document.querySelector("#btn-diagram-view")! as HTMLElement;
@@ -61,10 +61,10 @@ export class Tutorial00 extends Tutorial {
                     onDisplay: ( () => {
                         const btn = document.querySelector("img[data-diagram-type=\"statement\"]")! as HTMLElement;
                         console.log("onDisplay");
-                        this.highlight(btn, () => {});
+                        this.highlight(btn, () => {}, true);
                         const rect = btn.getBoundingClientRect();
                         Poppy.targetPos = {
-                            x: rect.x - Poppy.frameSizeWxH,
+                            x: rect.x + rect.width,
                             y: rect.y + 30
                         };
                     } ).bind(this),
@@ -75,7 +75,16 @@ export class Tutorial00 extends Tutorial {
                 });
                break;
             }
-            case 5: {
+            case 5:
+                Poppy.display({
+                    message: `This is called a <span class="accent">Statement Diagram</span>. Just like its name it represents a statement or a line of code. A statement diagram can changed its form depending on the statement`,
+                    dialogType: DialogType.NEXT,
+                    cb: (() => {
+                        this.cursor = 6;
+                    }).bind(this)
+                });
+                break;
+            case 6: {
                 Poppy.display({
                     message: `To print a message in python we use the 'print' built-in function. Try typing <span class="accent">print</span>(<span class="secondary">\"Hello, World!\"</span>) into the Diagram`,
                     dialogType: DialogType.NONE,
@@ -89,16 +98,25 @@ export class Tutorial00 extends Tutorial {
                         name: "main",
                         content: "print(\"Hello, World!\")\n"
                     }
-                ], ( () => this.cursor=6 ).bind(this), (() => this.cursor=-1).bind(this));
+                ], ( () => this.cursor=7 ).bind(this), (() => this.cursor=-1).bind(this));
                 break;
             }
-            case 6:
+            case 7:
+                Poppy.display({
+                    message: `The diagram changed its look. This is called a <span class="accent">function diagram</span>.`,
+                    dialogType: DialogType.NEXT,
+                    cb: (() => {
+                        this.cursor = 8;
+                    }).bind(this)
+                });
+                break;
+            case 8:
                 Poppy.display({
                     message: "Good job! Now let's try running the program to see if its right. Do you see the green <span class=\"secondary\">play</span> button at the top-right corner. Click that button to run the program",
                     dialogType: DialogType.NONE,
                     onDisplay: ( () => {
                         const btn = document.querySelector("#play-btn")! as HTMLElement;
-                        this.highlight(btn, (() => this.cursor=7).bind(this));
+                        this.highlight(btn, (() => this.cursor=9).bind(this));
                         const rect = btn.getBoundingClientRect();
                         Poppy.targetPos = {
                             x: rect.x - Poppy.frameSizeWxH,
@@ -107,25 +125,25 @@ export class Tutorial00 extends Tutorial {
                     } ).bind(this),
                 });
                 break;
-            case 7:
+            case 9:
                 Poppy.display({
                     message: "A black panel full of text has been opened. This is called a Terminal. In here you will see the output of your program.",
                     dialogType: DialogType.NEXT,
                     cb: (() => {
-                        this.cursor=8;
+                        this.cursor=10;
                     }).bind(this)
                 });
                 break;
-            case 8:
+            case 10:
                 Poppy.display({
                     message: "By the way the Terminal here is not perfect, it is recommended to use your system terminal for advanced programs",
                     dialogType: DialogType.NEXT,
                     cb: (() => {
-                        this.cursor=9;
+                        this.cursor=11;
                     }).bind(this)
                 });
                 break;
-            case 9:
+            case 11:
                 Poppy.display({
                     message: "Great Job! You just made your first Python program. Let's keep this going. You can go back by click the left arrow button at the top left to go back.",
                     onDisplay: ( () => {
@@ -145,7 +163,7 @@ export class Tutorial00 extends Tutorial {
                 break;
             case -1: {
                 Poppy.display({
-                    message: "In Python, printing something is very simple. We use the `print()` function. It's a built-in function, now try printing \"Hello, World!\"",
+                    message: "In Python, printing something is very simple. We use the <span class=\"accent\">print()</span> function. It's a built-in function, now try printing <span class=\"secondary\">\"Hello, World!\"</span>",
                     dialogType: DialogType.NONE,
                     // cb: (() => this.cursor = 3).bind(this)
                 });
@@ -164,7 +182,7 @@ export class Tutorial00 extends Tutorial {
         highlighters.forEach((v) => v.remove());
     }
 
-    highlight(el: HTMLElement, cb?: () => void) {
+    highlight(el: HTMLElement, cb?: () => void, ignoreEvents = false) {
         this.highlightRemove();
         const div = document.createElement("div");
         const rect = el.getBoundingClientRect();
@@ -174,6 +192,9 @@ export class Tutorial00 extends Tutorial {
         div.style.top = `${rect.y}px`;
         div.style.width = `${rect.width}px`;
         div.style.height = `${rect.height}px`;
+        if (ignoreEvents) {
+            div.style.pointerEvents = "none";
+        }
         let ref = this;
         div.addEventListener("click", (e) => {
             e.preventDefault();

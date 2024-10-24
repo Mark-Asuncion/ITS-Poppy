@@ -269,3 +269,49 @@ pub fn t_lint() -> Result<(), String> {
     dbg!(out);
     Ok(())
 }
+
+#[test]
+fn t_analyze_line() {
+    use crate::lint::LineCodeTokens;
+
+    let resource_path = PathBuf::from("\\\\?\\C:\\Users\\marka\\github\\ITS-Poppy\\src-tauri\\target\\debug\\bundle\\syntaxanalyze.py");
+
+    let rs_path_str = resource_path.to_string_lossy()
+        .to_string();
+
+    let line = String::from("x == \"asd\"");
+    dbg!(&rs_path_str);
+
+    let output = Command::new("python")
+        .args(&[&rs_path_str, &line])
+        .output();
+
+    if let Err(e) = output {
+        dbg!(&e);
+        return;
+    }
+
+    let output = output.unwrap();
+
+    let stdout = output.stdout;
+    if stdout.is_empty() || !output.stderr.is_empty()  {
+        return;
+    }
+
+    let output = from_utf8(&stdout);
+    if let Err(e) = output {
+        dbg!(&e);
+        return;
+    }
+
+    let output = output.unwrap()
+        .trim();
+    println!("{}",&output);
+    let out: Result<Vec<LineCodeTokens>, serde_json::error::Error> = serde_json::from_str(output);
+    if let Err(e) = out {
+        dbg!(&e);
+        return;
+    }
+
+    dbg!(out.unwrap());
+}

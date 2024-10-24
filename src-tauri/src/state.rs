@@ -48,6 +48,7 @@ impl GlobalState {
 }
 
 #[tauri::command]
+#[allow(non_snake_case)]
 pub fn set_cwd(p: String, isTutorial: bool, gs: State<GlobalState>) {
     if !isTutorial {
         let path = PathBuf::from(p);

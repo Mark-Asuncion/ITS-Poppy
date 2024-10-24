@@ -37,6 +37,7 @@ impl PTYInstance {
     }
 
     // ======for debugging==========
+    #[allow(dead_code)]
     pub fn is_alive(&self) -> bool {
         let alive = self.term.is_alive();
         if let Err(e) = alive {
@@ -45,6 +46,7 @@ impl PTYInstance {
         }
         alive.unwrap()
     }
+    #[allow(dead_code)]
     pub fn exit_status(&self) -> Option<u32> {
         let status = self.term.get_exitstatus();
         if let Err(e) = status {

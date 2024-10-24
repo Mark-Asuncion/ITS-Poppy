@@ -25,7 +25,7 @@ export class For extends BaseDiagram {
         this.components.push(new Text({
             text: "for",
             fill: "#ffffff",
-            fontSize: Theme.Text.fontSize + 6,
+            ...Theme.Text
         }));
         this.components.push(
             new TextBox({
@@ -38,7 +38,7 @@ export class For extends BaseDiagram {
         this.components.push(new Text({
             text: "in",
             fill: "#ffffff",
-            fontSize: Theme.Text.fontSize + 6,
+            ...Theme.Text
         }));
 
         this.components.push(
@@ -53,7 +53,7 @@ export class For extends BaseDiagram {
         this.components.push(new Text({
             text: ":",
             fill: "#ffffff",
-            fontSize: Theme.Text.fontSize + 6,
+            ...Theme.Text
         }));
 
         this.setInitialPos();
@@ -142,7 +142,7 @@ export class While extends BaseDiagram {
         this.components.push(new Text({
             text: "while",
             fill: "#ffffff",
-            fontSize: Theme.Text.fontSize + 6,
+            fontSize: Theme.Text.fontSize,
         }));
 
         this.components.push(new TextBox({
@@ -154,7 +154,7 @@ export class While extends BaseDiagram {
         this.components.push(new Text({
             text: ":",
             fill: "#ffffff",
-            fontSize: Theme.Text.fontSize + 6,
+            fontSize: Theme.Text.fontSize,
         }));
 
         this.setInitialPos();

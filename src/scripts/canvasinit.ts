@@ -162,8 +162,10 @@ export function init() {
         }
         const bg = stage.children[0].children[0] as BaseGroup;
         let pos = getPlacementPos(stage);
-        if (e.detail.pos) {
-            pos = e.detail.pos;
+        // returns the old captured position if the drop is too fast
+        let relPointer = window.mCvRootNode.node.getRelativePointerPosition();
+        if (relPointer != null) {
+            pos = relPointer;
         }
 
         const dgGroup = new DiagramGroup(pos);
@@ -204,6 +206,18 @@ export function init() {
         }
         dgGroup.refresh();
         bg.add(dgGroup);
+        let children = bg.getDiagramGroups();
+        for (let i=0;i<children.length;i++) {
+            if (children[i] === dgGroup) {
+                continue;
+            }
+            const child = children[i];
+            const attachedTo = dgGroup.canAttachTo(child);
+            if (attachedTo) {
+                dgGroup.attach(attachedTo);
+                break;
+            }
+        }
     }) as EventListener);
 
     window["addFn"] = () => {

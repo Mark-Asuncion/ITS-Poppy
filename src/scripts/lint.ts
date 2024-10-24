@@ -3,7 +3,6 @@ import { Poppy } from "../poppy/poppy";
 import { PoppyErrMessages } from "../themes/lint";
 import { LintInfo, lint } from "./backendconnector";
 import { setHover } from "./canvas/tooltip";
-import { notifyPush } from "./notify";
 
 // TODO
 // @ts-ignore
@@ -21,11 +20,18 @@ export class Lint {
             return;
         }
 
-        if (lintinfo.length != 0)
-            notifyPush("Error/Warning Detected", "info", 3000);
+        if (lintinfo.length != 0) {
+            Poppy.swapDialog = {
+                message: "There are pending error/s",
+                dialogType: DialogType.NONE,
+                timeout: 5000,
+                notif: true
+            };
+        }
 
         if (Lint.list.length !== 0 && (Date.now() - Lint.lastOpenedAuto < 5000 || Lint.lastOpenedAuto == 0)) {
-            Lint.open();
+            if (window.mFocusDiagram != true)
+                Lint.open();
             Lint.lastOpenedAuto = Date.now();
         }
     }

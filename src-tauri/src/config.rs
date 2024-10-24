@@ -1,5 +1,5 @@
 use serde::{ Serialize, Deserialize, ser::SerializeStruct };
-use std::{path::PathBuf, io::{Read, self, Write}, fs::{create_dir, create_dir_all}};
+use std::{path::{PathBuf, Path}, io::{Read, self, Write}, fs::{create_dir, create_dir_all, remove_dir_all, read_dir, remove_file}};
 use tauri::{ State, AppHandle };
 use tauri::PathResolver;
 
@@ -371,4 +371,38 @@ pub fn del_project(path: String, app_handle: AppHandle) -> Result<(), String> {
         return Err(e.to_string());
     }
     Ok(())
+}
+
+fn _delete_dir_contents(p: PathBuf) -> io::Result<()> {
+    let rd = read_dir(p)?;
+
+    for entry in rd {
+        let entry = entry?;
+        let path = entry.path();
+
+        if path.is_dir() {
+            remove_dir_all(path)?;
+        }
+        else if path.is_file() {
+            remove_file(path)?;
+        }
+    }
+
+    Ok(())
+}
+
+#[tauri::command]
+pub fn del_tutorial_progress(gs: State<GlobalState>) {
+    let p = gs.get_work_path_clone();
+    let pr = p.parent().unwrap_or(Path::new(""));
+    if pr == Path::new("") {
+        return;
+    }
+    let pr_path_stem = pr.file_stem().unwrap_or_default();
+    if pr_path_stem == "tutorials" && p.exists() {
+        if let Err(e) = _delete_dir_contents(p) {
+            dbg!(&e);
+        }
+    }
+    gs.set_work_path(PathBuf::new());
 }
