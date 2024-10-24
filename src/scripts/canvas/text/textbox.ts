@@ -236,7 +236,7 @@ export class TextBox extends BaseText {
         div.style.float = "left";
         div.style.fontSize = `${this.text.fontSize()}px`;
         div.style.fontFamily = this.text.fontFamily();
-        div.style.fontStyle = this.text.fontStyle();
+        div.style.fontWeight = this.text.fontStyle();
         document.body.appendChild(div);
         let w = div.clientWidth;
         div.remove();
