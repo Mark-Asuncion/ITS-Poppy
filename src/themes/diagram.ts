@@ -126,3 +126,9 @@ export const SIDEBAR = {
         ]
     }
 }
+
+export const SyntaxColors = {
+    string: "#11A960",
+    variable: "#E31C17",
+    general: "#393d41"
+};

@@ -30,7 +30,11 @@ fn main() {
                     panic!("Error occured creating data dir");
                 }
             }
-            // dbg!(&conf_path);
+
+            let resource_path = app.path_resolver()
+                .resolve_resource("bundle/syntaxanalyze.py")
+                .expect("failed to resolve resource");
+            dbg!(resource_path);
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -50,7 +54,8 @@ fn main() {
             pty::read_term,
             pty::close_term,
             pty::restart_term,
-            lint::lint
+            lint::lint,
+            lint::analyze_line
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
