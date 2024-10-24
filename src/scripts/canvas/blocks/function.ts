@@ -111,6 +111,7 @@ export class Function extends BaseDiagram {
             tb.removeFocus();
             tb.text.text(rmComma);
             tb.adjustWidth(rmComma);
+            tb.setColors();
 
             let newComponent = [
                 new Text({
@@ -222,6 +223,7 @@ export class Function extends BaseDiagram {
             }
             else {
                 (this.components[i] as BaseText).adjustWidth(content);
+                (this.components[i] as BaseText).setColors();
             }
             pos.x += this.components[i].width() + padding;
         }

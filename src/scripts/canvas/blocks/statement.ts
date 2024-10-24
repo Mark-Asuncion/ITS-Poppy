@@ -42,6 +42,7 @@ export class Statement extends BaseDiagram {
             let ncontent = varMatch[1].trim() + " = " + varMatch[2].trim();
             (this.components[0]! as TextBox).text.text(ncontent);
             (this.components[0]! as TextBox).adjustWidth(ncontent);
+            (this.components[0]! as TextBox).setColors();
         }
         // console.log("content: ", content);
         const type = findNodeType(content);

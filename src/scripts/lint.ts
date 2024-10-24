@@ -30,7 +30,8 @@ export class Lint {
         }
 
         if (Lint.list.length !== 0 && (Date.now() - Lint.lastOpenedAuto < 5000 || Lint.lastOpenedAuto == 0)) {
-            Lint.open();
+            if (window.mFocusDiagram != true)
+                Lint.open();
             Lint.lastOpenedAuto = Date.now();
         }
     }

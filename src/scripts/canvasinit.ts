@@ -162,6 +162,7 @@ export function init() {
         }
         const bg = stage.children[0].children[0] as BaseGroup;
         let pos = getPlacementPos(stage);
+        // returns the old captured position if the drop is too fast
         let relPointer = window.mCvRootNode.node.getRelativePointerPosition();
         if (relPointer != null) {
             pos = relPointer;

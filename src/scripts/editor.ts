@@ -28,11 +28,6 @@ if (inpProjName) {
 }
 
 
-window["mSave"] = () => {
-    const contents = diagramToModules(canvasStage);
-    write_diagrams_to_modules(contents);
-};
-
 backBtn?.addEventListener("click", (e) => {
     e.stopPropagation();
     localStorage.setItem("info", "");

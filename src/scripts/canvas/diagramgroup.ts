@@ -31,7 +31,8 @@ export class DiagramGroup extends Konva.Group {
             x: 0,
             fontSize: Theme.Text.fontSize,
             padding: Theme.TextBox.padding,
-            noBG: true
+            noBG: true,
+            autoFill: false
         });
 
 
@@ -106,6 +107,7 @@ export class DiagramGroup extends Konva.Group {
                 this.setModuleName(e.value.trim());
                 this._moduleName.text!.text(this.name());
                 this._moduleName.adjustWidth(this.name());
+                this._moduleName.setColors(this.name());
                 console.log(`${this.name()} ${this._moduleName.text!.text()}`);
             }
         });
