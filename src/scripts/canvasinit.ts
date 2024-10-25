@@ -25,6 +25,9 @@ function setEditorContextButtons(container: HTMLDivElement) {
     div.innerHTML += `
             <button id="editor-save" class="bg-white br-none self-align-center" type="button">
                 <i class="fa fa-save aspect-ratio-1"></i>
+            </button>
+            <button id="editor-focus" class="bg-white br-none self-align-center" type="button">
+                <i class="fa-solid fa-crosshairs"></i>
             </button>`;
 
     container.appendChild(div);
@@ -36,6 +39,18 @@ function setEditorContextButtons(container: HTMLDivElement) {
         notifyPush("Saving...");
     });
     setHover(hbtn, "Save <code>ctrl + s</code>");
+
+    hbtn = div.querySelector("#editor-focus")! as HTMLButtonElement;
+    hbtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (window.mCycleFocus == undefined ||
+        window.mCycleFocus >= window.mCvRootNode.getDiagramGroups().length) {
+            window.mCycleFocus = 0;
+        }
+        window.mCvRootNode.node.focus(window.mCycleFocus);
+        window.mCycleFocus++;
+    });
+    setHover(hbtn, "Cycle through Diagrams");
 
     if (Poppy.tutorial !== null) {
         hbtn = div.querySelector("#poppy-help")! as HTMLButtonElement;
@@ -162,10 +177,15 @@ export function init() {
         }
         const bg = stage.children[0].children[0] as BaseGroup;
         let pos = getPlacementPos(stage);
-        // returns the old captured position if the drop is too fast
-        let relPointer = window.mCvRootNode.node.getRelativePointerPosition();
-        if (relPointer != null) {
-            pos = relPointer;
+        if (window.mCursor != undefined) {
+            let absTransform = window.mCvRootNode.node.getAbsoluteTransform()
+                                .copy()
+                                .invert();
+            let byCursor = absTransform.point(window.mCursor);
+            let domCtr = domContainer.getBoundingClientRect()
+            byCursor.x -= domCtr.x;
+            byCursor.y -= domCtr.y;
+            pos = byCursor;
         }
 
         const dgGroup = new DiagramGroup(pos);

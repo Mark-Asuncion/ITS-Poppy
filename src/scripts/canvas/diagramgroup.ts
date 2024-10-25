@@ -24,7 +24,8 @@ export class DiagramGroup extends Konva.Group {
             ...opts
         });
 
-        this.setModuleName("main");
+        if (this.name() == "")
+            this.setModuleName("main");
 
         this._moduleName = new TextBox({
             text: this.name(),

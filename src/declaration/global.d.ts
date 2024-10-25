@@ -14,6 +14,7 @@ declare global {
         };
         mCvStage: Stage;
         mFocusDiagram: boolean;
+        mCycleFocus: number;
 
         mContextMenu: _ContextMenuItem[];
         mCursor: {
