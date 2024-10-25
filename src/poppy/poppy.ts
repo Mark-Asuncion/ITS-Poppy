@@ -8,6 +8,7 @@ import { Idle } from "./animation/idle";
 import { Walk } from "./animation/walk";
 import { Tutorial00 } from "./tutorials/tutorial00";
 import { isPointIntersectRect, clamp } from "../scripts/canvas/utils";
+import { JumpingRope, Pokeball, SwattingFly } from "./animation/idleBored";
 
 // @ts-ignore
 export class Poppy {
@@ -21,6 +22,18 @@ export class Poppy {
     static currDialog: PoppyDialog | null = null;
     static notifDialogHitimer = 0.0;
     static frameListener: ((elapsed: number) => void) | null = null;
+
+    static boredTimer = 0;
+    static boredTimerThreshold = 30_000;
+    static isBored = false;
+    static resetBoredTimer(defaultIdle?: boolean) {
+        Poppy.boredTimer = 0;
+        Poppy.isBored = false;
+        if (defaultIdle) {
+            if (!(Poppy.animator instanceof Idle))
+                Poppy.animator = new Idle();
+        }
+    }
 
     // Poppy related vars
     static source: HTMLElement;
@@ -221,7 +234,7 @@ export class Poppy {
 
         switch (Poppy.state) {
             case PoppyState.IDLE:
-                if (!(Poppy.animator instanceof Idle)) {
+                if (!(Poppy.animator?.name.startsWith("idle"))) {
                     Poppy.animator = new Idle();
                 }
                 if (Poppy.targetPos) {
@@ -237,10 +250,30 @@ export class Poppy {
                     let dialog = Poppy.qDialog.shift()!;
                     Poppy.display(dialog);
                 }
+
+                if (Poppy.isBored == false)
+                    Poppy.boredTimer += elapsed;
+                if (Poppy.boredTimer > Poppy.boredTimerThreshold && Poppy.isBored == false) {
+                    let id = Math.floor( Math.random() * 3 ) % 3;
+                    Poppy.isBored = true;
+                    switch (id) {
+                        case 0:
+                            Poppy.animator = new JumpingRope();
+                            break;
+                        case 1:
+                            Poppy.animator = new Pokeball();
+                            break;
+                        case 2:
+                            Poppy.animator = new SwattingFly();
+                            break;
+                    }
+                }
+
                 break;
             case PoppyState.WALKING:
-                if (!(Poppy.animator instanceof Walk)) {
+                if (!(Poppy.animator?.name == "walk")) {
                     Poppy.animator = new Walk();
+                    Poppy.resetBoredTimer();
                 }
                 if (Poppy.targetPos == null) {
                     Poppy.state = PoppyState.IDLE;
@@ -378,6 +411,7 @@ export class Poppy {
         document.body.appendChild(div);
         Poppy.currDialog = dialog;
         Poppy.setDialogPosition(div);
+        Poppy.resetBoredTimer(true);
     }
 
     static update() {
@@ -449,7 +483,7 @@ export class Poppy {
             Poppy.onModifiedCB(contents);
             Poppy.update();
         }
-
+        Poppy.resetBoredTimer();
         setTimeout(() => Poppy.onModifiedMutex = false, 100);
     }
 

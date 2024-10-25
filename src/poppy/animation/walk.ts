@@ -8,6 +8,7 @@ export class Walk extends PoppyAnimation {
     direction = 0;
     constructor() {
         super();
+        this.name = "walk";
         this.frames = 4;
         this.ms = 300;
     }

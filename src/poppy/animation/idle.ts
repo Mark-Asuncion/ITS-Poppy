@@ -4,6 +4,7 @@ import { Poppy } from "../poppy";
 export class Idle extends PoppyAnimation {
     constructor() {
         super();
+        this.name = "idle";
         this.frames = 2;
         this.ms = 600;
     }
