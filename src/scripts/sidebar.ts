@@ -5,6 +5,10 @@ import imgIf from "../assets/blocks/If.png";
 import imgElif from "../assets/blocks/Elif.png";
 import imgElse from "../assets/blocks/Else.png";
 import imgFor from "../assets/blocks/For.png";
+import imgEndblock from "../assets/blocks/Endblock.png";
+import imgFunction from "../assets/blocks/Function.png";
+import imgClass from "../assets/blocks/Class.png";
+import imgWhile from "../assets/blocks/While.png";
 
 // const container = document.querySelector("#sidebar-container")! as HTMLDivElement;
 const sidebarBtn = document.querySelectorAll('[aria-role="sidebar-button"]');
@@ -80,13 +84,20 @@ for (let i=0;i<keys.length;i++) {
                 img.src = imgElse;
                 break;
             case "loop-while":
+                img.src = imgWhile;
+                break;
             case "loop-for":
                 img.src = imgFor;
                 break;
             case "endblock":
-                img.src = imgStatement;
+                img.src = imgEndblock;
                 break;
             case "function":
+                img.src = imgFunction;
+                break;
+            case "class":
+                img.src = imgClass;
+                break;
             default:
                 img.src = imgStatement;
                 break;
@@ -98,7 +109,7 @@ for (let i=0;i<keys.length;i++) {
     }
 
     diagramView.appendChild(div);
-    diagramView.appendChild(document.createElement("br"));
-    diagramView.appendChild(document.createElement("br"));
 }
+diagramView.appendChild(document.createElement("br"));
+diagramView.appendChild(document.createElement("br"));
 // ========================

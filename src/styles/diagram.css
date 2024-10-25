@@ -53,7 +53,7 @@ input.canvas-edit, textarea.canvas-edit {
     border-radius: 100px;
 }
 
-.diagram-statement {
+.diagram-statement, .diagram-endblock {
     background-color: var(--dg-statement);
 }
 
@@ -69,7 +69,7 @@ input.canvas-edit, textarea.canvas-edit {
     background-color: var(--dg-utilities);
 }
 
-.diagram-function {
+.diagram-function,.diagram-class {
     background-color: var(--dg-utilities);
 }
 
