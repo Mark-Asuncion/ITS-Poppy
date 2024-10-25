@@ -24,7 +24,8 @@ export class DiagramGroup extends Konva.Group {
             ...opts
         });
 
-        this.setModuleName("main");
+        if (this.name() == "")
+            this.setModuleName("main");
 
         this._moduleName = new TextBox({
             text: this.name(),
@@ -134,19 +135,23 @@ export class DiagramGroup extends Konva.Group {
 
         this.on("dragend", (e) => {
             e.cancelBubble = true;
-            const children = ( this.parent as BaseGroup ).getDiagramGroups();
-            for (let i=0;i<children.length;i++) {
-                if (children[i] === this) {
-                    continue;
-                }
-                const child = children[i];
-                const attachedTo = this.canAttachTo(child);
-                if (attachedTo) {
-                    this.attach(attachedTo);
-                    break;
-                }
-            }
+            this.onDragEnd();
         })
+    }
+
+    onDragEnd() {
+        const children = ( this.parent as BaseGroup ).getDiagramGroups();
+        for (let i=0;i<children.length;i++) {
+            if (children[i] === this) {
+                continue;
+            }
+            const child = children[i];
+            const attachedTo = this.canAttachTo(child);
+            if (attachedTo) {
+                this.attach(attachedTo);
+                break;
+            }
+        }
     }
 
     detach(diagrams: BaseDiagram | BaseDiagram[]): DiagramGroup | null {
@@ -169,6 +174,7 @@ export class DiagramGroup extends Konva.Group {
         const dg = new DiagramGroup();
         diagrams.setPosition({ x: 0, y: 0 });
         diagrams._indent = 0;
+        console.log(diagrams, Date.now());
         dg.addDiagram(diagrams);
         return dg;
     }
