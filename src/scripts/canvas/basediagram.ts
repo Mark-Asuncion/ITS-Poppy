@@ -30,7 +30,9 @@ export class BaseDiagram extends Group {
     path: Path;
     _indent: number = 0;
     _nsep = 5;
-    components: (BaseText | Text)[] = []
+    components: (BaseText | Text)[] = [];
+    // cause somehow function and class diagram is triggering dragend twice idfk how
+    onDragEndRunning = false;
 
     constructor(config: BaseDiagramConfig) {
         let theme = config.theme;
@@ -264,7 +266,9 @@ export class BaseDiagram extends Group {
 
         const parent = this.parent! as DiagramGroup;
         const index = this.getIndexPos();
-        console.assert(index !== -1);
+        if (index == -1) {
+            return;
+        }
         if (index === 0) {
             notifyPush("First Line Cannot Be Indented", "info", 3000);
             return;
@@ -394,19 +398,28 @@ export class BaseDiagram extends Group {
 
         this.on("dragend", (e) => {
             e.cancelBubble = true;
-            // console.log("dragend");
-            const parent = this.parent! as DiagramGroup;
-            const relPoinPos = this.getRelativePointerPosition()!;
-            const dg = parent.detach(this);
-            const at = parent.parent!.getRelativePointerPosition();
-            if (at && dg) {
-                dg.setPosition({
-                    x: at.x - relPoinPos.x,
-                    y: at.y - relPoinPos.y,
-                });
-                parent.parent!.add(dg);
-                this.draggable(false);
+            e.evt.stopImmediatePropagation();
+            if (this.onDragEndRunning) {
+                return;
             }
+            console.log("dragend");
+            const parent = this.parent;
+            this.onDragEndRunning = true;
+            if (parent && parent instanceof DiagramGroup) {
+                const relPoinPos = this.getRelativePointerPosition()!;
+                const dg = parent.detach(this);
+                // console.log(dg);
+                const at = parent.parent!.getRelativePointerPosition();
+                if (at && dg) {
+                    dg.setPosition({
+                        x: at.x - relPoinPos.x,
+                        y: at.y - relPoinPos.y,
+                    });
+                    parent.parent!.add(dg);
+                    this.draggable(false);
+                }
+            }
+            setTimeout(() => this.onDragEndRunning = false, 300);
         });
 
     }
@@ -428,10 +441,12 @@ export class BaseDiagram extends Group {
     }
 
     getIndexPos() {
-        const parent = this.parent as DiagramGroup
-        for (let i=0;i<parent.nodes.length;i++) {
-            if (parent.nodes[i] === this) {
-                return i;
+        const parent = this.parent;
+        if (parent instanceof DiagramGroup) {
+            for (let i=0;i<parent.nodes.length;i++) {
+                if (parent.nodes[i] === this) {
+                    return i;
+                }
             }
         }
         return -1;

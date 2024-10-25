@@ -92,7 +92,9 @@ export async function write_diagrams_to_modules(arrContents: Array<Module>) {
 
 export async function load_modules(): Promise<Module[]> {
     try {
-        return await invoke("load_modules") as Module[];
+        let modules = await invoke("load_modules") as Module[];
+        console.log(modules);
+        return modules;
     }
     catch (e) {
         console.error(e);

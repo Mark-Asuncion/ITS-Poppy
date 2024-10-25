@@ -55,6 +55,9 @@ export class Statement extends BaseDiagram {
         console.log(diagram);
 
         const indexPos = this.getIndexPos();
+        if (indexPos == -1) {
+            return;
+        }
         const p = (this.parent! as DiagramGroup);
         p.nodes[indexPos].remove();
         p.nodes[indexPos].destroy();
@@ -72,6 +75,9 @@ export class Statement extends BaseDiagram {
 
         const p = this.parent! as DiagramGroup;
         const indexPos = this.getIndexPos();
+        if (indexPos == -1) {
+            return;
+        }
         if (e.key === "Enter") {
 
             let node: Statement;

@@ -86,7 +86,8 @@ export class TextBox extends BaseText {
         window.mFocusDiagram = true;
 
         input.addEventListener("focusout", () => {
-            text.text(input.value);
+            let v = input.value;
+            text.text((v.trim().length == 0)? " ":v.trim());
             text.show();
             this.setColors();
             input.remove();
@@ -134,7 +135,7 @@ export class TextBox extends BaseText {
             return;
         }
 
-        let v = this.text.text();
+        let v = this.text.text().trim();
         if (v.length == 0) {
             this.text.fill(SyntaxColors.OTHER);
             return;
@@ -151,6 +152,7 @@ export class TextBox extends BaseText {
         if (this.components.length > 0)
             this.components = [];
 
+        // console.log(v, res);
         if (res.length == 1) {
             let color = SyntaxColors[res[0].tokenType];
 

@@ -219,6 +219,6 @@ export function getPlacementPos(stage: Konva.Stage): Konva.Vector2d {
         .invert();
 
     const p = transform.point(containerCenter);
-    console.log(p);
+    // console.log(p);
     return p;
 }

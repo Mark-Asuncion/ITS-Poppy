@@ -45,7 +45,7 @@ export class Function extends BaseDiagram {
                 this.components.push(new Text(commaOpt));
             }
             this.components.push(new TextBox({
-                text: v.trim(),
+                text: (v.length == 0)? " ":v.trim(),
                 width: 30,
                 fill: "#00",
                 ...Theme.Text,
