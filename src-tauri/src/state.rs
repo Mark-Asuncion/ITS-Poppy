@@ -21,6 +21,12 @@ pub struct GlobalState {
 }
 
 impl GlobalState {
+    pub fn get_profile(&self) -> String {
+        (*self.profile
+            .lock()
+            .expect("Err: Failed to acquire Profile")).clone()
+    }
+
     pub fn set_profile(&self, profile_name: String) {
         (*self.profile
             .lock()

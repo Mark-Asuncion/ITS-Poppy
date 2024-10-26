@@ -1,15 +1,17 @@
 use tauri::{ State, AppHandle };
+use tauri::PathResolver;
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
-use std::fs::{read_dir, ReadDir};
+use std::fs::{read_dir, ReadDir, create_dir_all};
 use std::path::PathBuf;
 use std::process::Command;
 use std::env;
-use std::io;
+use std::io::{self, Read, Write};
 use std::str::from_utf8;
 
-use crate::error;
-use crate::file::_should_ignore;
+use crate::config::constants;
+use crate::{error, file};
+use crate::file::{_should_ignore, open_write};
 use crate::state::GlobalState;
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
@@ -36,6 +38,78 @@ pub struct LineCodeTokens {
 pub struct LintInfo {
     pub moduleName: String, // extension not included
     pub messages: Vec<LintItem>
+}
+
+fn log_lints(lints: &Vec<LintInfo>, profile_name: String, path_resolver: &PathResolver) {
+    if lints.is_empty() {
+        return;
+    }
+
+    let mut data_dir = path_resolver.app_data_dir()
+        .expect(error::Error::DATA_DIR_FAIL.to_string().as_str());
+    data_dir.push(constants::D_LOGS);
+    data_dir.push(&profile_name);
+    if !data_dir.exists() {
+        if let Err(e) = create_dir_all(&data_dir) {
+            dbg!(&e);
+            return;
+        }
+    }
+
+    let fname = chrono::Local::now()
+        .format("%Y-%m-%d");
+    data_dir.push(fname.to_string());
+    let file = data_dir;
+    let mut logs: Vec<LintInfo> = Vec::new();
+    if file.exists() {
+        let f = file::open_read(&file);
+        if let Err(e) = f {
+            let path_name = file.to_string_lossy().to_string();
+            println!(
+                "{}, path={}::{}",
+                error::Error::FILE_OPEN_FAIL,
+                path_name, e
+            );
+            return;
+        }
+        let mut f = f.unwrap();
+        let mut content: String = String::new();
+        f.read_to_string(&mut content).unwrap();
+        let old_lints: Result<Vec<LintInfo>, serde_json::error::Error> =
+            serde_json::from_str(content.as_str());
+        if let Err(e) = old_lints {
+            dbg!(&e);
+            return;
+        }
+        logs = old_lints.unwrap();
+    }
+    logs.extend_from_slice(lints);
+    let content = serde_json::to_string_pretty(&logs);
+    if let Err(e) = content {
+        dbg!(&e);
+        return;
+    }
+    let content = content.unwrap();
+    let wfile = open_write(&file);
+    if let Err(e) = wfile {
+        let path_name = file.to_string_lossy().to_string();
+        println!(
+        "{}, path={}::{}",
+        error::Error::FILE_OPEN_FAIL,
+        path_name, e
+    );
+        return;
+    }
+    let mut wfile = wfile.unwrap();
+    if let Err(e) = wfile.write_all(content.as_bytes()) {
+        let path_name = file.to_string_lossy().to_string();
+        println!(
+        "{}, path={}::{}",
+        error::Error::FILE_WRITE_FAIL,
+        path_name, e
+    );
+        return;
+    }
 }
 
 pub fn _find_py_files_in(rd: io::Result<ReadDir>) -> io::Result<Vec<String>> {
@@ -79,7 +153,7 @@ pub fn _find_py_files_in(rd: io::Result<ReadDir>) -> io::Result<Vec<String>> {
 }
 
 #[tauri::command]
-pub async fn lint(gs: State<'_, GlobalState>) -> Result<Vec<LintInfo>, String> {
+pub async fn lint(gs: State<'_, GlobalState>, app_handle: AppHandle) -> Result<Vec<LintInfo>, String> {
     let work_path = gs.get_work_path_clone();
 
     let curr_dir = env::current_dir();
@@ -223,6 +297,8 @@ pub async fn lint(gs: State<'_, GlobalState>) -> Result<Vec<LintInfo>, String> {
         }
     }
     let out = out.values().cloned().collect();
+    let profile_name = gs.get_profile();
+    log_lints(&out, profile_name, &app_handle.path_resolver());
     // dbg!(&out);
     Ok(out)
 }

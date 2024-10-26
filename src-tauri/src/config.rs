@@ -11,6 +11,7 @@ pub mod constants {
 
     pub const PROJECT_CONFIG_NAME: &str = "project-info.json";
     pub const F_DATA: &str = "poppy.json";
+    pub const D_LOGS: &str = "logs";
     pub const FORMAT_DATETIME: &str = "%m/%d/%Y %H:%M";
     pub const DOTPOPPY: &str = ".poppy";
     pub const DOT_MODULE_POSITIONS: &str = "positions.json";
