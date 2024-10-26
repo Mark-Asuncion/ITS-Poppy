@@ -16,10 +16,17 @@ pub mod errors {
 #[derive(Debug)]
 pub struct GlobalState {
     pub work_path: Mutex<PathBuf>,
-    pub pty:       Mutex<Option<PTYInstance>>
+    pub pty:       Mutex<Option<PTYInstance>>,
+    pub profile:   Mutex<String>
 }
 
 impl GlobalState {
+    pub fn set_profile(&self, profile_name: String) {
+        (*self.profile
+            .lock()
+            .expect("Err: Failed to acquire Profile")) = profile_name;
+    }
+
     pub fn set_work_path(&self, p: PathBuf) {
         (*self.work_path
             .lock()

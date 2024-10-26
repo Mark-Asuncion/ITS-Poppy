@@ -30,7 +30,8 @@ pub mod constants {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AppConfig {
-    projects: Vec<PathBuf>
+    projects: Vec<PathBuf>,
+    profiles: Option<Vec<String>>
 }
 
 impl AppConfig {
@@ -50,7 +51,8 @@ impl AppConfig {
         if !data_dir.exists() {
             return Ok(
                 AppConfig {
-                    projects: Vec::new()
+                    projects: Vec::new(),
+                    profiles: None
                 }
             );
         }
@@ -98,7 +100,7 @@ impl AppConfig {
         }
         let mut f = f.unwrap();
 
-        let content = serde_json::to_string(&self);
+        let content = serde_json::to_string_pretty(&self);
         if let Err(e) = &content {
             println!("Conversion Error {}", e);
         }
@@ -112,6 +114,18 @@ impl AppConfig {
                 path_name, e
             );
             return Err(e);
+        }
+
+        Ok(())
+    }
+
+    pub fn delete(path_resolver: &PathResolver) -> io::Result<()> {
+        let mut data_dir = path_resolver.app_data_dir()
+            .expect(error::Error::DATA_DIR_FAIL.to_string().as_str());
+
+        data_dir.push(constants::F_DATA);
+        if data_dir.exists() {
+            remove_file(&data_dir)?;
         }
 
         Ok(())
@@ -142,6 +156,13 @@ impl AppConfig {
             let v_str = v.to_string_lossy().to_string();
             return !(path_name == v_str);
         }).collect();
+    }
+
+    pub fn get_or_set_default_profile(&mut self) -> String {
+        if let None = self.profiles {
+            self.profiles = Some(Vec::from(["Profile1".to_string()]));
+        }
+        self.profiles.clone().unwrap()[0].clone()
     }
 }
 
