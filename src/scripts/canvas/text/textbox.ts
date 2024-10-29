@@ -3,6 +3,7 @@ import { SyntaxColors, Theme } from "../../../themes/diagram";
 import { BaseText, BaseTextConfig } from "../basetext";
 import { BaseDiagram } from "../basediagram";
 import { analyze_line } from "../../backendconnector";
+// import { Rect } from "konva/lib/shapes/Rect";
 
 export class TextBox extends BaseText {
     text: Text;
@@ -175,20 +176,23 @@ export class TextBox extends BaseText {
             let cursor = 0;
             let i = 0;
             // console.log(v, res);
+            let t = "";
+            let color = SyntaxColors.OTHER;
             while(i<res.length && cursor < v.length) {
                 let token = res[i];
                 if (token.len == 0) {
                     i++;
                     continue;
                 }
+                let adjx = 0;
                 if (cursor == token.index) {
                     i++;
-                    let t = v.substring(token.index, token.index + token.len);
+                    t = v.substring(token.index, token.index + token.len);
                     console.log(`"${t}"`);
                     cursor += token.len;
                     // console.log(t);
 
-                    let color = SyntaxColors[token.tokenType];
+                    color = SyntaxColors[token.tokenType];
                     if (color == undefined) {
                         color = SyntaxColors.OTHER;
                     }
@@ -196,33 +200,49 @@ export class TextBox extends BaseText {
                         color = SyntaxColors.KEYWORD;
                     }
 
-                    this.components.push(new Text({
-                        ...this.textConfig,
-                        text: t,
-                        x: pos.x,
-                        y: pos.y,
-                        fill: color,
-                        padding: Theme.TextBox.padding,
-                        wrap: Theme.TextBox.wrap,
-                    }));
-                    pos.x += this.getTextWidth(t);
+                    adjx = pos.x + this.getTextWidth(t);
                 }
                 else {
-                    let t = v[cursor];
+                    t = v[cursor];
                     cursor++;
-                    this.components.push(new Text({
-                        ...this.textConfig,
-                        text: t,
-                        x: pos.x,
-                        y: pos.y,
-                        fill: SyntaxColors.OTHER,
-                        padding: Theme.TextBox.padding,
-                        wrap: Theme.TextBox.wrap,
-                    }));
-                    pos.x += this.getTextWidth(t, t == ' ');
+                    adjx = pos.x + this.getTextWidth(t, t == ' ');
                 }
+
+                this.components.push(new Text({
+                    ...this.textConfig,
+                    text: t,
+                    x: pos.x,
+                    y: pos.y,
+                    fill: color,
+                    padding: Theme.TextBox.padding,
+                    wrap: Theme.TextBox.wrap,
+                }));
+                pos.x = adjx;
+                let tb = this.components[this.components.length-1];
+                tb.width(tb.width() + tb.padding());
+                // console.log(tb.position(), `${tb.text()}`, tb.width());
             }
+
+            // let boxes: any = [];
+            // this.components.forEach((v) => {
+            //     let fill = v.fill();
+            //     if (fill == SyntaxColors.NAME) {
+            //         fill = SyntaxColors.OTHER;
+            //     }
+            //     else if (fill == SyntaxColors.OTHER) {
+            //         fill = SyntaxColors.STRING;
+            //     }
+            //     else if (fill == SyntaxColors.NUMBER) {
+            //         fill = SyntaxColors.OTHER;
+            //     }
+            //     boxes.push(new Rect({
+            //         ...v.getClientRect(),
+            //         fill: fill
+            //     }));
+            // });
+            // this.add(...boxes);
             this.add(...this.components);
+            // console.log(this.components);
             this.text.hide();
         }
     }
