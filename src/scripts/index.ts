@@ -49,13 +49,15 @@ setVersion();
 let filter: string = "";
 
 //=== Searchbar ===
-const searchbar = document.querySelector(".searchbar > .textbox > input")! as HTMLInputElement;
-searchbar.addEventListener("input", (e) => {
-    e.stopPropagation();
-    contentsContainer.innerHTML = "";
-    filter = searchbar.value.trim();
-    listContents(contentsContainer);
-});
+const searchbar = document.querySelector(".searchbar > .textbox > input");
+if (searchbar) {
+    searchbar.addEventListener("input", (e) => {
+        e.stopPropagation();
+        contentsContainer.innerHTML = "";
+        filter = (searchbar! as HTMLInputElement).value.trim();
+        listContents(contentsContainer);
+    });
+}
 //=============================
 
 //=== List Projects ===
@@ -112,8 +114,8 @@ async function listContents(root: HTMLElement) {
         for (let i = 0; i < projects.length; i++) {
             const project = projects[i];
             if (filter.length !== 0) {
-                const regRes = project.projectName.match(filter+".\\+*");
-                if (regRes == null || (regRes && regRes[0] == project.projectName)) {
+                const regRes = project.projectName.match(new RegExp(`\\b${filter}\\b`, 'i'));
+                if (regRes == null || (regRes && regRes.length == 0)) {
                     continue;
                 }
             }
@@ -124,8 +126,8 @@ async function listContents(root: HTMLElement) {
         for (let i = 0; i < TUTORIALS.length; i++) {
             const project = TUTORIALS[i];
             if (filter) {
-                const regRes = project.projectName.match(filter+".\\+*");
-                if (regRes == null || (regRes && regRes[0] == project.projectName)) {
+                const regRes = project.projectName.match(new RegExp(`.*${filter}.*`));
+                if (regRes == null || (regRes && regRes.length == 0)) {
                     continue;
                 }
             }

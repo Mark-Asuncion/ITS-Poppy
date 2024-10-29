@@ -23,6 +23,10 @@
     -webkit-text-size-adjust: 100%;
 }
 
+code {
+    white-space: pre;
+}
+
 html, body {
     padding: 0;
     margin: 0;

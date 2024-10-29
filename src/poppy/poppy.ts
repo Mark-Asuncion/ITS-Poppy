@@ -384,10 +384,12 @@ export class Poppy {
                 if (Poppy.qTimeout)
                     clearTimeout(Poppy.qTimeout);
 
-                Poppy.qTimeout = setTimeout(() => {
-                    if (dialog.cb) dialog.cb();
-                    Poppy.hide();
-                }, (dialog.timeout != undefined)? dialog.timeout:10000);
+                if (dialog.timeout && dialog.timeout > 0) {
+                    Poppy.qTimeout = setTimeout(() => {
+                        if (dialog.cb) dialog.cb();
+                        Poppy.hide();
+                    }, (dialog.timeout != undefined)? dialog.timeout:10000);
+                }
                 break;
             case DialogType.NEXT:
                 // console.log(this.tutorial?.cursor);

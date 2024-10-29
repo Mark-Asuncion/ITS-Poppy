@@ -4,6 +4,7 @@ import { dialog_one_dir, get_cwd_name, reset_work_path, set_cwd, write_diagrams_
 import { TerminalInstance } from "./terminal/instance";
 import { Poppy } from "../poppy/poppy";
 import { setHover } from "./canvas/tooltip";
+import { DialogType } from "../poppy/interface";
 
 async function set_project_name(input_element: HTMLInputElement) {
     const isUntitled = input_element.value.toLowerCase() === "untitled project";
@@ -42,6 +43,15 @@ playBtn?.addEventListener("click", async () => {
     const contents = diagramToModules(canvasStage);
     console.log(contents);
     write_diagrams_to_modules(contents);
+    if (contents.length == 0) {
+        Poppy.swapDialog = {
+            message: "There are no modules to run",
+            dialogType: DialogType.NONE,
+            timeout: 2000,
+            notif: true
+        };
+        return;
+    }
 
     let termbtn = document.querySelector("#term-btn") as HTMLButtonElement
     if (!termbtn.classList.contains("active")) {
