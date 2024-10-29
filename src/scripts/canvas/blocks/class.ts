@@ -79,9 +79,20 @@ export class Class extends BaseDiagram {
         );
         this.components[2].y(pos.y);
 
-        let tboxw = this.width() - (this.components[0].width() + this.components[2].width() + padding * 4)
-        this.components[1].setSize({width: tboxw});
-        (this.components[1] as TextBox).minWidth = tboxw;
+        let tb = this.components[1] as TextBox;
+        if (tb.text.text().length == 0) {
+            let tboxw = this.width() - (this.components[0].width() + this.components[2].width() + padding * 4)
+            this.components[1].setSize({width: tboxw});
+            (this.components[1] as TextBox).minWidth = tboxw;
+        }
+        else {
+            let nwidth = this.components[1].x() + this.components[1].width() + padding
+                + this.components[2].width() + padding;
+            this.setSize({ width: nwidth });
+            this.components[2].x(
+                this.width() - padding - this.components[2].width()
+            );
+        }
     }
 
     getContent() {

@@ -184,6 +184,7 @@ export class TextBox extends BaseText {
                 if (cursor == token.index) {
                     i++;
                     let t = v.substring(token.index, token.index + token.len);
+                    console.log(`"${t}"`);
                     cursor += token.len;
                     // console.log(t);
 
