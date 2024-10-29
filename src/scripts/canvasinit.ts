@@ -216,6 +216,9 @@ export function init() {
             case "function":
                 dgGroup.addDiagram(createDiagramFrom("function"));
                 break;
+            case "def":
+                dgGroup.addDiagram(createDiagramFrom("def"));
+                break;
             case "class":
                 dgGroup.addDiagram(createDiagramFrom("class"));
                 break;

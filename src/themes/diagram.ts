@@ -120,10 +120,12 @@ export const SIDEBAR = {
     Utilities: {
         items: [
             "function",
+            "def",
             "class"
         ],
         tooltip: [
             "This is a Function diagram.",
+            "This is a DefFunction diagram. use to define a function",
             "This is a Class diagram.",
         ]
     }

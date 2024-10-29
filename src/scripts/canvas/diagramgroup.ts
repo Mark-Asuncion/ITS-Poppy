@@ -421,4 +421,29 @@ export class DiagramGroup extends Konva.Group {
         });
         this.add(rect);
     }
+    //
+    // focus(n: number) {
+    //     if (this.nodes.length == 0 || this.nodes[n] == undefined) {
+    //         return;
+    //     }
+    //     const ch = this.nodes[n];
+    //
+    //     let chpos = {
+    //         x: this.x() + ch.x(),
+    //         y: this.y() + ch.y()
+    //     };
+    //
+    //     const stage = this.getStage()!;
+    //     const container = stage.container().getBoundingClientRect();
+    //     const bg = window.mCvRootNode.node;
+    //     const pos = {
+    //         x: clamp( container.width * .5 - chpos.x, -bg.width(), bg.width() - container.width ),
+    //         y: clamp( container.height * .5 - chpos.y, -bg.height(), bg.height() - container.height )
+    //     };
+    //
+    //     // console.log("focus: ", pos);
+    //     bg.setPosition(pos);
+    //     bg.clamp();
+    //
+    // }
 }

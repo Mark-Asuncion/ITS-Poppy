@@ -239,7 +239,9 @@ export async function lint(): Promise<LintInfo[] | string> {
 
 export async function analyze_line(line: string): Promise<LineCodeTokens[]> {
     try {
-        return await invoke("analyze_line", { line });
+        let tokens = await invoke("analyze_line", { line });
+        // console.log(tokens);
+        return tokens as LineCodeTokens[];
     }
     catch (e) {
         console.error(e);

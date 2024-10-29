@@ -80,7 +80,7 @@ export class SwattingFly extends PoppyAnimation {
             this.ms = 600;
         }
         else if (this.currFrame == 11) {
-            this.ms = 200;
+            this.ms = 150;
         }
         else if (this.currFrame == 19) {
             this.ms = 500;

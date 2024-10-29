@@ -10,6 +10,11 @@ export const TUTORIALS: ProjectInfoEx[] = [
         path: ".\\01",
         projectName: "02 - Variables",
         tutorialId: 1
+    },
+    {
+        path: ".\\Post_Test",
+        projectName: "Post Test",
+        tutorialId: 10
     }
 ];
 

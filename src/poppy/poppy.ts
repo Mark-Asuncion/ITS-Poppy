@@ -9,6 +9,7 @@ import { Walk } from "./animation/walk";
 import { Tutorial00 } from "./tutorials/tutorial00";
 import { isPointIntersectRect, clamp } from "../scripts/canvas/utils";
 import { JumpingRope, Pokeball, SwattingFly } from "./animation/idleBored";
+import { PostTest } from "./tutorials/posttest";
 
 // @ts-ignore
 export class Poppy {
@@ -155,6 +156,9 @@ export class Poppy {
                 break;
             case 1:
                 Poppy.tutorial = new Tutorial01();
+                break;
+            case 10:
+                Poppy.tutorial = new PostTest();
                 break;
         }
     }
@@ -424,6 +428,7 @@ export class Poppy {
     }
 
     static addOnModified(modules: Module[], onSuccess: () => void, onFail?: () => void) {
+        console.log(modules);
         Poppy.onModifiedCB = (contents) => {
             let map = new Map<string, string[]>();
             for (let i=0;i<contents.length;i++) {

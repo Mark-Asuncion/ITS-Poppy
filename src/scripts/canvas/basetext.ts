@@ -75,8 +75,10 @@ export class BaseText extends Group {
     }
 
     focus() {
-        this.createInput();
-        this.fire("OnStateSelect", {}, true);
+        if (this.isEditing == false || this.input != null) {
+            this.createInput();
+            this.fire("OnStateSelect", {}, true);
+        }
     }
 
     registerEvents() {
