@@ -33,7 +33,7 @@
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title fw-bold" id="chooseAccountModalLabel">Choose an Account</h5>
+                        <h5 class="modal-title fw-bold" id="chooseAccountModalLabel">Choose Profile</h5>
                     </div>
                     <div class="modal-body d-flex">
                         <div class="col-6 d-flex justify-content-center align-items-center">
@@ -47,13 +47,9 @@
                                 </button>
                             </div>
                             <div class="list-group">
-                                <button type="button" class="list-group-item list-group-item-action py-2 d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#LogInModal">
-                                    <i class="fas fa-users me-3 icon-size" style="font-size: 20px;"></i>
-                                    <span>Use another account</span>
-                                </button>
                                 <button type="button" class="list-group-item list-group-item-action py-2 d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#createAccountModal">
                                     <i class="fas fa-user-plus me-3" style="font-size: 20px;"></i>
-                                    <span>Create Account</span>
+                                    <span>Create Profile</span>
                                 </button>
                             </div>           
                         </div>
@@ -62,40 +58,12 @@
             </div>
         </div>
 
-        <!-- Log In Modal -->
-        <div class="modal modal-lg fade" id="LogInModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="LogInModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title fw-bold" id="LogInModalLabel">Log In</h5>
-                    </div>
-                    <div class="modal-body d-flex">
-                        <div class="col-6 d-flex justify-content-center align-items-center">
-                            <img src="./assets/poppyhead-nobg.png" alt="Application Logo" class="img-fluid" style="max-width: 55%; height: auto;">
-                        </div>
-                        <div class="col-6">
-                            <form id="LogInForm">
-                                <div class="mb-3">
-                                    <label for="username" class="form-label">Username</label>
-                                    <input type="text" class="form-control" id="username" placeholder="Enter your username" required>
-                                </div>
-                                <div class="d-flex justify-content-center">
-                                    <button type="submit" class="btn btn-danger w-100">Log In</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
         <!-- Create an Account Modal -->
         <div class="modal modal-lg fade" id="createAccountModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="createAccountModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title fw-bold" id="createAccountModalLabel">Create an Account</h5>
+                        <h5 class="modal-title fw-bold" id="createAccountModalLabel">Create Profile</h5>
                     </div>
                     <div class="modal-body d-flex">
                         <div class="col-6 d-flex justify-content-center align-items-center">
@@ -112,7 +80,7 @@
                                     <input type="text" class="form-control" id="fullname" placeholder="Enter your Full Name" required>
                                 </div>
                                 <div class="d-flex justify-content-center">
-                                    <button type="submit" class="btn btn-danger w-100">Create Account</button>
+                                    <button type="submit" class="btn btn-danger w-100">Create Profile</button>
                                 </div>
                             </form>
                         </div>
