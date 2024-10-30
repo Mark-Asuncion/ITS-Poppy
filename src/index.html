@@ -25,6 +25,123 @@
     </head>
 
     <body>
+
+        <!--New Log In Modals-->
+
+        <!-- Choose an Account Modal -->
+        <div class="modal modal-lg fade" id="chooseAccountModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="chooseAccountModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold" id="chooseAccountModalLabel">Choose an Account</h5>
+                    </div>
+                    <div class="modal-body d-flex">
+                        <div class="col-6 d-flex justify-content-center align-items-center">
+                            <img src="./assets/poppyhead-nobg.png" alt="Application Logo" class="img-fluid" style="max-width: 55%; height: auto;">
+                        </div>
+                        <div class="col-6 text-center">
+                            <div class="p-3 bg-light rounded mb-3 d-flex justify-content-between align-items-center">
+                                <p class="mb-0 fw-bold fs-5">John Ruego</p>
+                                <button type="button" class="btn btn-link text-danger p-0" title="Remove Account">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                            <div class="list-group">
+                                <button type="button" class="list-group-item list-group-item-action py-2 d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#LogInModal">
+                                    <i class="fas fa-users me-3 icon-size" style="font-size: 20px;"></i>
+                                    <span>Use another account</span>
+                                </button>
+                                <button type="button" class="list-group-item list-group-item-action py-2 d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#createAccountModal">
+                                    <i class="fas fa-user-plus me-3" style="font-size: 20px;"></i>
+                                    <span>Create Account</span>
+                                </button>
+                            </div>           
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Log In Modal -->
+        <div class="modal modal-lg fade" id="LogInModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="LogInModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold" id="LogInModalLabel">Log In</h5>
+                    </div>
+                    <div class="modal-body d-flex">
+                        <div class="col-6 d-flex justify-content-center align-items-center">
+                            <img src="./assets/poppyhead-nobg.png" alt="Application Logo" class="img-fluid" style="max-width: 55%; height: auto;">
+                        </div>
+                        <div class="col-6">
+                            <form id="LogInForm">
+                                <div class="mb-3">
+                                    <label for="username" class="form-label">Username</label>
+                                    <input type="text" class="form-control" id="username" placeholder="Enter your username" required>
+                                </div>
+                                <div class="d-flex justify-content-center">
+                                    <button type="submit" class="btn btn-danger w-100">Log In</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Create an Account Modal -->
+        <div class="modal modal-lg fade" id="createAccountModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="createAccountModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold" id="createAccountModalLabel">Create an Account</h5>
+                    </div>
+                    <div class="modal-body d-flex">
+                        <div class="col-6 d-flex justify-content-center align-items-center">
+                            <img src="./assets/poppyhead-nobg.png" alt="Application Logo" class="img-fluid" style="max-width: 55%; height: auto;">
+                        </div>
+                        <div class="col-6">
+                            <form id="createAccountForm">
+                                <div class="mb-3">
+                                    <label for="username" class="form-label">Username</label>
+                                    <input type="text" class="form-control" id="username" placeholder="Enter your username" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="fullname" class="form-label">Full Name</label>
+                                    <input type="text" class="form-control" id="fullname" placeholder="Enter your Full Name" required>
+                                </div>
+                                <div class="d-flex justify-content-center">
+                                    <button type="submit" class="btn btn-danger w-100">Create Account</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const hasAccount = false;
+
+                const modalToShow = hasAccount ? 'chooseAccountModal' : 'createAccountModal';
+                const modal = new bootstrap.Modal(document.getElementById(modalToShow));
+                modal.show();
+
+                document.getElementById('createAccountForm').addEventListener('submit', function (event) {
+                    event.preventDefault();
+                    const username = document.getElementById('username').value;
+                    
+                    console.log("Account created for:", username);
+
+                    bootstrap.Modal.getInstance(document.getElementById('createAccountModal')).hide();
+                    const chooseAccountModal = new bootstrap.Modal(document.getElementById('chooseAccountModal'));
+                    chooseAccountModal.show();
+                });
+            });
+        </script>
         
         <header class="header">
             <div class="searchbar">
@@ -87,7 +204,7 @@
         <section class="sidebar">
             <div class="container">
                 <div class="logo">
-
+                    <img src="./assets/poppyhead-nobg.png" alt="Poppy Logo" style="max-width: 110%; height: auto;">
                 </div>
                 <div class="TPoppy">
                     <h3>Teacher Poppy</h3>
