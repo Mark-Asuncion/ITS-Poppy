@@ -90,8 +90,8 @@ a {
         "logo name"
         "logo ver";
     
-    padding: 25px;
-    grid-column-gap: 10px;
+    padding: 20px 20px 0px 20px;
+    grid-column-gap: 15px;
     grid-row-gap: 0px;
     margin-top: 10px;
 }
@@ -99,19 +99,21 @@ a {
 .logo {
     grid-area: logo;
 
-    background-color: black;
-    border-radius: 50%;
     width: 100%;
     height: 100%;
 }
 
 .TPoppy {
     grid-area: name;
-    font-size: 1.2rem;
+
+    font-size: 19.12px;
+    margin-top: 18px;
 }
 
 .ver{
     grid-area: ver;
+
+    margin: -4px 0px 0px 2.5px;
 }
 
 .sidebar > .container:nth-child(2) {
