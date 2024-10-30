@@ -249,3 +249,14 @@ export async function analyze_line(line: string): Promise<LineCodeTokens[]> {
     }
     return [];
 }
+
+export async function save_post_test_answers(answers: string[]) {
+    try {
+        await invoke("save_post_test_answers", { answers });
+    }
+    catch (e) {
+        console.error(e);
+        createErrorModal(JSON.stringify(e));
+    }
+}
+

@@ -1,3 +1,4 @@
+import { save_post_test_answers } from "../../scripts/backendconnector";
 import { DiagramGroup } from "../../scripts/canvas/diagramgroup";
 import { createDiagramFrom, getPlacementPos } from "../../scripts/canvas/utils";
 import { Lint } from "../../scripts/lint";
@@ -929,6 +930,7 @@ my_array = [0,1,2]
                     dialogType: DialogType.NEXT,
                     cb: (() => this.cursor++).bind(this)
                 });
+                save_post_test_answers(this.answers);
                 break;
             default:
                 Poppy.tutorial = null;

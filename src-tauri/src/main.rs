@@ -60,6 +60,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             file::write_diagrams_to_modules,
             file::load_modules,
+            file::save_post_test_answers,
             state::set_cwd,
             state::get_cwd,
             state::get_cwd_name,

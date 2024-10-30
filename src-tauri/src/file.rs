@@ -7,7 +7,9 @@ use std::{
 use std::collections::HashMap;
 
 use crate::{state::GlobalState, config::constants::{PROJECT_CONFIG_NAME, DOTPOPPY, get_dot_poppy, DOT_MODULE_POSITIONS}};
-use tauri::State;
+use crate::error;
+use crate::config::constants;
+use tauri::{State, AppHandle};
 
 pub fn open_write(path: &Path) -> io::Result<File> {
     File::options()
@@ -324,4 +326,44 @@ pub async fn write_diagrams_to_modules(modules: String, gs: State<'_, GlobalStat
         }
     }
     Ok(())
+}
+
+#[tauri::command]
+pub fn save_post_test_answers(answers: Vec<String>, gs: State<GlobalState>, app_handle: AppHandle) {
+    let mut p = app_handle.path_resolver().app_data_dir()
+            .expect(error::Error::DATA_DIR_FAIL.to_string().as_str());
+    let profile_name = gs.get_profile();
+    p.push(constants::D_LOGS);
+    p.push(&profile_name);
+    if !p.exists() {
+        if let Err(e) = create_dir_all(&p) {
+            dbg!(e);
+            return;
+        }
+    }
+    p.push("posttest.anwers.json");
+
+    let file = open_write(&p);
+    if let Err(e) = file {
+        dbg!(&e);
+        dbg!(answers);
+        return;
+    }
+
+    let mut file = file.unwrap();
+
+    let to_str = serde_json::to_string_pretty(&answers);
+    if let Err(e) = to_str {
+        dbg!(&e);
+        dbg!(answers);
+        return;
+    }
+
+    let to_str = to_str.unwrap();
+
+    if let Err(e) = file.write_all(to_str.as_bytes()) {
+        dbg!(e);
+        dbg!(answers);
+        return;
+    }
 }
