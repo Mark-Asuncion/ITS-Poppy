@@ -107,9 +107,12 @@ export class Tutorial01 extends Tutorial {
                     message: `Now lets assign a new value to <span class="accent">year</span> instead of an int type lets assign a string 2024. String are values enclosed with <span class="accent">""</span> or <span class="accent">''</span>`,
                     dialogType: DialogType.NONE,
                 });
-                this.content.push(this.content[0]);
-                this.content[0] += `year = "2024"\n`;
-                this.content[1] += `year = '2024'\n`;
+                if (this.content.length == 1) {
+                    this.content.push(this.content[0]);
+                    this.content[0] += `year = "2024"\n`;
+                    this.content[1] += `year = '2024'\n`;
+                }
+                console.log(this.content);
                 Poppy.addOnModified([
                     {
                         name: "main",
