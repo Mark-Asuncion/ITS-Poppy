@@ -347,6 +347,7 @@ export class DiagramGroup extends Konva.Group {
 
             nodeInfo.text = line.trim();
             nodeInfo.type = findNodeType(line);
+            // console.log(nodeInfo, prevNodeInfo);
 
             if (prevNodeInfo && tabCount === prevNodeInfo.tabCount) {
                 if (prevNodeInfo.type !== "statement" &&
@@ -372,12 +373,19 @@ export class DiagramGroup extends Konva.Group {
             }
             else if (prevNodeInfo && tabCount > prevNodeInfo.tabCount) {
                 let diff = Math.min(tabCount - prevNodeInfo.tabCount, 3);
-                // console.log(nodeInfos.slice(), nodeInfo, diff);
+                // console.log(diff);
                 if (diff > 1 && prevNodeInfo.type !== "statement") {
                     nodeInfos.push({
                         text: "",
                         tabCount: tabCount,
                         type: `indent${diff-1}`
+                    });
+                }
+                else if (diff >= 1 && prevNodeInfo.type === "statement") {
+                    nodeInfos.push({
+                        text: "",
+                        tabCount: tabCount,
+                        type: `indent${diff}`
                     });
                 }
             }
