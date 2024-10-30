@@ -6,7 +6,7 @@ import { BaseDiagram } from "./basediagram";
 import { Theme } from "../../themes/diagram";
 import Konva from "konva";
 import { BaseGroup } from "./basegroup";
-import { Function } from "./blocks/function";
+import { DefFunction, Function } from "./blocks/function";
 import { Class } from "./blocks/class";
 
 export function isPointIntersectRect(
@@ -122,6 +122,11 @@ export function findNodeType(line: string) {
         return "function";
     }
 
+    let deffunctionMatch = lineTrim.match(/^def\s[a-zA-Z_]\w*\(.*\):/);
+    if (deffunctionMatch && deffunctionMatch.length > 0) {
+        return "def";
+    }
+
     let classMatch = lineTrim.match(/class\s.*:/);
     if (classMatch && classMatch.length > 0) {
         return "class";
@@ -164,6 +169,17 @@ export function createDiagramFrom(type: string, line: string = ""): BaseDiagram 
                 content = line.replace(/while|:/g, "").trim();
             }
             return new While(content)
+        case "def":
+            if (line.length > 0) {
+                let funInfo = /(.*)\((.*)\)/.exec(line);
+                if (funInfo == null) {
+                    break;
+                }
+                return new DefFunction(funInfo[1].trim(), funInfo[2].trim());
+            }
+            else {
+                return new DefFunction();
+            }
         case "function":
             if (line.length > 0) {
                 let funInfo = /(.*)\((.*)\)/.exec(line);

@@ -52,7 +52,7 @@ export class Statement extends BaseDiagram {
         console.log(type, content);
 
         const diagram = createDiagramFrom(type, content);
-        console.log(diagram);
+        // console.log(diagram);
 
         const indexPos = this.getIndexPos();
         if (indexPos == -1) {
@@ -81,6 +81,11 @@ export class Statement extends BaseDiagram {
         if (e.key === "Enter") {
 
             let node: Statement;
+            let t = (this.components[0] as TextBox).text.text();
+            console.log(t);
+            if (t.length > 0) {
+                return;
+            }
             if (indexPos < p.nodes.length-1) {
                 node = createDiagramFrom("statement");
                 p.nodes.splice(indexPos+1,0,node);

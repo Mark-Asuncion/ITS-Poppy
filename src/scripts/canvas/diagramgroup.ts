@@ -347,6 +347,7 @@ export class DiagramGroup extends Konva.Group {
 
             nodeInfo.text = line.trim();
             nodeInfo.type = findNodeType(line);
+            // console.log(nodeInfo, prevNodeInfo);
 
             if (prevNodeInfo && tabCount === prevNodeInfo.tabCount) {
                 if (prevNodeInfo.type !== "statement" &&
@@ -360,20 +361,31 @@ export class DiagramGroup extends Konva.Group {
             }
             else if (prevNodeInfo && tabCount < prevNodeInfo.tabCount) {
                 // endblock
-                nodeInfos.push({
-                    text: "",
-                    tabCount: tabCount,
-                    type: "endblock"
-                });
+                let tbCount = prevNodeInfo.tabCount;
+                while (tabCount < tbCount) {
+                    nodeInfos.push({
+                        text: "",
+                        tabCount: tabCount,
+                        type: "endblock"
+                    });
+                    tbCount--;
+                }
             }
             else if (prevNodeInfo && tabCount > prevNodeInfo.tabCount) {
                 let diff = Math.min(tabCount - prevNodeInfo.tabCount, 3);
-                // console.log(nodeInfos.slice(), nodeInfo, diff);
+                // console.log(diff);
                 if (diff > 1 && prevNodeInfo.type !== "statement") {
                     nodeInfos.push({
                         text: "",
                         tabCount: tabCount,
                         type: `indent${diff-1}`
+                    });
+                }
+                else if (diff >= 1 && prevNodeInfo.type === "statement") {
+                    nodeInfos.push({
+                        text: "",
+                        tabCount: tabCount,
+                        type: `indent${diff}`
                     });
                 }
             }
@@ -421,4 +433,29 @@ export class DiagramGroup extends Konva.Group {
         });
         this.add(rect);
     }
+    //
+    // focus(n: number) {
+    //     if (this.nodes.length == 0 || this.nodes[n] == undefined) {
+    //         return;
+    //     }
+    //     const ch = this.nodes[n];
+    //
+    //     let chpos = {
+    //         x: this.x() + ch.x(),
+    //         y: this.y() + ch.y()
+    //     };
+    //
+    //     const stage = this.getStage()!;
+    //     const container = stage.container().getBoundingClientRect();
+    //     const bg = window.mCvRootNode.node;
+    //     const pos = {
+    //         x: clamp( container.width * .5 - chpos.x, -bg.width(), bg.width() - container.width ),
+    //         y: clamp( container.height * .5 - chpos.y, -bg.height(), bg.height() - container.height )
+    //     };
+    //
+    //     // console.log("focus: ", pos);
+    //     bg.setPosition(pos);
+    //     bg.clamp();
+    //
+    // }
 }

@@ -92,6 +92,9 @@ for (let i=0;i<keys.length;i++) {
             case "endblock":
                 img.src = imgEndblock;
                 break;
+            case "def":
+                img.src = imgFunction;
+                break;
             case "function":
                 img.src = imgFunction;
                 break;

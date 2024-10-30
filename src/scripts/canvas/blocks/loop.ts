@@ -74,11 +74,8 @@ export class For extends BaseDiagram {
         pos.x += this.components[0].width() + padding;
         this.components[1].setPosition(pos);
 
-        this.components[4].x(
-            this.width() - padding - this.components[4].width()
-        );
-        this.components[4].y(pos.y);
-
+        let tb1 = this.components[1] as TextBox;
+        let tb2 = this.components[3] as TextBox;
         // placed 0 .... 4
         // get the remaining space assuming 2 is placed
         const totalWidths = this.components[0].width() + this.components[2].width() 
@@ -86,15 +83,26 @@ export class For extends BaseDiagram {
         let remainSpace = this.width() - (totalWidths + padding * 6)
 
         this.components[1].setPosition(pos);
-        this.components[1].setSize({width: remainSpace * .2});
-        (this.components[1] as TextBox).minWidth = remainSpace * .2;
+        if (tb1.text.text().length == 0) {
+            this.components[1].setSize({width: remainSpace * .2});
+            (this.components[1] as TextBox).minWidth = remainSpace * .2;
+        }
 
         pos.x += this.components[1].width() + padding;
         this.components[2].setPosition(pos);
         pos.x += this.components[2].width() + padding;
         this.components[3].setPosition(pos);
-        this.components[3].setSize({width: remainSpace * .8});
-        (this.components[3] as TextBox).minWidth = remainSpace * .8;
+        if (tb2.text.text().length == 0) {
+            this.components[3].setSize({width: remainSpace * .8});
+            (this.components[3] as TextBox).minWidth = remainSpace * .8;
+        }
+
+        this.components[4].x(
+            this.components[3].x() + this.components[3].width() + padding
+        );
+
+        this.components[4].y(pos.y);
+        this.setSize({ width: this.components[4].x() + this.components[4].width() + padding });
     }
 
     refresh() {
@@ -179,9 +187,20 @@ export class While extends BaseDiagram {
         );
         this.components[2].y(pos.y);
 
-        let tboxw = this.width() - (this.components[0].width() + this.components[2].width() + padding * 4)
-        this.components[1].setSize({width: tboxw});
-        (this.components[1] as TextBox).minWidth = tboxw;
+        let tb = this.components[1] as TextBox;
+        if (tb.text.text().length == 0) {
+            let tboxw = this.width() - (this.components[0].width() + this.components[2].width() + padding * 4)
+            this.components[1].setSize({width: tboxw});
+            (this.components[1] as TextBox).minWidth = tboxw;
+        }
+        else {
+            let nwidth = this.components[1].x() + this.components[1].width() + padding
+                + this.components[2].width() + padding;
+            this.setSize({ width: nwidth });
+            this.components[2].x(
+                this.width() - padding - this.components[2].width()
+            );
+        }
     }
 
     refresh() {
