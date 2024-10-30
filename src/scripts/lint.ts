@@ -9,6 +9,7 @@ import { setHover } from "./canvas/tooltip";
 export class Lint {
     static list: LintInfo[] = [];
     static lastOpenedAuto: number = 0;
+    static autoOpen = true;
 
     static async lint() {
         let lintinfo = await lint();
@@ -21,19 +22,22 @@ export class Lint {
         }
 
         if (lintinfo.length != 0) {
-            Poppy.swapDialog = {
-                message: "There are pending error/s",
-                dialogType: DialogType.NONE,
-                timeout: 5000,
-                notif: true
-            };
+            if (Lint.autoOpen) {
+                Poppy.swapDialog = {
+                    message: "There are pending error/s",
+                    dialogType: DialogType.NONE,
+                    timeout: 5000,
+                    notif: true
+                };
+            }
         }
 
-        if (Lint.list.length !== 0 && (Date.now() - Lint.lastOpenedAuto < 5000 || Lint.lastOpenedAuto == 0)) {
-            if (window.mFocusDiagram != true)
-                Lint.open();
-            Lint.lastOpenedAuto = Date.now();
-        }
+        if (Lint.autoOpen)
+            if (Lint.list.length !== 0 && (Date.now() - Lint.lastOpenedAuto < 5000 || Lint.lastOpenedAuto == 0)) {
+                if (window.mFocusDiagram != true)
+                    Lint.open();
+                Lint.lastOpenedAuto = Date.now();
+            }
     }
 
     static fill() {

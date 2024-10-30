@@ -360,11 +360,15 @@ export class DiagramGroup extends Konva.Group {
             }
             else if (prevNodeInfo && tabCount < prevNodeInfo.tabCount) {
                 // endblock
-                nodeInfos.push({
-                    text: "",
-                    tabCount: tabCount,
-                    type: "endblock"
-                });
+                let tbCount = prevNodeInfo.tabCount;
+                while (tabCount < tbCount) {
+                    nodeInfos.push({
+                        text: "",
+                        tabCount: tabCount,
+                        type: "endblock"
+                    });
+                    tbCount--;
+                }
             }
             else if (prevNodeInfo && tabCount > prevNodeInfo.tabCount) {
                 let diff = Math.min(tabCount - prevNodeInfo.tabCount, 3);

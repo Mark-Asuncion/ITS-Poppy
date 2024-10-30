@@ -52,7 +52,7 @@ export class Statement extends BaseDiagram {
         console.log(type, content);
 
         const diagram = createDiagramFrom(type, content);
-        console.log(diagram);
+        // console.log(diagram);
 
         const indexPos = this.getIndexPos();
         if (indexPos == -1) {
