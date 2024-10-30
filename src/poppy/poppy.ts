@@ -7,6 +7,13 @@ import { Lint } from "../scripts/lint";
 import { Idle } from "./animation/idle";
 import { Walk } from "./animation/walk";
 import { Tutorial00 } from "./tutorials/tutorial00";
+import { Tutorial02 } from "./tutorials/tutorial02";
+import { Tutorial03 } from "./tutorials/tutorial03";
+import { Tutorial04 } from "./tutorials/tutorial04";
+import { Tutorial05 } from "./tutorials/tutorial05";
+import { Tutorial06 } from "./tutorials/tutorial06";
+import { Tutorial07 } from "./tutorials/tutorial07";
+import { Tutorial08 } from "./tutorials/tutorial08";
 import { isPointIntersectRect, clamp } from "../scripts/canvas/utils";
 import { JumpingRope, Pokeball, SwattingFly } from "./animation/idleBored";
 import { PostTest } from "./tutorials/posttest";
@@ -156,6 +163,27 @@ export class Poppy {
                 break;
             case 1:
                 Poppy.tutorial = new Tutorial01();
+                break;
+            case 2:
+                Poppy.tutorial = new Tutorial02();
+                break;
+            case 3:
+                Poppy.tutorial = new Tutorial03();
+                break;
+            case 4:
+                Poppy.tutorial = new Tutorial04();
+                break;
+            case 5:
+                Poppy.tutorial = new Tutorial05();
+                break;
+            case 6:
+                Poppy.tutorial = new Tutorial06();
+                break;
+            case 7:
+                Poppy.tutorial = new Tutorial07();
+                break;
+            case 8:
+                Poppy.tutorial = new Tutorial08();
                 break;
             case 10:
                 Poppy.tutorial = new PostTest();
