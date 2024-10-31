@@ -8,6 +8,7 @@ import Konva from "konva";
 import { BaseGroup } from "./basegroup";
 import { DefFunction, Function } from "./blocks/function";
 import { Class } from "./blocks/class";
+import { Except, Try } from "./blocks/error";
 
 export function isPointIntersectRect(
     point: { x: number, y: number },
@@ -117,6 +118,16 @@ export function findNodeType(line: string) {
         return "while";
     }
 
+    let tryMatch = lineTrim.match(/try:/);
+    if (tryMatch && tryMatch.length > 0) {
+        return "try";
+    }
+
+    let exceptMatch = lineTrim.match(/except\s.*:/);
+    if (exceptMatch && exceptMatch.length > 0) {
+        return "except";
+    }
+
     let functionMatch = lineTrim.match(/^[a-zA-Z_]\w*\(.*\)/);
     if (functionMatch && functionMatch.length > 0) {
         return "function";
@@ -202,6 +213,13 @@ export function createDiagramFrom(type: string, line: string = ""): BaseDiagram 
                 theme: Theme.Diagram.Statement,
                 diagramType: "endblock"
             });
+        case "try":
+            return new Try();
+        case "except":
+            if (line.length > 0) {
+                content = line.replace(/except|:/g, "").trim();
+            }
+            return new Except(content)
         case "indent0":
         case "indent1":
         case "indent2":

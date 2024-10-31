@@ -213,17 +213,15 @@ export function init() {
             case "loop-while":
                 dgGroup.addDiagram(createDiagramFrom("while"));
                 break;
-            case "function":
-                dgGroup.addDiagram(createDiagramFrom("function"));
-                break;
-            case "def":
-                dgGroup.addDiagram(createDiagramFrom("def"));
-                break;
-            case "class":
-                dgGroup.addDiagram(createDiagramFrom("class"));
+            case "try":
+                dgGroup.addDiagram(createDiagramFrom("try"));
+                dgGroup.addDiagram(createDiagramFrom("statement"));
+                dgGroup.addDiagram(createDiagramFrom("endblock"));
+                dgGroup.addDiagram(createDiagramFrom("except"));
+                dgGroup.addDiagram(createDiagramFrom("statement"));
                 break;
             default:
-                dgGroup.addDiagram(createDiagramFrom("statement"));
+                dgGroup.addDiagram(createDiagramFrom(type));
                 console.warn("SHOULD NOT HAPPEN");
                 break;
         }

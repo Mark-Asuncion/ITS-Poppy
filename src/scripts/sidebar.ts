@@ -10,6 +10,8 @@ import imgFunction from "../assets/blocks/Function.png";
 import imgClass from "../assets/blocks/Class.png";
 import imgWhile from "../assets/blocks/While.png";
 import imgDef from "../assets/blocks/Def.png";
+import imgTry from "../assets/blocks/Try.png";
+import imgExcept from "../assets/blocks/Except.png";
 
 // const container = document.querySelector("#sidebar-container")! as HTMLDivElement;
 const sidebarBtn = document.querySelectorAll('[aria-role="sidebar-button"]');
@@ -55,13 +57,14 @@ const diagramView = document.querySelector("#diagram-view")!;
 const keys = Object.keys(SIDEBAR)
 for (let i=0;i<keys.length;i++) {
     const div = document.createElement("div");
-    const key = keys[i];
+    let key = keys[i];
     div.classList.add("d-flex");
     div.classList.add("flex-dir-col");
     const emblemContainer = document.createElement("div");
     emblemContainer.classList.add("d-flex");
     emblemContainer.classList.add("diagram-title-container");
-    emblemContainer.innerHTML = `<div class="diagram-emblem diagram-${key.toLowerCase()}"></div><p class="diagram-title">${key}</p>`;
+    let content = ( SIDEBAR[key].name != undefined )? SIDEBAR[key].name:key;
+    emblemContainer.innerHTML = `<div class="diagram-emblem diagram-${key.toLowerCase()}"></div><p class="diagram-title">${content}</p>`;
     div.appendChild(emblemContainer);
 
     const items: string[] = SIDEBAR[key].items;
@@ -101,6 +104,12 @@ for (let i=0;i<keys.length;i++) {
                 break;
             case "class":
                 img.src = imgClass;
+                break;
+            case "try":
+                img.src = imgTry;
+                break;
+            case "except":
+                img.src = imgExcept;
                 break;
             default:
                 img.src = imgStatement;

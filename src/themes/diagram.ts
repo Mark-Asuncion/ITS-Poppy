@@ -54,6 +54,10 @@ export const Theme = {
             stroke: "#107745",
             fill: "#1AC673",
         },
+        TryExcept: {
+            stroke: "#883a0b",
+            fill: "#ba500e",
+        },
         Loop: {
             stroke: "#a6600e",
             fill: "#ED9227",
@@ -127,6 +131,17 @@ export const SIDEBAR = {
             "This is a Function diagram.",
             "This is a DefFunction diagram. use to define a function",
             "This is a Class diagram.",
+        ]
+    },
+    ErrorHandling: {
+        name: "Error Handling",
+        items: [
+            "try",
+            "except"
+        ],
+        tooltip: [
+            "This is a Try diagram.",
+            "This is a Except diagram."
         ]
     }
 }

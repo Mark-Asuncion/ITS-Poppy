@@ -4,6 +4,7 @@
     --dg-control: #1AC673;
     --dg-loop: #ED9227;
     --dg-utilities: #2782ED;
+    --dg-error: #ba500e;
 }
 
 div#diagram-container {
@@ -48,9 +49,16 @@ input.canvas-edit, textarea.canvas-edit {
 
 .diagram-emblem {
     width: 20%;
+    height: 20%;
+    margin-top: auto;
+    margin-bottom: auto;
     aspect-ratio: 1 / 1;
     border: 2px solid var(--dg-border);
     border-radius: 100px;
+}
+
+.diagram-try, .diagram-except, .diagram-errorhandling {
+    background-color: var(--dg-error);
 }
 
 .diagram-statement, .diagram-endblock {
