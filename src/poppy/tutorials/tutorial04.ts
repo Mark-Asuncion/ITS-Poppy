@@ -64,7 +64,7 @@ export class Tutorial04 extends Tutorial {
                 Poppy.addOnModified([
                     {
                         name: "main",
-                        content: "i = 0\nwhile i < 5:\n\tprint(i)\n\ti += 1\n"
+                        content: "i = 0\nwhile i < 5:\n\tprint(i)\n\ti + = 1\n"
                     }
                 ], (() => this.cursor = 6).bind(this), (() => {}).bind(this));
                 break;

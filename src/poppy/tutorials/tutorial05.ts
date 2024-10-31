@@ -57,17 +57,17 @@ export class Tutorial05 extends Tutorial {
             break;
         case 5:
             Poppy.display({
-                message: "Here's an example using elif: <br><span class=\"info\">age = 18 <br>if age < 18: <br>print('You are a child.')<br> elif age >= 18: <br>print('You are a teenager.')</span>",
+                message: "<pre>Here's an example using elif: <br><span class=\"info\">age = 13 <br>if age < 13: <br>    print('You are a child.')<br> elif age < 18: <br>   print('You are a teenager.')</span></pre>",
                 dialogType: DialogType.NONE
             });
             Poppy.addOnModified([
                 {
                     name: "main",
-                    content: "age = 18\nif age < 18:\n\tprint('You are a child.')\nelif age >= 18:\n\tprint('You are a teenager.')\n"
+                    content: "age = 13\nif age < 13:\n\tprint('You are a child.')\nelif age < 18:\n\tprint('You are a teenager.')\n"
                 },
                 {
                     name: "main",
-                    content: "age = 18\nif age < 18:\n\tprint(\"You are a child.\")\nelif age >= 18:\n\tprint(\"You are a teenager.\")\n"
+                    content: "age = 13\nif age < 13:\n\tprint(\"You are a child.\")\nelif age < 18:\n\tprint(\"You are a teenager.\")\n"
                 }
             ], (() => this.cursor = 6).bind(this), (() => {}).bind(this));
             break;
@@ -87,7 +87,7 @@ export class Tutorial05 extends Tutorial {
             break;
         case 8:
             Poppy.display({
-                message: "Here’s a complete example: <br><span class=\"info\"> age = 13 <br>if age < 13: <br>print('You are a child.') <br>elif age < 18 and age >= 13: <br>print('You are a teenager.') <br>else: <br>print('You are an adult.')</span>",
+                message: "Here’s a complete example: <pre><<span class=\"info\">age = 13 <br>if age < 13: <br>    print('You are a child.') <br>elif age < 18 and age >= 13: <br>    print('You are a teenager.') <br>else: <br>    print('You are an adult.')</span>",
                 dialogType: DialogType.NONE
             });
             Poppy.addOnModified([
