@@ -15,6 +15,7 @@ import { setHover } from "./canvas/tooltip";
 
 function setEditorContextButtons(container: HTMLDivElement) {
     const div = document.createElement("div");
+    div.id = "editor-context-container";
     div.classList.add("d-flex", "editor-ctx-btns");
     if (Poppy.tutorial !== null) {
         div.innerHTML = `
@@ -151,7 +152,7 @@ export function init() {
 
     document.addEventListener("keyup", (e) => {
         if (isPointIntersectRect(window.mCursor, domContainer.getBoundingClientRect())) {
-            console.log(window.mSelected);
+            // console.log(window.mSelected);
             if (!window.mSelected) {
                 return;
             }

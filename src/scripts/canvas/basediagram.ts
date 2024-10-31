@@ -364,6 +364,7 @@ export class BaseDiagram extends Group {
 
     onTextChanged(e: TextChangedEvent) {
         e;
+        console.log(this.getContent());
         Poppy.onModified();
     }
 

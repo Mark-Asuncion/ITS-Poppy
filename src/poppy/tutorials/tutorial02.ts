@@ -1,3 +1,4 @@
+import { Lint } from "../../scripts/lint";
 import { DialogType, Tutorial } from "../interface";
 import { Poppy } from "../poppy";
 
@@ -5,8 +6,9 @@ export class Tutorial02 extends Tutorial {
     // cursorErrReturn: number = 1;
     constructor() {
         super();
-        this.name = "Variables";
+        this.name = "Arrays";
         this.cursor = 0;
+        Lint.autoOpen = false;
     }
 
     update() {
@@ -78,6 +80,12 @@ export class Tutorial02 extends Tutorial {
             case 7:
                 Poppy.display({
                     message: "Now, let's try to print the last element.",
+                    onDisplay: () => {
+                        Poppy.addHint({
+                            message: `If the 1st element of the list is <span class="accent">0</span>, and the 2nd element is <span class="accent">1</span> what is the index of the last element`,
+                            dialogType: DialogType.NEXT
+                        })
+                    },
                     dialogType: DialogType.NONE,
                 });
                 Poppy.addOnModified([
@@ -85,7 +93,10 @@ export class Tutorial02 extends Tutorial {
                         name: "main",
                         content: "subjects = ['Math', 'English', 'Science', 'Filipino']\nprint(subjects)\nprint(subjects[0])\nprint(subjects[3])\n"
                     },
-                ], (() => this.cursor = 8).bind(this), (() => this.cursor = -3 ).bind(this));
+                ], (() => {
+                        this.cursor = 8;
+                        Poppy.removeHint();
+                    }).bind(this), (() => this.cursor = -3 ).bind(this));
                 break;
             case 8:
                 Poppy.display({

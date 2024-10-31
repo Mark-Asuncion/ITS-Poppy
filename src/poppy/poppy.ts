@@ -17,6 +17,7 @@ import { Tutorial08 } from "./tutorials/tutorial08";
 import { isPointIntersectRect, clamp } from "../scripts/canvas/utils";
 import { JumpingRope, Pokeball, SwattingFly } from "./animation/idleBored";
 import { PostTest } from "./tutorials/posttest";
+import { setHover } from "../scripts/canvas/tooltip";
 
 // @ts-ignore
 export class Poppy {
@@ -366,6 +367,7 @@ export class Poppy {
             clearTimeout(Poppy.qTimeout);
         Poppy.qTimeout = null;
         Poppy.currDialog = null;
+        Poppy.swapDialog = null;
         containers.forEach((v) => {
             v.remove();
         });
@@ -449,6 +451,7 @@ export class Poppy {
     }
 
     static update() {
+        console.trace("update");
         Poppy.hide();
         if (Poppy.tutorial) {
             setTimeout(() => Poppy.tutorial!.update(), 300);
@@ -504,6 +507,7 @@ export class Poppy {
             console.warn("SHOULD NOT HAPPEN");
         }
         Poppy.onModifiedMutex = true;
+        console.log("modify");
 
         const contents = diagramToModules(window.mCvStage);
         let lint = async () => {
@@ -546,5 +550,35 @@ export class Poppy {
         let el = ( pin as HTMLElement );
         el.style.left = `${window.mCursor.x - el.clientWidth/2}px`;
         el.style.top = `${window.mCursor.y - el.clientHeight}px`;
+    }
+
+    static removeHint() {
+        let btn = document.querySelector("div#editor-context-container > #editor-hint");
+        if (!btn) {
+            return;
+        }
+        btn.remove();
+    }
+
+    static addHint(dialog: PoppyDialog) {
+        if (document.querySelector("div#editor-context-container > #editor-hint")) {
+            return;
+        }
+
+        let div = document.querySelector("div#editor-context-container");
+        if (!div) {
+            return;
+        }
+
+        let btn = document.createElement("button");
+        btn.id = "editor-hint";
+        btn.classList.add("bg-white", "br-none", "self-align-center");
+        btn.innerHTML = `<i class="fa-solid fa-question-circle"></i>`;
+        btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            Poppy.swapDialog = dialog;
+        })
+        setHover(btn, "Hint");
+        div.appendChild(btn);
     }
 }

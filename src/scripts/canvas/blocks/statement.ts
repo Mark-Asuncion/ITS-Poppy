@@ -49,7 +49,7 @@ export class Statement extends BaseDiagram {
         if (type === "statement") {
             return;
         }
-        console.log(type, content);
+//        console.log(type, content);
 
         const diagram = createDiagramFrom(type, content);
         // console.log(diagram);
@@ -82,7 +82,7 @@ export class Statement extends BaseDiagram {
 
             let node: Statement;
             let t = (this.components[0] as TextBox).text.text();
-            console.log(t);
+//            console.log(t);
             if (t.length > 0) {
                 return;
             }
@@ -101,7 +101,7 @@ export class Statement extends BaseDiagram {
             node.focus();
         }
         else if (e.key === "Backspace" && indexPos !== 0) {
-            console.log(`${ e.value }`, typeof(e.value), e.value?.length);
+//            console.log(`${ e.value }`, typeof(e.value), e.value?.length);
             if (e.value != undefined && e.value.length === 0) {
                 const nodeToDes = p.nodes[indexPos];
                 nodeToDes.removeFocus();
