@@ -69,7 +69,7 @@ input.canvas-edit, textarea.canvas-edit {
     background-color: var(--dg-utilities);
 }
 
-.diagram-function,.diagram-class {
+.diagram-function,.diagram-class, .diagram-def {
     background-color: var(--dg-utilities);
 }
 

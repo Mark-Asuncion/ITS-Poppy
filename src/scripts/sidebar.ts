@@ -9,6 +9,7 @@ import imgEndblock from "../assets/blocks/Endblock.png";
 import imgFunction from "../assets/blocks/Function.png";
 import imgClass from "../assets/blocks/Class.png";
 import imgWhile from "../assets/blocks/While.png";
+import imgDef from "../assets/blocks/Def.png";
 
 // const container = document.querySelector("#sidebar-container")! as HTMLDivElement;
 const sidebarBtn = document.querySelectorAll('[aria-role="sidebar-button"]');
@@ -93,7 +94,7 @@ for (let i=0;i<keys.length;i++) {
                 img.src = imgEndblock;
                 break;
             case "def":
-                img.src = imgFunction;
+                img.src = imgDef;
                 break;
             case "function":
                 img.src = imgFunction;
