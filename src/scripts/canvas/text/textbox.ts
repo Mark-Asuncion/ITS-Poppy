@@ -27,6 +27,8 @@ export class TextBox extends BaseText {
         this.autoFill = (textConfig.autoFill != undefined)? textConfig.autoFill:this.autoFill;
         this.textConfig = { ...textConfig };
         delete this.textConfig.text;
+        delete this.textConfig.width;
+        delete this.textConfig.padding;
 
         delete textConfig.autoFill;
         delete textConfig.noBG;
@@ -169,10 +171,9 @@ export class TextBox extends BaseText {
         }
         else {
             let pos = {
-                x: 0,
-                y: 0
+                x: Theme.TextBox.padding,
+                y: Theme.TextBox.padding
             };
-            pos.y = 0;
             let cursor = 0;
             let i = 0;
             // console.log(v, res);
@@ -184,7 +185,6 @@ export class TextBox extends BaseText {
                     i++;
                     continue;
                 }
-                let adjx = 0;
                 if (cursor == token.index) {
                     i++;
                     t = v.substring(token.index, token.index + token.len);
@@ -200,31 +200,31 @@ export class TextBox extends BaseText {
                         color = SyntaxColors.KEYWORD;
                     }
 
-                    adjx = pos.x + this.getTextWidth(t);
                 }
                 else {
                     t = v[cursor];
                     cursor++;
-                    adjx = pos.x + this.getTextWidth(t, t == ' ');
                 }
 
                 this.components.push(new Text({
-                    ...this.textConfig,
+                    fontFamily: this.textConfig.fontFamily!,
+                    fontSize: this.textConfig.fontSize!,
+                    fontStyle: this.textConfig.fontStyle!,
                     text: t,
                     x: pos.x,
                     y: pos.y,
+                    height: this.height(),
                     fill: color,
-                    padding: Theme.TextBox.padding,
                     wrap: Theme.TextBox.wrap,
                 }));
-                pos.x = adjx;
                 let tb = this.components[this.components.length-1];
-                tb.width(tb.width() + tb.padding());
+                pos.x += tb.width();
                 // console.log(tb.position(), `${tb.text()}`, tb.width());
             }
 
             // let boxes: any = [];
             // this.components.forEach((v) => {
+            //     console.log(v.text(), v.width(), this.getTextWidth(v.text(), v.text() == ' '));
             //     let fill = v.fill();
             //     if (fill == SyntaxColors.NAME) {
             //         fill = SyntaxColors.OTHER;
@@ -235,6 +235,12 @@ export class TextBox extends BaseText {
             //     else if (fill == SyntaxColors.NUMBER) {
             //         fill = SyntaxColors.OTHER;
             //     }
+            //     else if (fill == SyntaxColors.STRING) {
+            //         fill = SyntaxColors.NAME;
+            //     }
+            //     else {
+            //         fill = SyntaxColors.NAME;
+            //     }
             //     boxes.push(new Rect({
             //         ...v.getClientRect(),
             //         fill: fill
@@ -242,7 +248,7 @@ export class TextBox extends BaseText {
             // });
             // this.add(...boxes);
             this.add(...this.components);
-            // console.log(this.components);
+            // console.log(this.components.map((v) => v.attrs));
             this.text.hide();
         }
     }
