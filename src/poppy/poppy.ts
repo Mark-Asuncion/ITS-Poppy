@@ -195,6 +195,11 @@ export class Poppy {
     static qDialogFirst(dialog: PoppyDialog) {
         Poppy.qDialog = [dialog, ...Poppy.qDialog];
     }
+    static qDialogRemoveFirst() {
+        if (Poppy.qDialog.length > 0) {
+            Poppy.qDialog.splice(0,1);
+        }
+    }
 
     static init() {
         Poppy.source = document.createElement("div");
@@ -361,13 +366,14 @@ export class Poppy {
         window.requestAnimationFrame(Poppy.poppyOnFrame)
     }
 
-    static hide() {
+    static hide(removeSwap = true) {
         const containers = document.querySelectorAll(".dialog-container");
         if (Poppy.qTimeout)
             clearTimeout(Poppy.qTimeout);
         Poppy.qTimeout = null;
         Poppy.currDialog = null;
-        Poppy.swapDialog = null;
+        if (removeSwap)
+            Poppy.swapDialog = null;
         containers.forEach((v) => {
             v.remove();
         });
@@ -393,7 +399,7 @@ export class Poppy {
             if (Poppy.currDialog.notif == undefined)
                 Poppy.qDialogFirst(Poppy.currDialog);
         }
-        Poppy.hide();
+        Poppy.hide(false);
         Poppy.display(Poppy.swapDialog);
         Poppy.swapDialog = null;
     }
@@ -459,7 +465,7 @@ export class Poppy {
     }
 
     static addOnModified(modules: Module[], onSuccess: () => void, onFail?: () => void) {
-        console.log(modules);
+        console.trace("modules: ", modules);
         Poppy.onModifiedCB = (contents) => {
             let map = new Map<string, string[]>();
             for (let i=0;i<contents.length;i++) {
@@ -520,6 +526,7 @@ export class Poppy {
         // == TUTORIAL ==
         if (Poppy.onModifiedCB) {
             Poppy.onModifiedCB(contents);
+            Poppy.qDialogRemoveFirst();
             Poppy.update();
         }
         Poppy.resetBoredTimer();
