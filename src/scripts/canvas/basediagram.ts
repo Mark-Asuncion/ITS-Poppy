@@ -7,7 +7,7 @@ import { Path } from "konva/lib/shapes/Path";
 import { getSvgPathDimensions } from "./utils";
 import { Shape, ShapeConfig } from "konva/lib/Shape";
 import { BaseText, TextChangedEvent, TextKeyUpEvent } from "./basetext";
-import { clipboard } from "@tauri-apps/api";
+// import { clipboard } from "@tauri-apps/api";
 import { notifyPush } from "../notify";
 import { Text } from "konva/lib/shapes/Text";
 import { Poppy } from "../../poppy/poppy";
@@ -234,16 +234,18 @@ export class BaseDiagram extends Group {
             parent.destroy();
         }
         notifyPush("Deleted a Diagram", "info", 1000);
+        if (Poppy.onDelete)
+            Poppy.onDelete();
     }
 
     onContextMenu() {
         window.mContextMenu = [];
-        window.mContextMenu.push({ name: "Copy Diagram",
-            callback: () => {
-                if (this.getContent().length != 0)
-                clipboard.writeText(this.getContent());
-            }
-        });
+        // window.mContextMenu.push({ name: "Copy Diagram",
+        //     callback: () => {
+        //         if (this.getContent().length != 0)
+        //         clipboard.writeText(this.getContent());
+        //     }
+        // });
         window.mContextMenu.push({
             name: "Delete",
             callback: this.delete.bind(this)
@@ -255,6 +257,8 @@ export class BaseDiagram extends Group {
                     this.parent.remove();
                     this.parent.destroy();
                 }
+                if (Poppy.onDelete)
+                    Poppy.onDelete();
             }).bind(this)
         });
     }

@@ -1,3 +1,6 @@
+import { DiagramGroup } from "../../scripts/canvas/diagramgroup";
+import { createDiagramFrom } from "../../scripts/canvas/utils";
+import { Lint } from "../../scripts/lint";
 import { DialogType, Tutorial } from "../interface";
 import { Poppy } from "../poppy";
 
@@ -6,6 +9,7 @@ export class Tutorial03 extends Tutorial {
         super();
         this.name = "Loops";
         this.cursor = 0;
+        Lint.autoOpen = false;
     }
 
     update() {
@@ -21,8 +25,54 @@ export class Tutorial03 extends Tutorial {
                 Poppy.display({
                     message: "Let's start with the <span class=\"info\">for loop</span>. A for loop iterates over a sequence, such as a list, tuple, or range of numbers. This allows you to process each item in the sequence one at a time.",
                     dialogType: DialogType.NEXT,
-                    cb: (() => this.cursor = 2).bind(this)
+                    cb: (() => this.cursor = 11).bind(this)
                 });
+                break;
+            case 11:
+                Poppy.display({
+                    message: `First let's drag a <span class="accent">For loop</span> diagram to the editor`,
+                    onDisplay: (() => {
+                    const btn = document.querySelector("#btn-diagram-view")! as HTMLElement;
+                        if ( !btn.classList.contains("active") ) {
+                            btn.click();
+                            const tname = btn.getAttribute("aria-target")!;
+                            const target = document.querySelector("#" + tname)! as HTMLDivElement;
+                            const diagram = document.querySelector("img[data-diagram-type=\"loop-for\"]")! as HTMLElement;
+                            target.scrollTo({
+                                top: 400,
+                                behavior: "instant",
+                            });
+                            this.highlight(diagram, (() => {}), true);
+                            const rect = diagram.getBoundingClientRect();
+                            const targetPos = {
+                                x: rect.x + rect.width + 5,
+                                y: rect.y + 40
+                            };
+                            const distance = {
+                                x: Math.abs(Poppy.pos.x - targetPos.x),
+                                y: Math.abs(Poppy.pos.y - targetPos.y)
+                            };
+                            if (distance.x != 0 && distance.y != 0)
+                            Poppy.targetPos = targetPos;
+                        }
+                    }).bind(this),
+                    dialogType: DialogType.NONE,
+                    timeout: -1
+                });
+                Poppy.onDiagramDrop = (() => {
+                    let dgs = window.mCvRootNode.getDiagramGroups();
+                    if (dgs.length == 0) {
+                        return;
+                    }
+                    if (dgs[0].nodes[0].name() == "For") {
+                        this.cursor = 2;
+                        this.highlightRemove();
+                        Poppy.qDialogRemoveFirst();
+                        Poppy.update();
+                        Poppy.onDiagramDrop = null;
+                        return;
+                    }
+                }).bind(this);
                 break;
             case 2:
                 Poppy.display({
@@ -64,9 +114,87 @@ export class Tutorial03 extends Tutorial {
                 break;
             case 4:
                 Poppy.display({
-                    message: "Awesome! Now, let's explore the <span class=\"info\">while loop</span>. A while loop continues executing as long as a given condition is true. This is useful when you don't know in advance how many times you'll need to iterate. Delete the first Diagram Module to start a new one.",
+                    message: `Awesome! Now, let's explore the <span class=\"info\">while loop</span>. First let's <span class="accent">remove</span> the <span class="info">for loop diagram</span> we made. You can do so by <code>Right Click on the diagram</code> and click <span class="accent">Delete Module</span>`,
+                    dialogType: DialogType.NONE,
+                    timeout: -1
+                });
+                Poppy.onDelete = (() => {
+                    let dgs = window.mCvRootNode.getDiagramGroups();
+                    if (dgs.length == 0) {
+                        this.cursor = 41;
+                        Poppy.onDelete = null;
+                        Poppy.qDialogRemoveFirst();
+                        Poppy.update();
+                        return;
+                    }
+
+                }).bind(this);
+                break;
+            case 41:
+                Poppy.display({
+                    message: `Now let's drag a <span class="accent">While loop</span> diagram to the editor`,
+                    onDisplay: (() => {
+                    const btn = document.querySelector("#btn-diagram-view")! as HTMLElement;
+                        if ( !btn.classList.contains("active") ) {
+                            btn.click();
+                        }
+                        const tname = btn.getAttribute("aria-target")!;
+                        const target = document.querySelector("#" + tname)! as HTMLDivElement;
+                        const diagram = document.querySelector("img[data-diagram-type=\"loop-while\"]")! as HTMLElement;
+                        target.scrollTo({
+                            top: 400,
+                            behavior: "instant",
+                        });
+                        this.highlight(diagram, (() => {}), true);
+                        const rect = diagram.getBoundingClientRect();
+                        const targetPos = {
+                            x: rect.x + rect.width + 5,
+                            y: rect.y + 40
+                        };
+                        const distance = {
+                            x: Math.abs(Poppy.pos.x - targetPos.x),
+                            y: Math.abs(Poppy.pos.y - targetPos.y)
+                        };
+                        if (distance.x != 0 && distance.y != 0)
+                        Poppy.targetPos = targetPos;
+                    }).bind(this),
+                    dialogType: DialogType.NONE,
+                    timeout: -1
+                });
+
+                Poppy.onDiagramDrop = (() => {
+                    let dgs = window.mCvRootNode.getDiagramGroups();
+                    if (dgs.length == 0) {
+                        return;
+                    }
+                    if (dgs[0].nodes[0].name() == "While") {
+                        this.cursor = 42;
+                        this.highlightRemove();
+                        Poppy.qDialogRemoveFirst();
+                        Poppy.update();
+                        Poppy.onDiagramDrop = null;
+                        return;
+                    }
+                }).bind(this);
+                break;
+            case 42:
+                Poppy.display({
+                    message: `A while loop continues executing as long as a given condition is true. This is useful when you don't know in advance how many times you'll need to iterate.`,
                     dialogType: DialogType.NEXT,
-                    cb: (() => this.cursor = 5).bind(this)
+                    cb: (() => {
+                        this.cursor = 5;
+                        let dgs = window.mCvRootNode.getDiagramGroups()
+                        let pos = dgs[0].position();
+                        dgs.forEach((d) => {
+                            d.remove();
+                            d.destroy();
+                        });
+                        const dgGroup = new DiagramGroup(pos);
+                        dgGroup.addDiagram(createDiagramFrom("statement"));
+                        dgGroup.addDiagram(createDiagramFrom("while"));
+                        dgGroup.refresh();
+                        window.mCvRootNode.node.add(dgGroup);
+                    }).bind(this)
                 });
                 break;
             case 5:
@@ -79,7 +207,8 @@ export class Tutorial03 extends Tutorial {
                         name: "main",
                         content: "i = 0\nwhile i < 5:\n\tprint(i)\n\ti += 1\n"
                     }
-                ], (() => this.cursor = 6).bind(this), (() => this.cursor = -2 ).bind(this));
+                ], (() => this.cursor = 6).bind(this), (() => {} ).bind(this));
+                // remove onFail editing gets interupted
                 break;
             case 6:
                 Poppy.display({
@@ -114,5 +243,35 @@ export class Tutorial03 extends Tutorial {
                 console.log("End of tutorial");
                 break;
         }
-    }    
+    }
+
+    highlightRemove() {
+        const highlighters = document.querySelectorAll(".highlighter")
+        highlighters.forEach((v) => v.remove());
+    }
+
+    highlight(el: HTMLElement, cb?: () => void, ignoreEvents = false) {
+        this.highlightRemove();
+        const div = document.createElement("div");
+        const rect = el.getBoundingClientRect();
+        div.classList.add("highlighter");
+        div.style.left = `${rect.x}px`;
+        div.style.top = `${rect.y}px`;
+        div.style.width = `${rect.width}px`;
+        div.style.height = `${rect.height}px`;
+        if (ignoreEvents) {
+            div.style.pointerEvents = "none";
+        }
+        let ref = this;
+        div.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (el instanceof HTMLButtonElement)
+                el.click();
+            ref.highlightRemove();
+            if (cb)
+                cb();
+            Poppy.update();
+        });
+        document.body.appendChild(div);
+    }
 }
