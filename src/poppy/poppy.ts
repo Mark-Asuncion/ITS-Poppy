@@ -433,7 +433,7 @@ export class Poppy {
                 if (dialog.timeout && dialog.timeout > 0) {
                     Poppy.qTimeout = setTimeout(() => {
                         if (dialog.cb) dialog.cb();
-                        Poppy.hide();
+                        Poppy.update();
                     }, (dialog.timeout != undefined)? dialog.timeout:10000);
                 }
                 break;
@@ -519,7 +519,7 @@ export class Poppy {
             console.warn("SHOULD NOT HAPPEN");
         }
         Poppy.onModifiedMutex = true;
-        console.log("modify");
+        // console.trace("modify");
 
         const contents = diagramToModules(window.mCvStage);
         let lint = async () => {

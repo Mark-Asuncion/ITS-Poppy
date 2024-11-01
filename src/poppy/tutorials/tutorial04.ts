@@ -1,11 +1,15 @@
+import { createDiagramFrom } from "../../scripts/canvas/utils";
+import { Lint } from "../../scripts/lint";
 import { DialogType, Tutorial } from "../interface";
 import { Poppy } from "../poppy";
 
 export class Tutorial04 extends Tutorial {
+    once = false;
     constructor() {
         super();
         this.name = "Functions";
         this.cursor = 0;
+        Lint.autoOpen = false;
     }
 
     update() {
@@ -19,17 +23,82 @@ export class Tutorial04 extends Tutorial {
                 break;
             case 1:
                 Poppy.display({
-                    message: "You can define a function using the <span class=\"accent\">def</span> keyword, followed by the function name and parentheses. Let’s create a simple function called <span class=\"accent\">greet</span> that prints a greeting.",
+                    message: "You can define a function using the <span class=\"accent\">def</span> keyword, followed by the function name and parentheses. Like this <code>def greet():</code>",
+                    dialogType: DialogType.NEXT,
+                    cb: (() => this.cursor = 111).bind(this)
+                });
+                break;
+            case 111:
+                Poppy.display({
+                    message: `It is worth noting that <span class="accent">defining</span> a function also creates a block that means the code below it needs to be <span class="accent">indented</span> to be included in the function. But don't worry the <span class="accent">Def Function Diagram</span> already <span class="accent">indents</span> the code below it`,
+                    onDisplay: () => {
+                        Poppy.targetPos = {
+                            x: Poppy.pos.x + 100,
+                            y: Poppy.pos.y - 300
+                        };
+                    },
                     dialogType: DialogType.NEXT,
                     cb: (() => this.cursor = 2).bind(this)
                 });
                 break;
             case 2:
                 Poppy.display({
-                    message: "Drag a <span class=\"info\">DefFunction Diagram</span> into the editor and define the function like this: <span class=\"info\">def greet():</span>",
-                    dialogType: DialogType.NEXT,
-                    cb: (() => this.cursor = 3).bind(this)
+                    message: "Drag a <span class=\"info\">Def Function Diagram</span> into the editor and define the function <span class=\"info\">def greet():</span>",
+                    onDisplay: (() => {
+                    const btn = document.querySelector("#btn-diagram-view")! as HTMLElement;
+                        if ( !btn.classList.contains("active") ) {
+                            btn.click();
+                        }
+                        const tname = btn.getAttribute("aria-target")!;
+                        const target = document.querySelector("#" + tname)! as HTMLDivElement;
+                        const diagram = document.querySelector("img[data-diagram-type=\"def\"]")! as HTMLElement;
+                        target.scrollTo({
+                            top: 600,
+                            behavior: "instant",
+                        });
+                        this.highlight(diagram, (() => {}), true);
+                        const rect = diagram.getBoundingClientRect();
+                        const targetPos = {
+                            x: rect.x + rect.width + 5,
+                            y: rect.y + 40
+                        };
+                        const distance = {
+                            x: Math.abs(Poppy.pos.x - targetPos.x),
+                            y: Math.abs(Poppy.pos.y - targetPos.y)
+                        };
+                        if (distance.x != 0 && distance.y != 0)
+                        Poppy.targetPos = targetPos;
+                    }).bind(this),
+                    dialogType: DialogType.NONE,
+                    timeout: -1
                 });
+                Poppy.onDiagramDrop = (() => {
+                    let dgs = window.mCvRootNode.getDiagramGroups();
+                    if (dgs.length == 0) {
+                        return;
+                    }
+                    if (dgs[0].nodes[0].name() == "DefFunction") {
+                        this.cursor = 21;
+                        this.highlightRemove();
+                        Poppy.qDialogRemoveFirst();
+                        Poppy.update();
+                        Poppy.onDiagramDrop = null;
+                        return;
+                    }
+                }).bind(this);
+                break;
+            case 21:
+                Poppy.display({
+                    message: `Now define a function called <span class="accent">greet</span>`,
+                    dialogType: DialogType.NONE,
+                    timeout: -1
+                });
+                Poppy.addOnModified([
+                    {
+                        name: "main",
+                        content: "def greet( ):\n"
+                    }
+                ], (() => this.cursor = 3).bind(this));
                 break;
             case 3:
                 Poppy.display({
@@ -50,6 +119,12 @@ export class Tutorial04 extends Tutorial {
             case 4:
                 Poppy.display({
                     message: "Great! Now let’s call the <span class=\"accent\">greet</span> function to see it in action. Add <span class=\"info\">greet()</span> below the function definition:<pre><span class=\"info\">def greet():<br>   print('Hello, world!')<br><br>greet()</span></pre>",
+                    onDisplay: () => {
+                        Poppy.addHint({
+                            message: `Since <span class="accent">defining a function</span> creates a <span class="info">block</span> we need to <span class="info">unindent</span> we can do so by using <span class="accent">End Block Diagram</span>`,
+                            dialogType: DialogType.NEXT
+                        });
+                    },
                     dialogType: DialogType.NONE,
                 });
                 Poppy.addOnModified([
@@ -60,8 +135,41 @@ export class Tutorial04 extends Tutorial {
                     {
                         name: "main",
                         content: "def greet( ):\n\tprint(\"Hello, world!\")\ngreet( )\n"
+                    },
+                    {
+                        name: "main",
+                        content: "def greet( ):\n\tprint('Hello, world!')\ngreet()\n"
+                    },
+                    {
+                        name: "main",
+                        content: "def greet( ):\n\tprint(\"Hello, world!\")\ngreet()\n"
                     }
                 ], (() => this.cursor = 5).bind(this), (() => this.cursor = -1).bind(this));
+                if (!this.once) {
+                    this.once = true;
+                    setTimeout((() => {
+                        let edHint = document.querySelector("#editor-hint");
+                        if (!edHint) {
+                            return;
+                        }
+
+                        let rect = edHint.getBoundingClientRect();
+                        rect.x -= Poppy.frameSizeWxH;
+                        rect.y += 80;
+                        Poppy.targetPos = {
+                            x: rect.x, y: rect.y
+                        };
+                        Poppy.swapDialog = {
+                            message: "You can press the question mark for a hint if you are having a trouble",
+                            dialogType: DialogType.NEXT,
+                            cb: ( () => {
+                                this.cursor = 4;
+                                Poppy.qDialog = [];
+                                Poppy.update();
+                            } ).bind(this)
+                        };
+                    }).bind(this), 1000);
+                }
                 break;
             case 5:
                 Poppy.display({
@@ -76,7 +184,22 @@ export class Tutorial04 extends Tutorial {
                 Poppy.display({
                     message: "Now, let’s learn how to return values from functions. We'll modify the <span class=\"accent\">greet</span> function to return a greeting message.",
                     dialogType: DialogType.NEXT,
-                    cb: (() => this.cursor = 7).bind(this)
+                    cb: (() => {
+                        this.cursor = 7;
+                        let dgs = window.mCvRootNode.getDiagramGroups();
+                        if (dgs.length == 0) {
+                            return;
+                        }
+                        let nodes = dgs[0].nodes;
+                        nodes.forEach((n) => {
+                            n.remove();
+                            n.destroy();
+                        });
+                        dgs[0].nodes = [];
+                        dgs[0].addDiagram(createDiagramFrom("def", "def greet( ):"));
+                        dgs[0].addDiagram(createDiagramFrom("statement", "'Hello, world!'"));
+                        dgs[0].refresh();
+                    }).bind(this)
                 });
                 break;
             case 7:
@@ -109,27 +232,57 @@ export class Tutorial04 extends Tutorial {
                         name: "main",
                         content: "def greet( ):\n\treturn \"Hello, world!\"\nmessage = greet()\nprint(message)\n"
                     }
-                ], (() => this.cursor = 9).bind(this), (() => this.cursor = -2).bind(this));
+                ], (() => this.cursor = 9).bind(this), (() => {}).bind(this));
                 break;
             case 9:
                 Poppy.display({
                     message: "When you run the code, it should print: <span class=\"info\">Hello, world!</span> This demonstrates how to use return values in functions.",
                     dialogType: DialogType.NEXT,
-                    cb: (() => this.cursor = 10).bind(this)
+                    cb: (() => {
+                        this.cursor = 10;
+                        let dgs = window.mCvRootNode.getDiagramGroups();
+                        if (dgs.length == 0) {
+                            return;
+                        }
+                        let nodes = dgs[0].nodes;
+                        nodes.forEach((n) => {
+                            n.remove();
+                            n.destroy();
+                        });
+                        dgs[0].nodes = [];
+                        dgs[0].addDiagram(createDiagramFrom("def", "def greet( ):"));
+                        dgs[0].addDiagram(createDiagramFrom("statement", "return 'Hello, world!'"));
+                        dgs[0].refresh();
+                    }).bind(this)
                 });
                 break;
 
             // Back to modifying greet to take a name
             case 10:
                 Poppy.display({
-                    message: "Now, let’s modify the <span class=\"accent\">greet</span> function to accept a name. Change it to: <pre><span class=\"info\">def greet(name):</span></pre>",
+                    message: `Now, let’s modify the <span class=\"accent\">greet</span> function to accept a name. Change it to: <pre><span class=\"info\">def greet(name):</span></pre> Again Python is <span class="accent">Dynamic Type</span> this means name can be any type depending on what you passed`,
+                    onDisplay: () => {
+                        Poppy.addHint({
+                            message: `To accept a argument you can add <span class="accent">name</span> between the <span class="accent">( ) brackets</span>`,
+                            dialogType: DialogType.NEXT
+                        });
+                    },
                     dialogType: DialogType.NEXT,
-                    cb: (() => this.cursor = 11).bind(this)
+                    cb: (() => {
+                        this.cursor = 11;
+                        Poppy.removeHint();
+                    }).bind(this)
                 });
                 break;
             case 11:
                 Poppy.display({
-                    message: "Update the return statement to include the <span class=\"info\">name</span> parameter. Change it to: <pre><span class=\"info\">return 'Hello, ' + name + '!'</span></pre>Delete the unnecessary diagrams.",
+                    message: "Update the return statement to include the <span class=\"info\">name</span> parameter. Change it to: <pre><span class=\"info\">return 'Hello, ' + name + '!'</span></pre>",
+                    // onDisplay: () => {
+                    //     Poppy.addHint({
+                    //         message: "to add a ",
+                    //         dialogType: DialogType.NEXT
+                    //     })
+                    // },
                     dialogType: DialogType.NONE,
                 });
                 Poppy.addOnModified([
@@ -141,27 +294,36 @@ export class Tutorial04 extends Tutorial {
                         name: "main",
                         content: "def greet(name):\n\treturn \"Hello, \" + name + \"!\"\n"
                     }
-                ], (() => this.cursor = 12).bind(this), (() => {}).bind(this));
+                ], (() => {
+                        this.cursor = 12;
+                        // Poppy.removeHint();
+                    }).bind(this), (() => {}).bind(this));
                 break;
             case 12:
                 Poppy.display({
-                    message: "When you call <span class=\"info\">greet('Poppy')</span>, it will return the greeting message. Print it like this:<pre><span class=\"info\">print(greet('Poppy'))</span></pre>",
+                    message: "Let's assign the return value in a variable <code>message = greet('Poppy')</code> Now when you print <span class=\"info\">message</span>, it will return the greeting message. try to print it",
+                    onDisplay: () => {
+                        Poppy.addHint({
+                            message: `Since <span class="accent">defining a function</span> creates a <span class="info">block</span> we need to <span class="info">unindent</span> we can do so by using <span class="accent">End Block Diagram</span>`,
+                            dialogType: DialogType.NEXT
+                        });
+                    },
                     dialogType: DialogType.NONE,
                 });
                 Poppy.addOnModified([
                     {
                         name: "main",
-                        content: "def greet(name):\n\treturn 'Hello, ' + name + '!'\nprint(greet('Poppy'))\n"
+                        content: "def greet(name):\n\treturn 'Hello, ' + name + '!'\nmessage = greet('Poppy')\nprint(message)\n"
                     },
                     {
                         name: "main",
-                        content: "def greet(name):\n\treturn \"Hello, \" + name + \"!\"\nprint(greet(\"Poppy\"))\n"
+                        content: "def greet(name):\n\treturn \"Hello, \" + name + \"!\"\nnmessage = greet('Poppy')\nprint(message)\n"
                     }
                 ], (() => this.cursor = 13).bind(this), (() => {}).bind(this));
                 break;
             case 13:
                 Poppy.display({
-                    message: "When you call <span class=\"info\">greet('Poppy')</span>, it should print: <span class=\"info\">Hello, Poppy!</span> You can now pass different names to the function.",
+                    message: "When you run the program, it should print: <span class=\"info\">Hello, Poppy!</span> You can now pass different names to the function.",
                     dialogType: DialogType.NEXT,
                     cb: (() => this.cursor = 14).bind(this)
                 });
@@ -192,5 +354,35 @@ export class Tutorial04 extends Tutorial {
                 console.log("End of tutorial");
                 break;
         }
+    }
+
+    highlightRemove() {
+        const highlighters = document.querySelectorAll(".highlighter")
+        highlighters.forEach((v) => v.remove());
+    }
+
+    highlight(el: HTMLElement, cb?: () => void, ignoreEvents = false) {
+        this.highlightRemove();
+        const div = document.createElement("div");
+        const rect = el.getBoundingClientRect();
+        div.classList.add("highlighter");
+        div.style.left = `${rect.x}px`;
+        div.style.top = `${rect.y}px`;
+        div.style.width = `${rect.width}px`;
+        div.style.height = `${rect.height}px`;
+        if (ignoreEvents) {
+            div.style.pointerEvents = "none";
+        }
+        let ref = this;
+        div.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (el instanceof HTMLButtonElement)
+                el.click();
+            ref.highlightRemove();
+            if (cb)
+                cb();
+            Poppy.update();
+        });
+        document.body.appendChild(div);
     }
 }
