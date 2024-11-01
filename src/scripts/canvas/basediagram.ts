@@ -508,4 +508,8 @@ export class BaseDiagram extends Group {
         this.height(dimension.height);
     }
 
+    setTextValue(v: string) {
+        v;
+    }
+
 }

@@ -133,4 +133,11 @@ export class Statement extends BaseDiagram {
         }
         return ind + (this.components[0] as TextBox).getContent();
     }
+
+    setTextValue(v: string) {
+        let tb = (this.components[0] as TextBox);
+        tb.text.text(v);
+        tb.adjustWidth(v);
+        tb.setColors();
+    }
 }

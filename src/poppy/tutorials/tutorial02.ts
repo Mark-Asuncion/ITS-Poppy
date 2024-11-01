@@ -1,12 +1,14 @@
+import { Lint } from "../../scripts/lint";
 import { DialogType, Tutorial } from "../interface";
 import { Poppy } from "../poppy";
 
 export class Tutorial02 extends Tutorial {
-    // cursorErrReturn: number = 1;
+    timer = 0;
     constructor() {
         super();
-        this.name = "Variables";
+        this.name = "Control";
         this.cursor = 0;
+        Lint.autoOpen = false;
     }
 
     update() {
@@ -21,13 +23,66 @@ export class Tutorial02 extends Tutorial {
         case 1:
             Poppy.display({
                 message: "Let's start with the basic <span class=\"info\">if statement</span>. An if statement checks a condition and runs the code block if the condition is true. Drag a <span class=\"accent\">Statement and Control 'If' Diagram</span> to the center.",
-                dialogType: DialogType.NEXT,
-                cb: (() => this.cursor = 2).bind(this)
+                onDisplay: ( () => {
+                    const btn = document.querySelector("#btn-diagram-view")! as HTMLElement;
+                    if ( !btn.classList.contains("active") ) {
+                        btn.click();
+                        const diagram = document.querySelector("img[data-diagram-type=\"statement\"]")! as HTMLElement;
+                        this.highlight(diagram, (() => {}), true);
+                        const rect = diagram.getBoundingClientRect();
+                        const targetPos = {
+                            x: rect.x + rect.width + 5,
+                            y: rect.y + 40
+                        };
+                        const distance = {
+                            x: Math.abs(Poppy.pos.x - targetPos.x),
+                            y: Math.abs(Poppy.pos.y - targetPos.y)
+                        };
+                        if (distance.x != 0 && distance.y != 0)
+                            Poppy.targetPos = targetPos;
+                    }
+                    Poppy.focusedInDiagram = true;
+                } ).bind(this),
+                dialogType: DialogType.NONE,
+                timeout: -1
             });
+            Poppy.onDiagramDrop = (() => {
+                let dgs = window.mCvRootNode.getDiagramGroups();
+                if (dgs.length == 0) {
+                    return;
+                }
+                let nodes = dgs[0].nodes;
+                if (nodes.length == 0) {
+                    console.warn("SHOULD NOT HAPPEN");
+                    return;
+                }
+                let firstNode = nodes[0];
+                let secondNode = (nodes.length > 1)? nodes[1]:null;
+                if (secondNode && secondNode.name() == "If") {
+                        this.cursor = 2;
+                        this.highlightRemove();
+                        Poppy.qDialogRemoveFirst();
+                        Poppy.focusedInDiagram = false;
+                        Poppy.onDiagramDrop = null;
+                        Poppy.update();
+                }
+                else if (firstNode.name() == "Statement") {
+                    const diagram = document.querySelector("img[data-diagram-type=\"control-if\"]")! as HTMLElement;
+                    this.highlight(diagram, (() => {}), true);
+                    const rect = diagram.getBoundingClientRect();
+                    Poppy.targetPos = {
+                        x: rect.x + rect.width + 5,
+                        y: rect.y + 30
+                    };
+                }
+            }).bind(this);
             break;
         case 2:
             Poppy.display({
-                message: "Here’s an example of an if statement:<pre><span class=\"info\">age = 13 <br>if age < 13: <br>   print('You are a child.')</span></pre>",
+                message: `Notice the <span class="info">: (colon)</span> at the end of the if diagram this is how Python creates a block, In other languages they uses <span class="info">{} (braces)</span>. In Python there is no need for braces you only need a <span class="info">:</span> and a <span class="info">INDENTION</span> denoting that the line of code is inside a block. Here’s an example of an if statement:<pre><span class=\"info\">age = 13 <br>if age < 13: <br>   print('You are a child.')</span></pre>`,
+                onDisplay: () => {
+                    Poppy.focusedInDiagram = true;
+                },
                 dialogType: DialogType.NONE
             });
             Poppy.addOnModified([
@@ -39,25 +94,70 @@ export class Tutorial02 extends Tutorial {
                     name: "main",
                     content: "age = 13\nif age < 13:\n\tprint(\"You are a child.\")\n"
                 }
-            ], (() => this.cursor = 3).bind(this), (() => this.cursor = -1 ).bind(this));
+            ], (() => {
+                this.cursor = 3;
+                Poppy.focusedInDiagram = false;
+            }).bind(this), (() => {} ).bind(this));
+            // remove goto error because the first edit will trigger a mismatch
             break;
         case 3:
             Poppy.display({
-                message: "Try running this code. Change the value of <span class=\"info\">age</span> to see how the output changes!",
+                message: `Try running this code. Change the value of <span class=\"info\">age</span> to see how the output changes!. by the way what do you think the output if the <span class="info">age is 13</span>`,
                 dialogType: DialogType.NEXT,
                 cb: (() => this.cursor = 4).bind(this)
             });
             break;
         case 4:
             Poppy.display({
-                message: "Now, let’s introduce the <span class=\"info\">elif statement</span>. This allows you to check multiple conditions. If the first condition is false, it checks the next one.",
+                message: `Did you guess the output right? Now, let’s introduce the <span class=\"info\">elif statement</span>. This allows you to check multiple conditions. If the first condition is false, it checks the next one. But first I want you to take a look at the <span class="accent"> diagram below the statement</span>`,
+                onDisplay: (() => {
+                    let dgs = window.mCvRootNode.getDiagramGroups();
+                    if (dgs.length == 0) {
+                        this.cursor = 1;
+                        Poppy.qDialogRemoveFirst();
+                        Poppy.update();
+                        return;
+                    }
+
+                    let dg = dgs[0];
+                    let node = dg.nodes[dg.nodes.length-1];
+                    dg.highlight({
+                        ...node.position(),
+                        ... node.size()
+                    });
+                }).bind(this),
                 dialogType: DialogType.NEXT,
-                cb: (() => this.cursor = 5).bind(this)
+                cb: (() => this.cursor = 41).bind(this)
+            });
+            break;
+        case 41:
+            Poppy.display({
+                message: `This is called an <span class="accent">End Block</span> Diagram. Since <span class="accent">INDENTION</span> is important in Python to indicate which is in the block, how do we remove it from the block? we remove it either by <span class="accent">Unindenting or increasing the Indention</span>. <span class="accent">End Block Unindents by 1 time</span> the diagrams below it. Pay attention to space on the left side multiple <span class="accent">End Block</span> might be needed depending on how nested a block is.`,
+                dialogType: DialogType.NEXT,
+                cb: (() => {
+                    this.cursor = 5;
+                    let dgs = window.mCvRootNode.getDiagramGroups();
+                    if (dgs.length == 0) {
+                        return;
+                    }
+                    let dg = dgs[0];
+                    dg.highlightRemove();
+                }).bind(this)
             });
             break;
         case 5:
             Poppy.display({
-                message: "Here's an example using elif:<pre><span class=\"info\">age = 13 <br>if age < 13: <br>    print('You are a child.')<br> elif age < 18:<br>    print('You are a teenager.')</span></pre>",
+                message: "Let's try the elif diagram. add an elif diagram on the bottom of End Block and add this <pre><span class=\"info\">elif age < 18:<br>    print('You are a teenager.')</span></pre>",
+                onDisplay: () => {
+                    let dgs = window.mCvRootNode.getDiagramGroups();
+                    if (dgs.length == 0) {
+                        return;
+                    }
+                    let dg = dgs[0];
+                    if (dg.nodes[0].getContent() != "age = 13") {
+                        dg.nodes[0].setTextValue("age = 13");
+                    }
+                },
                 dialogType: DialogType.NONE
             });
             Poppy.addOnModified([
@@ -69,7 +169,7 @@ export class Tutorial02 extends Tutorial {
                     name: "main",
                     content: "age = 13\nif age < 13:\n\tprint(\"You are a child.\")\nelif age < 18:\n\tprint(\"You are a teenager.\")\n"
                 }
-            ], (() => this.cursor = 6).bind(this), (() => this.cursor = -2 ).bind(this));
+            ], (() => this.cursor = 6).bind(this), (() => {} ).bind(this));
             break;
         case 6:
             Poppy.display({
@@ -87,7 +187,7 @@ export class Tutorial02 extends Tutorial {
             break;
         case 8:
             Poppy.display({
-                message: "Here’s a complete example:<pre><span class=\"info\">age = 13 <br>if age < 13: <br>    print('You are a child.') <br>elif age < 18: <br>    print('You are a teenager.') <br>else: <br>    print('You are an adult.')</span></pre>",
+                message: `Here’s a complete example:<pre><span class=\"info\">age = 13 <br>if age < 13: <br>    print('You are a child.') <br>elif age < 18: <br>    print('You are a teenager.') <br>else: <br>    print('You are an adult.')</span></pre> <span class="accent">else</span> also creates a block so you need to <span class="accent">unindent</span> first before adding the <span class="accent">else diagram</span>`,
                 dialogType: DialogType.NONE,
                 onDisplay: (() => {
                     const currentPos = Poppy.pos;
@@ -164,5 +264,35 @@ export class Tutorial02 extends Tutorial {
             console.log("End of tutorial");
             break;
         }
+    }
+
+    highlightRemove() {
+        const highlighters = document.querySelectorAll(".highlighter")
+        highlighters.forEach((v) => v.remove());
+    }
+
+    highlight(el: HTMLElement, cb?: () => void, ignoreEvents = false) {
+        this.highlightRemove();
+        const div = document.createElement("div");
+        const rect = el.getBoundingClientRect();
+        div.classList.add("highlighter");
+        div.style.left = `${rect.x}px`;
+        div.style.top = `${rect.y}px`;
+        div.style.width = `${rect.width}px`;
+        div.style.height = `${rect.height}px`;
+        if (ignoreEvents) {
+            div.style.pointerEvents = "none";
+        }
+        let ref = this;
+        div.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (el instanceof HTMLButtonElement)
+                el.click();
+            ref.highlightRemove();
+            if (cb)
+                cb();
+            Poppy.update();
+        });
+        document.body.appendChild(div);
     }
 }

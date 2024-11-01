@@ -229,6 +229,8 @@ export function init() {
         dgGroup.refresh();
         bg.add(dgGroup);
         dgGroup.onDragEnd();
+        if (Poppy.onDiagramDrop)
+            Poppy.onDiagramDrop();
     }) as EventListener);
 
     window["addFn"] = () => {

@@ -4,7 +4,7 @@ import { Poppy } from "../poppy";
 export class Tutorial03 extends Tutorial {
     constructor() {
         super();
-        this.name = "Variables";
+        this.name = "Loops";
         this.cursor = 0;
     }
 

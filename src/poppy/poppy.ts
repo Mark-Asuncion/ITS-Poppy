@@ -32,6 +32,7 @@ export class Poppy {
     static currDialog: PoppyDialog | null = null;
     static notifDialogHitimer = 0.0;
     static frameListener: ((elapsed: number) => void) | null = null;
+    static onDiagramDrop: (() => void) | null = null;
 
     static boredTimer = 0;
     static boredTimerThreshold = 30_000;
