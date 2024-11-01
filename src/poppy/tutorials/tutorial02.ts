@@ -132,7 +132,14 @@ export class Tutorial02 extends Tutorial {
             break;
         case 41:
             Poppy.display({
-                message: `This is called an <span class="accent">End Block</span> Diagram. Since <span class="accent">INDENTION</span> is important in Python to indicate which is in the block, how do we remove it from the block? we remove it either by <span class="accent">Unindenting or increasing the Indention</span>. <span class="accent">End Block Unindents by 1 time</span> the diagrams below it. Pay attention to space on the left side multiple <span class="accent">End Block</span> might be needed depending on how nested a block is.`,
+                message: `This is called an <span class="accent">End Block</span> Diagram. Since <span class="accent">INDENTION</span> is important in Python to indicate which is in the block, so how do we remove it from the block?`,
+                dialogType: DialogType.NEXT,
+                    cb: (() => this.cursor = 42).bind(this)
+            });
+            break;
+        case 42:
+            Poppy.display({
+                message: `We remove it either by <span class="accent">Unindenting or increasing the Indention</span>. <span class="accent">End Block Unindents by 1 time</span> the diagrams below it. Pay attention to space on the left side multiple <span class="accent">End Block</span> might be needed depending on how nested a block is.`,
                 dialogType: DialogType.NEXT,
                 cb: (() => {
                     this.cursor = 5;
