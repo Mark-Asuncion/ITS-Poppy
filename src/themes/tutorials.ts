@@ -38,13 +38,18 @@ export const TUTORIALS: ProjectInfoEx[] = [
     },
 	{
         path: ".\\07",
-        projectName: "08 - Error Handling",
+        projectName: "08 - Class Inheritance",
         tutorialId: 7
     },
 		{
         path: ".\\08",
-        projectName: "09 - File Handling",
+        projectName: "09 - Error Handling",
         tutorialId: 8
+    },
+	{
+        path: ".\\09",
+        projectName: "10 - File Handling",
+        tutorialId: 9
     },
     {
         path: ".\\Post_Test",

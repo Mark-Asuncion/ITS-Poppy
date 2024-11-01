@@ -14,6 +14,7 @@ import { Tutorial05 } from "./tutorials/tutorial05";
 import { Tutorial06 } from "./tutorials/tutorial06";
 import { Tutorial07 } from "./tutorials/tutorial07";
 import { Tutorial08 } from "./tutorials/tutorial08";
+import { Tutorial09 } from "./tutorials/tutorial09";
 import { isPointIntersectRect, clamp } from "../scripts/canvas/utils";
 import { JumpingRope, Pokeball, SwattingFly } from "./animation/idleBored";
 import { PostTest } from "./tutorials/posttest";
@@ -185,6 +186,9 @@ export class Poppy {
                 break;
             case 8:
                 Poppy.tutorial = new Tutorial08();
+                break;
+			case 9:
+                Poppy.tutorial = new Tutorial09();
                 break;
             case 10:
                 Poppy.tutorial = new PostTest();
