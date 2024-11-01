@@ -13,32 +13,32 @@ export const TUTORIALS: ProjectInfoEx[] = [
     },
     {
         path: ".\\02",
-        projectName: "03 - Array",
+        projectName: "03 - Conditional Stements",
         tutorialId: 2
     },
 	{
         path: ".\\03",
-        projectName: "04 - User Input",
+        projectName: "04 - Loops",
         tutorialId: 3
     },
 	{
         path: ".\\04",
-        projectName: "05 - Loops",
+        projectName: "05 - Functions",
         tutorialId: 4
     },
 	{
         path: ".\\05",
-        projectName: "06 - Conditional Statements",
+        projectName: "06 - Array",
         tutorialId: 5
     },
 	{
         path: ".\\06",
-        projectName: "07 - Error Handling",
+        projectName: "07 - User Input",
         tutorialId: 6
     },
 	{
         path: ".\\07",
-        projectName: "08 - Functions",
+        projectName: "08 - Error Handling",
         tutorialId: 7
     },
 		{

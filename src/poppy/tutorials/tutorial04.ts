@@ -2,98 +2,189 @@ import { DialogType, Tutorial } from "../interface";
 import { Poppy } from "../poppy";
 
 export class Tutorial04 extends Tutorial {
-    // cursorErrReturn: number = 1;
     constructor() {
         super();
-        this.name = "Variables";
+        this.name = "Functions";
         this.cursor = 0;
     }
 
     update() {
-        switch(this.cursor) {
+        switch (this.cursor) {
             case 0:
                 Poppy.display({
-                    message: "Welcome! In this lesson, we will learn about <span class=\"accent\">loops</span> in Python. Loops allow you to execute a block of code multiple times.",
+                    message: "Welcome! In this tutorial, we’ll learn about <span class=\"accent\">functions</span> in Python. A function is a block of code that performs a specific task and can be reused in your programs.",
                     dialogType: DialogType.NEXT,
                     cb: (() => this.cursor = 1).bind(this)
                 });
                 break;
             case 1:
                 Poppy.display({
-                    message: "First, let's explore the <span class=\"info\">for loop</span>. A for loop lets you iterate over a sequence, like a list or a range of numbers.",
+                    message: "You can define a function using the <span class=\"accent\">def</span> keyword, followed by the function name and parentheses. Let’s create a simple function called <span class=\"accent\">greet</span> that prints a greeting.",
                     dialogType: DialogType.NEXT,
                     cb: (() => this.cursor = 2).bind(this)
                 });
                 break;
             case 2:
                 Poppy.display({
-                    message: "Here’s how you can use a for loop to print numbers from 0 to 4 using <span class=\"accent\">Loop Diagram</span>: <span class=\"info\">for i in range(5): print(i)</span>",
+                    message: "Drag a <span class=\"info\">DefFunction Diagram</span> into the editor and define the function like this: <span class=\"info\">def greet():</span>",
+                    dialogType: DialogType.NEXT,
+                    cb: (() => this.cursor = 3).bind(this)
+                });
+                break;
+            case 3:
+                Poppy.display({
+                    message: "Inside the function, add a print statement to greet the user: <pre><span class=\"info\">    print('Hello, world!')</span></pre>",
                     dialogType: DialogType.NONE
                 });
                 Poppy.addOnModified([
                     {
                         name: "main",
-                        content: "for i in range(5):\n\tprint(i)\n"
+                        content: "def greet( ):\n\tprint('Hello, world!')\n"
+                    },
+                    {
+                        name: "main",
+                        content: "def greet( ):\n\tprint(\"Hello, world!\")\n"
                     }
-                ], (() => this.cursor = 3).bind(this), (() => {}).bind(this));
+                ], (() => this.cursor = 4).bind(this), (() => {}).bind(this));
                 break;
-            case 3:
+            case 4:
                 Poppy.display({
-                    message: "Try running this code to see the numbers printed. The <span class=\"info\">range(5)</span> function generates numbers from 0 to 4.",
+                    message: "Great! Now let’s call the <span class=\"accent\">greet</span> function to see it in action. Add <span class=\"info\">greet()</span> below the function definition:<pre><span class=\"info\">def greet():<br>   print('Hello, world!')<br><br>greet()</span></pre>",
                     dialogType: DialogType.NONE,
                 });
                 Poppy.addOnModified([
                     {
                         name: "main",
-                        content: "for i in range(5):\n\tprint(i)\n"
+                        content: "def greet( ):\n\tprint('Hello, world!')\ngreet( )\n"
+                    },
+                    {
+                        name: "main",
+                        content: "def greet( ):\n\tprint(\"Hello, world!\")\ngreet( )\n"
                     }
-                ], (() => this.cursor = 4).bind(this), (() => this.cursor = -1).bind(this));
-                break;
-            case 4:
-                Poppy.display({
-                    message: "Awesome! Now let’s learn about the <span class=\"info\">while loop</span>. A while loop continues to execute as long as a given condition is true. Delete the first module and drag a new <span class=\"accent\">Loop Diagram.</span>",
-                    dialogType: DialogType.NEXT,
-                    cb: (() => this.cursor = 5).bind(this)
-                });
+                ], (() => this.cursor = 5).bind(this), (() => this.cursor = -1).bind(this));
                 break;
             case 5:
                 Poppy.display({
-                    message: "Here’s an example of a while loop that prints numbers from 0 to 4:<br> <span class=\"info\">i = 0<br>while i < 5:<br> print(i)<br> i += 1</span>",
-                    dialogType: DialogType.NONE
+                    message: "When you run the code, it should print: <span class=\"info\">Hello, world!</span> Now you can define functions to perform different tasks.",
+                    dialogType: DialogType.NEXT,
+                    cb: (() => this.cursor = 6).bind(this)
                 });
-                Poppy.addOnModified([
-                    {
-                        name: "main",
-                        content: "i = 0\nwhile i < 5:\n\tprint(i)\n\ti + = 1\n"
-                    }
-                ], (() => this.cursor = 6).bind(this), (() => {}).bind(this));
                 break;
+
+            // Separate section for return statements
             case 6:
                 Poppy.display({
-                    message: "Try running this code to see how the while loop works. It keeps printing as long as <span class=\"info\">i</span> is less than 5.",
+                    message: "Now, let’s learn how to return values from functions. We'll modify the <span class=\"accent\">greet</span> function to return a greeting message.",
                     dialogType: DialogType.NEXT,
                     cb: (() => this.cursor = 7).bind(this)
                 });
                 break;
             case 7:
                 Poppy.display({
-                    message: "Great job! You can use loops to automate repetitive tasks. Try experimenting with different ranges or conditions!",
+                    message: "Update the <span class=\"accent\">greet</span> function to use the return statement like this:<pre><span class=\"info\">def greet():<br>    return 'Hello, world!'</span></pre>",
+                    dialogType: DialogType.NONE
+                });
+                Poppy.addOnModified([
+                    {
+                        name: "main",
+                        content: "def greet( ):\n\treturn 'Hello, world!'\n"
+                    },
+                    {
+                        name: "main",
+                        content: "def greet( ):\n\treturn \"Hello, world!\"\n"
+                    }
+                ], (() => this.cursor = 8).bind(this), (() => {}).bind(this));
+                break;
+            case 8:
+                Poppy.display({
+                    message: "Now let’s call the <span class=\"accent\">greet</span> function and store the returned value in a variable. Add the following code:<pre><span class=\"info\">message = greet()<br>print(message)</span></pre>",
+                    dialogType: DialogType.NONE,
+                });
+                Poppy.addOnModified([
+                    {
+                        name: "main",
+                        content: "def greet( ):\n\treturn 'Hello, world!'\nmessage = greet()\nprint(message)\n"
+                    },
+                    {
+                        name: "main",
+                        content: "def greet( ):\n\treturn \"Hello, world!\"\nmessage = greet()\nprint(message)\n"
+                    }
+                ], (() => this.cursor = 9).bind(this), (() => this.cursor = -2).bind(this));
+                break;
+            case 9:
+                Poppy.display({
+                    message: "When you run the code, it should print: <span class=\"info\">Hello, world!</span> This demonstrates how to use return values in functions.",
                     dialogType: DialogType.NEXT,
-                    cb: (() => this.cursor = 8).bind(this)
+                    cb: (() => this.cursor = 10).bind(this)
+                });
+                break;
+
+            // Back to modifying greet to take a name
+            case 10:
+                Poppy.display({
+                    message: "Now, let’s modify the <span class=\"accent\">greet</span> function to accept a name. Change it to: <pre><span class=\"info\">def greet(name):</span></pre>",
+                    dialogType: DialogType.NEXT,
+                    cb: (() => this.cursor = 11).bind(this)
+                });
+                break;
+            case 11:
+                Poppy.display({
+                    message: "Update the return statement to include the <span class=\"info\">name</span> parameter. Change it to: <pre><span class=\"info\">return 'Hello, ' + name + '!'</span></pre>Delete the unnecessary diagrams.",
+                    dialogType: DialogType.NONE,
+                });
+                Poppy.addOnModified([
+                    {
+                        name: "main",
+                        content: "def greet(name):\n\treturn 'Hello, ' + name + '!'\n"
+                    },
+                    {
+                        name: "main",
+                        content: "def greet(name):\n\treturn \"Hello, \" + name + \"!\"\n"
+                    }
+                ], (() => this.cursor = 12).bind(this), (() => {}).bind(this));
+                break;
+            case 12:
+                Poppy.display({
+                    message: "When you call <span class=\"info\">greet('Poppy')</span>, it will return the greeting message. Print it like this:<pre><span class=\"info\">print(greet('Poppy'))</span></pre>",
+                    dialogType: DialogType.NONE,
+                });
+                Poppy.addOnModified([
+                    {
+                        name: "main",
+                        content: "def greet(name):\n\treturn 'Hello, ' + name + '!'\nprint(greet('Poppy'))\n"
+                    },
+                    {
+                        name: "main",
+                        content: "def greet(name):\n\treturn \"Hello, \" + name + \"!\"\nprint(greet(\"Poppy\"))\n"
+                    }
+                ], (() => this.cursor = 13).bind(this), (() => {}).bind(this));
+                break;
+            case 13:
+                Poppy.display({
+                    message: "When you call <span class=\"info\">greet('Poppy')</span>, it should print: <span class=\"info\">Hello, Poppy!</span> You can now pass different names to the function.",
+                    dialogType: DialogType.NEXT,
+                    cb: (() => this.cursor = 14).bind(this)
+                });
+                break;
+            case 14:
+                Poppy.display({
+                    message: "That's it for this lesson on functions! Experiment with creating and calling your own functions to strengthen your understanding.",
+                    dialogType: DialogType.NEXT,
+                    cb: (() => this.cursor = 15).bind(this)
                 });
                 break;
             case -1:
                 Poppy.display({
-                    message: "Hmm, it seems something went wrong. Did you type the for loop correctly?",
+                    message: "Hmm, that doesn't seem correct. Did you define the <span class=\"accent\">greet</span> function correctly?",
                     dialogType: DialogType.NEXT,
-                    cb: (() => this.cursor = 3).bind(this)
+                    cb: (() => this.cursor = 4).bind(this)
                 });
                 break;
             case -2:
                 Poppy.display({
-                    message: "Hmm, it seems something went wrong. Did you type the while loop correctly?",
+                    message: "Hmm, that doesn't seem correct. Did you type them correctly?",
                     dialogType: DialogType.NEXT,
-                    cb: (() => this.cursor = 6).bind(this)
+                    cb: (() => this.cursor = 8).bind(this)
                 });
                 break;
             default:
@@ -101,5 +192,5 @@ export class Tutorial04 extends Tutorial {
                 console.log("End of tutorial");
                 break;
         }
-    }    
+    }
 }
