@@ -37,13 +37,13 @@ export class Statement extends BaseDiagram {
             return;
         }
         const content = e.value;
-        let varMatch = content.match(/(.*)=(.*)/);
-        if (varMatch != null && varMatch.length == 3) {
-            let ncontent = varMatch[1].trim() + " = " + varMatch[2].trim();
-            (this.components[0]! as TextBox).text.text(ncontent);
-            (this.components[0]! as TextBox).adjustWidth(ncontent);
-            (this.components[0]! as TextBox).setColors();
-        }
+        // let varMatch = content.match(/(\w*)=(\w*)/);
+        // if (varMatch != null && varMatch.length == 3) {
+        //     let ncontent = varMatch[1].trim() + " = " + varMatch[2].trim();
+        //     (this.components[0]! as TextBox).text.text(ncontent);
+        //     (this.components[0]! as TextBox).adjustWidth(ncontent);
+        //     (this.components[0]! as TextBox).setColors();
+        // }
         // console.log("content: ", content);
         const type = findNodeType(content);
         if (type === "statement") {
