@@ -49,9 +49,9 @@ export class Tutorial06 extends Tutorial {
                     message: `Great! Now, let’s print a greeting message using the name the user provided. <span class=\"info\">('Hello, ' [name]!)</span>. You can append <span class="accent">variables</span> to string if you use <span class="accent">+</span> on strings like adding numbers.`,
                     onDisplay: () => {
                         Poppy.addHint({
-                            message: `<span class="accent">print</span> the name with this format <span class="accent">'Hello, [name]!'</span>. You append a variable to a string with <span class="accent">+</span> like this <span class="accent">'Hello, ' + name + '!'</span>`,
+                            message: `<span class="accent">print</span> the name with this format <span class="accent">"Hello, [name]!"</span>. You append a variable to a string with <span class="accent">+</span> like this <span class="accent">'Hello, ' + name + '!'</span>`,
                             dialogType: DialogType.NEXT,
-                            onDisplay: () => { Poppy.qDialog = [] }
+                            onDisplay: () => { Poppy.qDialog = [] },
                         });
                     },
                     dialogType: DialogType.NONE,
@@ -130,7 +130,7 @@ export class Tutorial06 extends Tutorial {
                     dialogType: DialogType.NONE,
                     onDisplay: () => {
                         Poppy.addHint({
-                            message: `To convert the value returned by input you can enclose <span class="accent">input<span> with <span  class="accent">int<span> like this <span  class="accent">int(input())</span>`,
+                            message: `To convert the value returned by input you can enclose <span class="accent">input<span> with <span  class="accent">int<span> like this <span  class="accent">int(input())</span>.`,
                             dialogType: DialogType.NEXT,
                         })
                     }

@@ -15,14 +15,14 @@ export class Tutorial02 extends Tutorial {
     switch(this.cursor) {
         case 0:
             Poppy.display({
-                message: "Welcome! In this lesson, we will learn about <span class=\"accent\">conditional statements</span> in Python. These statements let you execute different blocks of code based on certain conditions.",
+                message: "Welcome! In this lesson, we will learn about <span class=\"accent\">conditional statements</span> in Python. These statements allow you to execute different blocks of code based on specific conditions.",
                 dialogType: DialogType.NEXT,
                 cb: (() => this.cursor = 1).bind(this)
             });
             break;
         case 1:
             Poppy.display({
-                message: "Let's start with the basic <span class=\"info\">if statement</span>. An if statement checks a condition and runs the code block if the condition is true. Drag a <span class=\"accent\">Statement and Control 'If' Diagram</span> to the center.",
+                message: "Let's start with the basic <span class=\"info\">if statement</span>. An if statement checks a condition and executes the code block if the condition is true. Please drag a <span class=\"accent\">Statement and Control 'If' Diagram</span> to the center.",
                 onDisplay: ( () => {
                     const btn = document.querySelector("#btn-diagram-view")! as HTMLElement;
                     if ( !btn.classList.contains("active") ) {
@@ -79,7 +79,7 @@ export class Tutorial02 extends Tutorial {
             break;
         case 2:
             Poppy.display({
-                message: `Notice the <span class="info">: (colon)</span> at the end of the if diagram this is how Python creates a block, In other languages they uses <span class="info">{} (braces)</span>. In Python there is no need for braces you only need a <span class="info">:</span> and a <span class="info">INDENTION</span> denoting that the line of code is inside a block. Here’s an example of an if statement:<pre><span class=\"info\">age = 13 <br>if age < 13: <br>   print('You are a child.')</span></pre>`,
+                message: `Notice the <span class="info">: (colon)</span> at the end of the if diagram. This is how Python creates a block. In other languages, they use <span class="info">{} (braces)</span>. In Python, there is no need for braces; you only need a <span class="info">:</span> and an <span class="info">INDENTATION</span> to indicate that the line of code is inside a block. Here’s an example of an if statement:<pre><span class=\"info\">age = 13 <br>if age < 13: <br>   print('You are a child.')</span></pre>`,
                 onDisplay: () => {
                     Poppy.focusedInDiagram = true;
                 },
@@ -102,14 +102,14 @@ export class Tutorial02 extends Tutorial {
             break;
         case 3:
             Poppy.display({
-                message: `Try running this code. Change the value of <span class=\"info\">age</span> to see how the output changes!. by the way what do you think the output if the <span class="info">age is 13</span>`,
+                message: `Try running this code. Change the value of <span class=\"info\">age</span> to see how the output changes! By the way, what do you think the output will be if <span class="info">age is 13</span>?`,
                 dialogType: DialogType.NEXT,
                 cb: (() => this.cursor = 4).bind(this)
             });
             break;
         case 4:
             Poppy.display({
-                message: `Did you guess the output right? Now, let’s introduce the <span class=\"info\">elif statement</span>. This allows you to check multiple conditions. If the first condition is false, it checks the next one. But first I want you to take a look at the <span class="accent"> diagram below the statement</span>`,
+                message: `Did you guess the output correctly? Now, let’s introduce the <span class=\"info\">elif statement</span>. This allows you to check multiple conditions. If the first condition is false, it checks the next one. First, please take a look at the <span class="accent">diagram below the statement</span>.`,
                 onDisplay: (() => {
                     let dgs = window.mCvRootNode.getDiagramGroups();
                     if (dgs.length == 0) {
@@ -132,14 +132,14 @@ export class Tutorial02 extends Tutorial {
             break;
         case 41:
             Poppy.display({
-                message: `This is called an <span class="accent">End Block</span> Diagram. Since <span class="accent">INDENTION</span> is important in Python to indicate which is in the block, so how do we remove it from the block?`,
+                message: `This is called an <span class="accent">End Block</span> Diagram. Since <span class="accent">INDENTATION</span> is important in Python to indicate which lines are in the block, how do we remove it from the block?`,
                 dialogType: DialogType.NEXT,
                     cb: (() => this.cursor = 42).bind(this)
             });
             break;
         case 42:
             Poppy.display({
-                message: `We remove it either by <span class="accent">Unindenting or increasing the Indention</span>. <span class="accent">End Block Unindents by 1 time</span> the diagrams below it. Pay attention to space on the left side multiple <span class="accent">End Block</span> might be needed depending on how nested a block is.`,
+                message: `We can remove it either by <span class="accent">unindenting or increasing the indentation</span>. <span class="accent">End Block</span> reduces indentation by one level in the diagrams below it. Pay attention to the spaces on the left side; multiple <span class="accent">End Block</span> diagrams might be needed depending on how deeply nested a block is.`,
                 dialogType: DialogType.NEXT,
                 cb: (() => {
                     this.cursor = 5;
@@ -154,7 +154,7 @@ export class Tutorial02 extends Tutorial {
             break;
         case 5:
             Poppy.display({
-                message: "Let's try the elif diagram. add an elif diagram on the bottom of End Block and add this <pre><span class=\"info\">elif age < 18:<br>    print('You are a teenager.')</span></pre>",
+                message: "Let's try the elif diagram. Add an elif diagram below the End Block and include this:<pre><span class=\"info\">elif age < 18:<br>    print('You are a teenager.')</span></pre>",
                 onDisplay: () => {
                     let dgs = window.mCvRootNode.getDiagramGroups();
                     if (dgs.length == 0) {
@@ -194,7 +194,7 @@ export class Tutorial02 extends Tutorial {
             break;
         case 8:
             Poppy.display({
-                message: `Here’s a complete example:<pre><span class=\"info\">age = 13 <br>if age < 13: <br>    print('You are a child.') <br>elif age < 18: <br>    print('You are a teenager.') <br>else: <br>    print('You are an adult.')</span></pre> <span class="accent">else</span> also creates a block so you need to <span class="accent">unindent</span> first before adding the <span class="accent">else diagram</span>`,
+                message: `Here’s a complete example:<pre><span class=\"info\">age = 13 <br>if age < 13: <br>    print('You are a child.') <br>elif age < 18: <br>    print('You are a teenager.') <br>else: <br>    print('You are an adult.')</span></pre> <span class="accent">else</span> also creates a block, so you need to <span class="accent">unindent</span> first before adding the <span class="accent">else diagram</span>.`,
                 dialogType: DialogType.NONE,
                 onDisplay: (() => {
                     const currentPos = Poppy.pos;
@@ -217,7 +217,7 @@ export class Tutorial02 extends Tutorial {
             break;
         case 81:
             Poppy.display({
-                message: "Here’s a complete example:<pre><span class=\"info\">age = 13 <br>if age < 13: <br>    print('You are a child.') <br>elif age < 18: <br>    print('You are a teenager.') <br>else: <br>    print('You are an adult.')</span></pre>",
+                message: `Here’s a complete example:<pre><span class=\"info\">age = 13 <br>if age < 13: <br>    print('You are a child.') <br>elif age < 18: <br>    print('You are a teenager.') <br>else: <br>    print('You are an adult.')</span></pre> <span class="accent">else</span> also creates a block, so you need to <span class="accent">unindent</span> first before adding the <span class="accent">else diagram</span>.`,
                 dialogType: DialogType.NONE
             });
             Poppy.addOnModified([

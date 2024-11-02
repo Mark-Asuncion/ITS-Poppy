@@ -23,14 +23,14 @@ export class Tutorial04 extends Tutorial {
                 break;
             case 1:
                 Poppy.display({
-                    message: "You can define a function using the <span class=\"accent\">def</span> keyword, followed by the function name and parentheses. Like this <code>def greet():</code>",
+                    message: "You can define a function using the <span class=\"accent\">def</span> keyword, followed by the function name and parentheses. Like this: <code>def greet():</code>",
                     dialogType: DialogType.NEXT,
                     cb: (() => this.cursor = 111).bind(this)
                 });
                 break;
             case 111:
                 Poppy.display({
-                    message: `It is worth noting that <span class="accent">defining</span> a function also creates a block that means the code below it needs to be <span class="accent">indented</span> to be included in the function. But don't worry the <span class="accent">Def Function Diagram</span> already <span class="accent">indents</span> the code below it`,
+                    message: `It is worth noting that <span class="accent">defining</span> a function also creates a block, which means the code below it needs to be <span class="accent">indented</span> to be included in the function. But don't worry—the <span class="accent">Def Function Diagram</span> already <span class="accent">indents</span> the code below it.`,
                     onDisplay: () => {
                         Poppy.targetPos = {
                             x: Poppy.pos.x + 100,
@@ -89,7 +89,7 @@ export class Tutorial04 extends Tutorial {
                 break;
             case 21:
                 Poppy.display({
-                    message: `Now define a function called <span class="accent">greet</span>`,
+                    message: `Now, define a function called <span class="accent">greet</span>`,
                     dialogType: DialogType.NONE,
                     timeout: -1
                 });
@@ -121,7 +121,7 @@ export class Tutorial04 extends Tutorial {
                     message: "Great! Now let’s call the <span class=\"accent\">greet</span> function to see it in action. Add <span class=\"info\">greet()</span> below the function definition:<pre><span class=\"info\">def greet():<br>   print('Hello, world!')<br><br>greet()</span></pre>",
                     onDisplay: () => {
                         Poppy.addHint({
-                            message: `Since <span class="accent">defining a function</span> creates a <span class="info">block</span> we need to <span class="info">unindent</span> we can do so by using <span class="accent">End Block Diagram</span>`,
+                            message: `Since <span class="accent">defining a function</span> creates a <span class="info">block,</span> we need to <span class="info">unindent.</span> We can do so by using <span class="accent">End Block Diagram</span>.`,
                             dialogType: DialogType.NEXT
                         });
                     },
@@ -144,7 +144,7 @@ export class Tutorial04 extends Tutorial {
                         name: "main",
                         content: "def greet( ):\n\tprint(\"Hello, world!\")\ngreet()\n"
                     }
-                ], (() => this.cursor = 5).bind(this), (() => this.cursor = -1).bind(this));
+                ], (() => {this.cursor = 5; Poppy.removeHint();}).bind(this), (() => this.cursor = -1).bind(this));
                 if (!this.once) {
                     this.once = true;
                     setTimeout((() => {
@@ -160,7 +160,7 @@ export class Tutorial04 extends Tutorial {
                             x: rect.x, y: rect.y
                         };
                         Poppy.swapDialog = {
-                            message: "You can press the question mark for a hint if you are having a trouble",
+                            message: "You can press the question mark for a hint if you are having a trouble.",
                             dialogType: DialogType.NEXT,
                             cb: ( () => {
                                 this.cursor = 4;
@@ -221,6 +221,12 @@ export class Tutorial04 extends Tutorial {
             case 8:
                 Poppy.display({
                     message: "Now let’s call the <span class=\"accent\">greet</span> function and store the returned value in a variable. Add the following code:<pre><span class=\"info\">message = greet()<br>print(message)</span></pre>",
+                    onDisplay: () => {
+                        Poppy.addHint({
+                            message: `Since <span class="accent">defining a function</span> creates a <span class="info">block,</span> we need to <span class="info">unindent.</span> We can do so by using <span class="accent">End Block Diagram</span>.`,
+                            dialogType: DialogType.NEXT
+                        });
+                    },
                     dialogType: DialogType.NONE,
                 });
                 Poppy.addOnModified([
@@ -232,7 +238,7 @@ export class Tutorial04 extends Tutorial {
                         name: "main",
                         content: "def greet( ):\n\treturn \"Hello, world!\"\nmessage = greet()\nprint(message)\n"
                     }
-                ], (() => this.cursor = 9).bind(this), (() => {}).bind(this));
+                ], (() => {this.cursor = 9; Poppy.removeHint();}).bind(this), (() => {}).bind(this));
                 break;
             case 9:
                 Poppy.display({
@@ -260,10 +266,10 @@ export class Tutorial04 extends Tutorial {
             // Back to modifying greet to take a name
             case 10:
                 Poppy.display({
-                    message: `Now, let’s modify the <span class=\"accent\">greet</span> function to accept a name. Change it to: <pre><span class=\"info\">def greet(name):</span></pre> Again Python is <span class="accent">Dynamic Type</span> this means name can be any type depending on what you passed`,
+                    message: `Now, let’s modify the <span class=\"accent\">greet</span> function to accept a name. Change it to: <pre><span class=\"info\">def greet(name):</span></pre> Again, Python is <span class="accent">dynamically typed</span>, which means the name can be any type depending on what you pass.`,
                     onDisplay: () => {
                         Poppy.addHint({
-                            message: `To accept a argument you can add <span class="accent">name</span> between the <span class="accent">( ) brackets</span>`,
+                            message: `To accept a argument, you can add <span class="accent">name</span> between the <span class="accent">( ) brackets</span>.`,
                             dialogType: DialogType.NEXT
                         });
                     },
@@ -301,10 +307,10 @@ export class Tutorial04 extends Tutorial {
                 break;
             case 12:
                 Poppy.display({
-                    message: "Let's assign the return value in a variable <code>message = greet('Poppy')</code> Now when you print <span class=\"info\">message</span>, it will return the greeting message. try to print it",
+                    message: "Let's assign the return value to a variable: <code>message = greet('Poppy')</code>. Now when you print <span class=\"info\">message</span>, it will return the greeting message. Try to print it.",
                     onDisplay: () => {
                         Poppy.addHint({
-                            message: `Since <span class="accent">defining a function</span> creates a <span class="info">block</span> we need to <span class="info">unindent</span> we can do so by using <span class="accent">End Block Diagram</span>`,
+                            message: `Since <span class="accent">defining a function</span> creates a <span class="info">block,</span> we need to <span class="info">unindent.</span> We can do so by using <span class="accent">End Block Diagram</span>.`,
                             dialogType: DialogType.NEXT
                         });
                     },
@@ -317,9 +323,9 @@ export class Tutorial04 extends Tutorial {
                     },
                     {
                         name: "main",
-                        content: "def greet(name):\n\treturn \"Hello, \" + name + \"!\"\nnmessage = greet('Poppy')\nprint(message)\n"
+                        content: "def greet(name):\n\treturn \"Hello, \" + name + \"!\"\nmessage = greet(\"Poppy\")\nprint(message)\n"
                     }
-                ], (() => this.cursor = 13).bind(this), (() => {}).bind(this));
+                ], (() => {this.cursor = 13; Poppy.removeHint();}).bind(this), (() => {}).bind(this));
                 break;
             case 13:
                 Poppy.display({

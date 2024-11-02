@@ -49,6 +49,12 @@ export class Tutorial05 extends Tutorial {
             case 4:
                 Poppy.display({
                     message: "Great! Now, you can try to print the array named 'subjects' to see its values",
+                    onDisplay: () => {
+                        Poppy.addHint({
+                            message: `When printing a variable, it should not be enclosed in quotes.`,
+                            dialogType: DialogType.NEXT
+                        });
+                    },
                     dialogType: DialogType.NONE,
                 });
                 Poppy.addOnModified([
@@ -56,11 +62,14 @@ export class Tutorial05 extends Tutorial {
                         name: "main",
                         content: "subjects = ['Math', 'English', 'Science', 'Filipino']\nprint(subjects)\n"
                     }
-                ], (() => this.cursor = 5).bind(this), (() => this.cursor = -1 ).bind(this));
+                ], (() => {
+                    this.cursor = 5; 
+                    Poppy.removeHint();
+                }).bind(this), (() => this.cursor = -1 ).bind(this));
                 break;
             case 5:
                 Poppy.display({
-                    message: " You can access elements in a Python list (which functions like an array) using indexing. Here's how you can do it: drag a statement diagaram and put <span class=\"accent\">print(subjects[0])</span>.",
+                    message: "You can access elements in a Python list (which functions like an array) using indexing. Here's how you can do it: drag a statement diagaram and put <span class=\"accent\">print(subjects[0])</span>.",
                     dialogType: DialogType.NONE,
                 });
                 Poppy.addOnModified([
@@ -82,7 +91,7 @@ export class Tutorial05 extends Tutorial {
                     message: "Now, let's try to print the last element.",
                     onDisplay: () => {
                         Poppy.addHint({
-                            message: `If the 1st element of the list is <span class="accent">0</span>, and the 2nd element is <span class="accent">1</span> what is the index of the last element`,
+                            message: `If the 1st element of the list is <span class="accent">0,</span>, and the 2nd element is <span class="accent">1,</span> what is the index of the last element?`,
                             dialogType: DialogType.NEXT
                         })
                     },
