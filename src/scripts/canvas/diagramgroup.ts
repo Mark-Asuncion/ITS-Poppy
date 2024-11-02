@@ -8,6 +8,7 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { Shape, ShapeConfig } from "konva/lib/Shape";
 import { TextBox } from "./text/textbox";
 import { BaseText, TextChangedEvent } from "./basetext";
+import { Poppy } from "../../poppy/poppy";
 
 export interface AttachTo {
     v: DiagramGroup,
@@ -215,6 +216,8 @@ export class DiagramGroup extends Konva.Group {
         v.refresh();
         this.remove();
         this.destroy();
+        if (Poppy.onDiagramDrop)
+            Poppy.onDiagramDrop();
     }
 
     canAttachTo(other: DiagramGroup): AttachTo | null {

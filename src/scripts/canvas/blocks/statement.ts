@@ -4,6 +4,7 @@ import { BaseDiagram } from "../basediagram";
 import { TextChangedEvent, TextKeyUpEvent } from "../basetext";
 import { createDiagramFrom, findNodeType } from "../utils";
 import { DiagramGroup } from "../diagramgroup";
+import { Poppy } from "../../../poppy/poppy";
 
 export class Statement extends BaseDiagram {
     constructor(content: string = "") {
@@ -81,11 +82,11 @@ export class Statement extends BaseDiagram {
         if (e.key === "Enter") {
 
             let node: Statement;
-            let t = (this.components[0] as TextBox).text.text();
+//             let t = (this.components[0] as TextBox).text.text();
 //            console.log(t);
-            if (t.length > 0) {
-                return;
-            }
+//             if (t.length > 0) {
+//                 return;
+//             }
             if (indexPos < p.nodes.length-1) {
                 node = createDiagramFrom("statement");
                 p.nodes.splice(indexPos+1,0,node);
@@ -97,6 +98,8 @@ export class Statement extends BaseDiagram {
                 p.addDiagram(node);
                 p.refresh();
             }
+            if (Poppy.onDiagramDrop)
+                Poppy.onDiagramDrop();
 
             node.focus();
         }
@@ -113,6 +116,8 @@ export class Statement extends BaseDiagram {
                 if (indexPos > 0) {
                     p.nodes[indexPos-1].focus();
                 }
+                if (Poppy.onDelete)
+                    Poppy.onDelete();
             }
         }
     }

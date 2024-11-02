@@ -27,26 +27,6 @@ input.canvas-edit, textarea.canvas-edit {
     transform-origin: left top;
 }
 
-div#diagram-container {
-    margin: 0;
-    padding: 0;
-    min-width: 50%;
-    width: 100%;
-    height: auto;
-}
-
-input.canvas-edit, textarea.canvas-edit {
-    position: absolute;
-    border: none;
-    padding: 0px;
-    margin: 0px;
-    overflow: hidden;
-    background: none;
-    outline: none;
-    resize: none;
-    transform-origin: left top;
-}
-
 .diagram-emblem {
     width: 20%;
     height: 20%;
