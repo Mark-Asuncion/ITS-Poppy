@@ -1,3 +1,4 @@
+import { Lint } from "../../scripts/lint";
 import { DialogType, Tutorial } from "../interface";
 import { Poppy } from "../poppy";
 
@@ -7,6 +8,7 @@ export class Tutorial08 extends Tutorial {
         super();
         this.name = "Error Handling";
         this.cursor = 0;
+        Lint.autoOpen = false;
     }
 
     update() {
@@ -34,30 +36,149 @@ export class Tutorial08 extends Tutorial {
             break;
         case 3:
             Poppy.display({
-                message: "Before that, let me teach you on how to make an <span class =\"info\">indention</span> for Statement Diagram. Drag 2 Statement Diagram to the center and connect it. Click the second diagram and press tab to indent it.",
-                dialogType: DialogType.NEXT,
-                cb: (() => this.cursor = 4).bind(this)
-            });
+                message: `Drag a <span class="accent">Statement</span> Diagram into the editor`,
+                    dialogType: DialogType.NONE,
+                    timeout: -1,
+                    onDisplay: (() => {
+                    const btn = document.querySelector("#btn-diagram-view")! as HTMLElement;
+                        if ( !btn.classList.contains("active") ) {
+                            btn.click();
+                        }
+                        const diagram = document.querySelector("img[data-diagram-type=\"statement\"]")! as HTMLElement;
+                        this.highlight(diagram, (() => {}), true);
+                        const rect = diagram.getBoundingClientRect();
+                        const targetPos = {
+                            x: rect.x + rect.width + 5,
+                            y: rect.y + 40
+                        };
+                        const distance = {
+                            x: Math.abs(Poppy.pos.x - targetPos.x),
+                            y: Math.abs(Poppy.pos.y - targetPos.y)
+                        };
+                        if (distance.x != 0 && distance.y != 0)
+                        Poppy.targetPos = targetPos;
+                    }).bind(this),
+                });
+                Poppy.onDiagramDrop = (() => {
+                    let dgs = window.mCvRootNode.getDiagramGroups();
+                    if (dgs.length == 0) {
+                        return;
+                    }
+                    if (dgs[0].nodes[0].name() == "Statement") {
+                        this.cursor = 31;
+                        this.highlightRemove();
+                        Poppy.qDialogRemoveFirst();
+                        Poppy.update();
+                        Poppy.onDiagramDrop = null;
+                        return;
+                    }
+                }).bind(this);
+            break;
+        case 31:
+            Poppy.display({
+                message: `Drag another <span class="accent">Statement</span> Diagram into the editor and connect it to the first <span class="accent">Statement</span> Diagram`,
+                    dialogType: DialogType.NONE,
+                    timeout: -1,
+                    onDisplay: (() => {
+                    const btn = document.querySelector("#btn-diagram-view")! as HTMLElement;
+                        if ( !btn.classList.contains("active") ) {
+                            btn.click();
+                        }
+                        const diagram = document.querySelector("img[data-diagram-type=\"statement\"]")! as HTMLElement;
+                        this.highlight(diagram, (() => {}), true);
+                        const rect = diagram.getBoundingClientRect();
+                        const targetPos = {
+                            x: rect.x + rect.width + 5,
+                            y: rect.y + 40
+                        };
+                        const distance = {
+                            x: Math.abs(Poppy.pos.x - targetPos.x),
+                            y: Math.abs(Poppy.pos.y - targetPos.y)
+                        };
+                        if (distance.x != 0 && distance.y != 0)
+                        Poppy.targetPos = targetPos;
+                    }).bind(this),
+                });
+                Poppy.onDiagramDrop = (() => {
+                    let dgs = window.mCvRootNode.getDiagramGroups();
+                    if (dgs.length == 0) {
+                        return;
+                    }
+                    if (dgs[0].nodes[1].name() == "Statement") {
+                        this.cursor = 32;
+                        this.highlightRemove();
+                        Poppy.qDialogRemoveFirst();
+                        Poppy.update();
+                        Poppy.onDiagramDrop = null;
+                        return;
+                    }
+                }).bind(this);
+            break;
+        case 32:
+            Poppy.display({
+                message: `Drag a <span class="accent">Try</span> Diagram into the editor and connect it below the <span class="accent">Statement</span> Diagram`,
+                    dialogType: DialogType.NONE,
+                    timeout: -1,
+                    onDisplay: (() => {
+                    const btn = document.querySelector("#btn-diagram-view")! as HTMLElement;
+                        if ( !btn.classList.contains("active") ) {
+                            btn.click();
+                        }
+                        const tname = btn.getAttribute("aria-target")!;
+                        const target = document.querySelector("#" + tname)! as HTMLDivElement;
+                        const diagram = document.querySelector("img[data-diagram-type=\"try\"]")! as HTMLElement;
+                        target.scrollTo({
+                            top: 800,
+                            behavior: "instant",
+                        });
+                        this.highlight(diagram, (() => {}), true);
+                        const rect = diagram.getBoundingClientRect();
+                        const targetPos = {
+                            x: rect.x + rect.width + 5,
+                            y: rect.y + 40
+                        };
+                        const distance = {
+                            x: Math.abs(Poppy.pos.x - targetPos.x),
+                            y: Math.abs(Poppy.pos.y - targetPos.y)
+                        };
+                        if (distance.x != 0 && distance.y != 0)
+                        Poppy.targetPos = targetPos;
+                    }).bind(this),
+                });
+                Poppy.onDiagramDrop = (() => {
+                    let dgs = window.mCvRootNode.getDiagramGroups();
+                    if (dgs.length == 0) {
+                        return;
+                    }
+                    if (dgs[0].nodes[2].name() == "Try") {
+                        this.cursor = 4;
+                        this.highlightRemove();
+                        Poppy.qDialogRemoveFirst();
+                        Poppy.update();
+                        Poppy.onDiagramDrop = null;
+                        return;
+                    }
+                }).bind(this);
             break;
         case 4:
             Poppy.display({
-                message: "Here’s how you can use try and except to handle that error:<pre><span class=\"info\">num1 = 10<br>num2 = 0<br>try:<br>   result = num1 / num2<br>   print(result)<br>except ZeroDivisionError:<br>   print('Cannot divide by zero!')</span></pre>",
+                message: "Here’s how you can use try and except to handle that error:<pre><span class=\"info\">num1 = int(input('Enter a numerator: '))<br>num2 = int(input('Enter a denominator: '))<br>try:<br>   result = num1 / num2<br>   print(result)<br>except ZeroDivisionError:<br>   print('Cannot divide by zero!')</span></pre>",
                 dialogType: DialogType.NONE,
             });
             Poppy.addOnModified([
                 {
                     name: "main",
-                    content: "num1 = 10\nnum2 = 0\ntry:\n\tresult = num1 / num2\n\tprint(result)\nexcept ZeroDivisionError:\n\tprint('Cannot divide by zero!')\n"
+                    content: "num1 = int(input('Enter a numerator: '))\nnum2 = int(input('Enter a denominator: '))\ntry:\n\tresult = num1 / num2\n\tprint(result)\nexcept ZeroDivisionError:\n\tprint('Cannot divide by zero!')\n"
                 },
                 {
                     name: "main",
-                    content: "num1 = 10\nnum2 = 0\ntry:\n\tresult = num1 / num2\n\tprint(result)\nexcept ZeroDivisionError:\n\tprint(\"Cannot divide by zero!\")\n"
+                    content: "num1 = int(input(\"Enter a numerator: \"))\nnum2 = int(input(\"Enter a denominator: \"))\ntry:\n\tresult = num1 / num2\n\tprint(result)\nexcept ZeroDivisionError:\n\tprint(\"Cannot divide by zero!\")\n"
                 }
-            ], (() => this.cursor = 5).bind(this), (() => {}).bind(this));
+            ], (() => this.cursor = 5).bind(this));
             break;
         case 5:
             Poppy.display({
-                message: "Try running this code. Change the value of <span class=\"info\">num2</span> to see how the error is handled!",
+                message: `Try running this code and input <span class="accent">0</span> or other numbers on <span class="accent">num2</span> to see how the error is handled!`,
                 dialogType: DialogType.NEXT,
                 cb: (() => this.cursor = 6).bind(this)
             });
@@ -96,4 +217,34 @@ export class Tutorial08 extends Tutorial {
             break;
 		}
 	}
+
+    highlightRemove() {
+        const highlighters = document.querySelectorAll(".highlighter")
+        highlighters.forEach((v) => v.remove());
+    }
+
+    highlight(el: HTMLElement, cb?: () => void, ignoreEvents = false) {
+        this.highlightRemove();
+        const div = document.createElement("div");
+        const rect = el.getBoundingClientRect();
+        div.classList.add("highlighter");
+        div.style.left = `${rect.x}px`;
+        div.style.top = `${rect.y}px`;
+        div.style.width = `${rect.width}px`;
+        div.style.height = `${rect.height}px`;
+        if (ignoreEvents) {
+            div.style.pointerEvents = "none";
+        }
+        let ref = this;
+        div.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (el instanceof HTMLButtonElement)
+                el.click();
+            ref.highlightRemove();
+            if (cb)
+                cb();
+            Poppy.update();
+        });
+        document.body.appendChild(div);
+    }
 }

@@ -6,7 +6,7 @@ export class Tutorial07 extends Tutorial {
     constructor() {
         super();
         this.name = "Class Inheritance";
-        this.cursor = 9;
+        this.cursor = 0;
         Lint.autoOpen = false;
     }
 

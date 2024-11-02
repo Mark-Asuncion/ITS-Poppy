@@ -329,7 +329,7 @@ pub async fn write_diagrams_to_modules(modules: String, gs: State<'_, GlobalStat
 }
 
 #[tauri::command]
-pub fn save_post_test_answers(answers: Vec<String>, gs: State<GlobalState>, app_handle: AppHandle) {
+pub fn save_post_test_answers(answers: Vec<String>, gs: State<GlobalState>, app_handle: AppHandle) -> Result<(), String> {
     let mut p = app_handle.path_resolver().app_data_dir()
             .expect(error::Error::DATA_DIR_FAIL.to_string().as_str());
     let profile_name = gs.get_profile();
@@ -338,7 +338,7 @@ pub fn save_post_test_answers(answers: Vec<String>, gs: State<GlobalState>, app_
     if !p.exists() {
         if let Err(e) = create_dir_all(&p) {
             dbg!(e);
-            return;
+            return Err(String::from("Failed to Save Post Test Answers"));
         }
     }
     p.push("posttest.anwers.json");
@@ -347,7 +347,7 @@ pub fn save_post_test_answers(answers: Vec<String>, gs: State<GlobalState>, app_
     if let Err(e) = file {
         dbg!(&e);
         dbg!(answers);
-        return;
+        return Err(String::from("Failed to Save Post Test Answers"));
     }
 
     let mut file = file.unwrap();
@@ -356,7 +356,7 @@ pub fn save_post_test_answers(answers: Vec<String>, gs: State<GlobalState>, app_
     if let Err(e) = to_str {
         dbg!(&e);
         dbg!(answers);
-        return;
+        return Err(String::from("Failed to Save Post Test Answers"));
     }
 
     let to_str = to_str.unwrap();
@@ -364,6 +364,8 @@ pub fn save_post_test_answers(answers: Vec<String>, gs: State<GlobalState>, app_
     if let Err(e) = file.write_all(to_str.as_bytes()) {
         dbg!(e);
         dbg!(answers);
-        return;
+        return Err(String::from("Failed to Save Post Test Answers"));
     }
+
+    Ok(())
 }

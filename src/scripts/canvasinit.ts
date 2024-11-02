@@ -220,6 +220,7 @@ export function init() {
                 dgGroup.addDiagram(createDiagramFrom("endblock"));
                 dgGroup.addDiagram(createDiagramFrom("except"));
                 dgGroup.addDiagram(createDiagramFrom("statement"));
+                dgGroup.addDiagram(createDiagramFrom("endblock"));
                 break;
             case "class":
                 dgGroup.addDiagram(createDiagramFrom("class"));
