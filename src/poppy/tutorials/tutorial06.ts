@@ -49,12 +49,29 @@ export class Tutorial06 extends Tutorial {
                     message: `Great! Now, let’s print a greeting message using the name the user provided. <span class=\"info\">('Hello, ' [name]!)</span>. You can append <span class="accent">variables</span> to string if you use <span class="accent">+</span> on strings like adding numbers.`,
                     onDisplay: () => {
                         Poppy.addHint({
-                            message: `<span class="accent">print</span> the name with this format <span class="accent">"Hello, [name]!"</span>. You append a variable to a string with <span class="accent">+</span> like this <span class="accent">Hi, " + name + "!"</span>`,
-                            dialogType: DialogType.NEXT
+                            message: `<span class="accent">print</span> the name with this format <span class="accent">'Hello, [name]!'</span>. You append a variable to a string with <span class="accent">+</span> like this <span class="accent">'Hello, ' + name + '!'</span>`,
+                            dialogType: DialogType.NEXT,
+                            onDisplay: () => { Poppy.qDialog = [] }
                         });
                     },
                     dialogType: DialogType.NONE,
                 });
+
+                Poppy.addOnModified([
+                    {
+                        name: "main",
+                        content: `name = input('What is your name? ')\nprint('Hello, ' + name + '!')\n`
+                    },
+                    {
+                        name: "main",
+                        content: `name = input("What is your name? ")\nprint("Hello, " + name + "!")\n`
+                    },
+                ], (() => {
+                        this.cursor = 4;
+                        Poppy.qDialog = [];
+                        Poppy.removeHint();
+                    } ).bind(this));
+
                 if (!this.once) {
                     this.once = true;
                     setTimeout((() => {
@@ -72,64 +89,9 @@ export class Tutorial06 extends Tutorial {
                         Poppy.swapDialog = {
                             message: "You can press the question mark for a hint if you are having a trouble",
                             dialogType: DialogType.NEXT,
-                            onDisplay: ( () => {
-                                this.cursor = -1;
-                                Poppy.qDialog = [];
-                                Poppy.update();
-                            } ).bind(this)
                         };
                     }).bind(this), 1000);
                 }
-
-                Poppy.frameListener = ((elapsed: number) => {
-                    this.timer += elapsed;
-                    if (this.timer > 500) {
-                        this.timer = 0;
-                        let dgs = window.mCvRootNode.getDiagramGroups();
-                        if (dgs.length == 0) {
-                            return;
-                        }
-                        if (dgs[0].nodes.length < 2) {
-                            this.cursor = 3;
-                            return;
-                        }
-                        let content = dgs[0].nodes[1].getContent();
-                        if (content.trim().length == 0) {
-                            this.cursor = 3;
-                            return;
-                        }
-
-                        content = content.replace(/"/g,"'");
-                        // console.log("tutorial03", content);
-                        if (content == `print('Hello, ' + name + '!')`) {
-                            this.cursor = 4;
-                            Poppy.removeHint();
-                            Poppy.frameListener = null;
-                        }
-                        else {
-                            if (this.cursor == -1) {
-                                return;
-                            }
-                            this.cursor = -1;
-                        }
-                        Poppy.qDialogRemoveFirst();
-                        // console.log(this.cursor);
-                        Poppy.update();
-                    }
-                }).bind(this);
-                // Poppy.addOnModified([
-                //     {
-                //         name: "main",
-                //         content: "name = input('What is your name? ')\nprint('Hello, ' + name + '!')\n"
-                //     },
-                //     {
-                //         name: "main",
-                //         content: "name = input(\"What is your name? \")\nprint(\"Hello, \" + name + \"!\")\n"
-                //     }
-                // ], (() => {
-                //         this.cursor = 4;
-                //         Poppy.removeHint();
-                //     }).bind(this), (() => this.cursor = -1).bind(this));
                 break;
             case 4:
                 Poppy.display({
@@ -150,36 +112,17 @@ export class Tutorial06 extends Tutorial {
                     message: "To ask for the user's age, you can use: <span class=\"info\">age = input('How old are you? ')</span>. Remember, the input will be a string!",
                     dialogType: DialogType.NONE,
                 });
-                this.timer = 0;
-                Poppy.frameListener = ((elapsed: number) => {
-                    this.timer += elapsed;
-                    if (this.timer > 500) {
-                        this.timer = 0;
-                        let dgs = window.mCvRootNode.getDiagramGroups();
-                        if (dgs.length == 0) {
-                            return;
-                        }
-                        if (dgs[0].nodes.length < 3) {
-                            return;
-                        }
-                        let content = dgs[0].nodes[2].getContent();
-                        if (content.trim().length == 0) {
-                            return;
-                        }
+                Poppy.addOnModified([
+                    {
+                        name: "main",
+                        content: `name = input('What is your name? ')\nprint('Hello, ' + name + '!')\nage = input('How old are you? ')\n`
+                    },
+                    {
+                        name: "main",
+                        content: `name = input("What is your name? ")\nprint("Hello, " + name + "!")\nage = input("How old are you? ")\n`
+                    },
+                ], (() => this.cursor = 7).bind(this));
 
-                        content = content.replace(/"/g,"'");
-                        // console.log("tutorial03", content);
-                        if (content == `age = input('How old are you? ')`) {
-                            this.cursor = 7;
-                            Poppy.frameListener = null;
-                        }
-                        else {
-                            return;
-                        }
-                        Poppy.qDialogRemoveFirst();
-                        Poppy.update();
-                    }
-                }).bind(this);
                 break;
             case 7:
                 Poppy.display({
@@ -189,52 +132,20 @@ export class Tutorial06 extends Tutorial {
                         Poppy.addHint({
                             message: `To convert the value returned by input you can enclose <span class="accent">input<span> with <span  class="accent">int<span> like this <span  class="accent">int(input())</span>`,
                             dialogType: DialogType.NEXT,
-                            onDisplay: ( () => {
-                                this.cursor = -1;
-                            } ).bind(this)
                         })
                     }
                 });
 
-                this.timer = 0;
-                Poppy.frameListener = ((elapsed: number) => {
-                    this.timer += elapsed;
-                    if (this.timer > 500) {
-                        this.timer = 0;
-                        let dgs = window.mCvRootNode.getDiagramGroups();
-                        if (dgs.length == 0) {
-                            return;
-                        }
-                        if (dgs[0].nodes.length < 3) {
-                            this.cursor = 7;
-                            return;
-                        }
-                        let content = dgs[0].nodes[2].getContent();
-                        if (content.trim().length == 0) {
-                            this.cursor = 7;
-                            return;
-                        }
-
-                        content = content.replace(/"/g,"'");
-                        // console.log("tutorial03", content);
-                        if (content == `age = input('How old are you? ')`) {
-                            return;
-                        }
-                        if (content == `age = int(input('How old are you? '))`) {
-                            this.cursor = 8;
-                            Poppy.frameListener = null;
-                            Poppy.removeHint();
-                        }
-                        else {
-                            if (this.cursor == -2) {
-                                return;
-                            }
-                            this.cursor = -2;
-                        }
-                        Poppy.qDialogRemoveFirst();
-                        Poppy.update();
-                    }
-                }).bind(this);
+                Poppy.addOnModified([
+                    {
+                        name: "main",
+                        content: `name = input('What is your name? ')\nprint('Hello, ' + name + '!')\nage = int(input('How old are you? '))\n`
+                    },
+                    {
+                        name: "main",
+                        content: `name = input("What is your name? ")\nprint("Hello, " + name + "!")\nage = int(input("How old are you? "))\n`
+                    },
+                ], (() => this.cursor = 8).bind(this), (() => this.cursor = -2).bind(this));
                 break;
             case 8:
                 Poppy.display({
