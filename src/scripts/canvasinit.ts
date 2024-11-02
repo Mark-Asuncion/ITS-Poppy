@@ -221,6 +221,13 @@ export function init() {
                 dgGroup.addDiagram(createDiagramFrom("except"));
                 dgGroup.addDiagram(createDiagramFrom("statement"));
                 break;
+            case "class":
+                dgGroup.addDiagram(createDiagramFrom("class"));
+                dgGroup.addDiagram(createDiagramFrom("def", "def __init__(self):"));
+                dgGroup.addDiagram(createDiagramFrom("statement"));
+                dgGroup.addDiagram(createDiagramFrom("endblock"));
+                dgGroup.addDiagram(createDiagramFrom("endblock"));
+                break;
             default:
                 dgGroup.addDiagram(createDiagramFrom(type));
                 console.warn("SHOULD NOT HAPPEN");

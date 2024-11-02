@@ -193,7 +193,7 @@ export function createDiagramFrom(type: string, line: string = ""): BaseDiagram 
             }
         case "function":
             if (line.length > 0) {
-                let funInfo = /(.*)\((.*)\)/.exec(line);
+                let funInfo = /(.*?)\((.*)\)/.exec(line);
                 if (funInfo == null) {
                     break;
                 }
