@@ -7,9 +7,18 @@ import { Lint } from "../scripts/lint";
 import { Idle } from "./animation/idle";
 import { Walk } from "./animation/walk";
 import { Tutorial00 } from "./tutorials/tutorial00";
+import { Tutorial02 } from "./tutorials/tutorial02";
+import { Tutorial03 } from "./tutorials/tutorial03";
+import { Tutorial04 } from "./tutorials/tutorial04";
+import { Tutorial05 } from "./tutorials/tutorial05";
+import { Tutorial06 } from "./tutorials/tutorial06";
+import { Tutorial07 } from "./tutorials/tutorial07";
+import { Tutorial08 } from "./tutorials/tutorial08";
+import { Tutorial09 } from "./tutorials/tutorial09";
 import { isPointIntersectRect, clamp } from "../scripts/canvas/utils";
 import { JumpingRope, Pokeball, SwattingFly } from "./animation/idleBored";
 import { PostTest } from "./tutorials/posttest";
+import { setHover } from "../scripts/canvas/tooltip";
 
 // @ts-ignore
 export class Poppy {
@@ -23,6 +32,8 @@ export class Poppy {
     static currDialog: PoppyDialog | null = null;
     static notifDialogHitimer = 0.0;
     static frameListener: ((elapsed: number) => void) | null = null;
+    static onDiagramDrop: (() => void) | null = null;
+    static onDelete: (() => void) | null = null;
 
     static boredTimer = 0;
     static boredTimerThreshold = 30_000;
@@ -157,6 +168,30 @@ export class Poppy {
             case 1:
                 Poppy.tutorial = new Tutorial01();
                 break;
+            case 2:
+                Poppy.tutorial = new Tutorial02();
+                break;
+            case 3:
+                Poppy.tutorial = new Tutorial03();
+                break;
+            case 4:
+                Poppy.tutorial = new Tutorial04();
+                break;
+            case 5:
+                Poppy.tutorial = new Tutorial05();
+                break;
+            case 6:
+                Poppy.tutorial = new Tutorial06();
+                break;
+            case 7:
+                Poppy.tutorial = new Tutorial07();
+                break;
+            case 8:
+                Poppy.tutorial = new Tutorial08();
+                break;
+			case 9:
+                Poppy.tutorial = new Tutorial09();
+                break;
             case 10:
                 Poppy.tutorial = new PostTest();
                 break;
@@ -165,6 +200,11 @@ export class Poppy {
 
     static qDialogFirst(dialog: PoppyDialog) {
         Poppy.qDialog = [dialog, ...Poppy.qDialog];
+    }
+    static qDialogRemoveFirst() {
+        if (Poppy.qDialog.length > 0) {
+            Poppy.qDialog.splice(0,1);
+        }
     }
 
     static init() {
@@ -332,12 +372,14 @@ export class Poppy {
         window.requestAnimationFrame(Poppy.poppyOnFrame)
     }
 
-    static hide() {
+    static hide(removeSwap = true) {
         const containers = document.querySelectorAll(".dialog-container");
         if (Poppy.qTimeout)
             clearTimeout(Poppy.qTimeout);
         Poppy.qTimeout = null;
         Poppy.currDialog = null;
+        if (removeSwap)
+            Poppy.swapDialog = null;
         containers.forEach((v) => {
             v.remove();
         });
@@ -363,7 +405,7 @@ export class Poppy {
             if (Poppy.currDialog.notif == undefined)
                 Poppy.qDialogFirst(Poppy.currDialog);
         }
-        Poppy.hide();
+        Poppy.hide(false);
         Poppy.display(Poppy.swapDialog);
         Poppy.swapDialog = null;
     }
@@ -391,7 +433,7 @@ export class Poppy {
                 if (dialog.timeout && dialog.timeout > 0) {
                     Poppy.qTimeout = setTimeout(() => {
                         if (dialog.cb) dialog.cb();
-                        Poppy.hide();
+                        Poppy.update();
                     }, (dialog.timeout != undefined)? dialog.timeout:10000);
                 }
                 break;
@@ -421,6 +463,7 @@ export class Poppy {
     }
 
     static update() {
+        console.trace("update");
         Poppy.hide();
         if (Poppy.tutorial) {
             setTimeout(() => Poppy.tutorial!.update(), 300);
@@ -428,7 +471,7 @@ export class Poppy {
     }
 
     static addOnModified(modules: Module[], onSuccess: () => void, onFail?: () => void) {
-        console.log(modules);
+        console.trace("modules: ", modules);
         Poppy.onModifiedCB = (contents) => {
             let map = new Map<string, string[]>();
             for (let i=0;i<contents.length;i++) {
@@ -476,6 +519,7 @@ export class Poppy {
             console.warn("SHOULD NOT HAPPEN");
         }
         Poppy.onModifiedMutex = true;
+        // console.trace("modify");
 
         const contents = diagramToModules(window.mCvStage);
         let lint = async () => {
@@ -488,6 +532,7 @@ export class Poppy {
         // == TUTORIAL ==
         if (Poppy.onModifiedCB) {
             Poppy.onModifiedCB(contents);
+            Poppy.qDialogRemoveFirst();
             Poppy.update();
         }
         Poppy.resetBoredTimer();
@@ -518,5 +563,35 @@ export class Poppy {
         let el = ( pin as HTMLElement );
         el.style.left = `${window.mCursor.x - el.clientWidth/2}px`;
         el.style.top = `${window.mCursor.y - el.clientHeight}px`;
+    }
+
+    static removeHint() {
+        let btn = document.querySelector("div#editor-context-container > #editor-hint");
+        if (!btn) {
+            return;
+        }
+        btn.remove();
+    }
+
+    static addHint(dialog: PoppyDialog) {
+        if (document.querySelector("div#editor-context-container > #editor-hint")) {
+            return;
+        }
+
+        let div = document.querySelector("div#editor-context-container");
+        if (!div) {
+            return;
+        }
+
+        let btn = document.createElement("button");
+        btn.id = "editor-hint";
+        btn.classList.add("bg-white", "br-none", "self-align-center");
+        btn.innerHTML = `<i class="fa-solid fa-question-circle"></i>`;
+        btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            Poppy.swapDialog = dialog;
+        })
+        setHover(btn, "Hint");
+        div.appendChild(btn);
     }
 }

@@ -4,6 +4,7 @@ import { TextBox } from "../text/textbox";
 import { BaseText } from "../basetext";
 import { BaseDiagram } from "../basediagram";
 import { TextKeyUpEvent } from "../basetext";
+import { LineCodeTokens, analyze_line } from "../../backendconnector";
 
 export class Function extends BaseDiagram {
     // prevent adding twice cause for some reason keyup is called twice
@@ -29,13 +30,31 @@ export class Function extends BaseDiagram {
             ...Theme.Text
         }))
 
+        analyze_line(param)
+            .then(( (info: LineCodeTokens[]) => {
+                console.log(info);
+                this.setupRemainingComponents(info.length > 0, info, param);
+            } ).bind(this))
+            .catch(( () => {
+                this.setupRemainingComponents(false, [], param);
+            } ).bind(this));
+    }
+
+    setupRemainingComponents(useTokensMethod: boolean, tokens: LineCodeTokens[], param: string) {
         let commaOpt = {
             text: ",",
             fill: "#ffffff",
             ...Theme.Text
         };
 
-        let splitParams = this.argSplit(param);
+        let splitParams: string[] = [];
+        if (useTokensMethod) {
+            splitParams = this.argSplitByTokens(tokens, param);
+        }
+        else {
+            splitParams = this.argSplit(param);
+        }
+
         if (splitParams.length == 0) {
             splitParams.push("");
         }
@@ -56,7 +75,7 @@ export class Function extends BaseDiagram {
             text: ")",
             fill: "#ffffff",
             ...Theme.Text
-        }))
+        }));
 
         this.setInitialPos();
         this.registerEvents();
@@ -64,8 +83,38 @@ export class Function extends BaseDiagram {
         this.add(...this.components);
     }
 
+    argSplitByTokens(tokens: LineCodeTokens[], param: string): string[] {
+        let args: string[] = [];
+        let v = "";
+        let i =0;
+        let pi = 0;
+        while (i<tokens.length) {
+            let token = tokens[i];
+            if (token.index == pi) {
+                pi += token.len;
+                if (token.tokenType == "OP" && token.value == ",") {
+                    args.push(v);
+                    v = "";
+                }
+                else {
+                    v += token.value;
+                }
+                i++;
+            }
+            else {
+                v += param[pi];
+                pi++;
+            }
+        }
+        if (v.length > 0) {
+            args.push(v);
+        }
+        return args;
+    }
+
     argSplit(args: string): string[] {
         // gpt generated regex
+        // this input "Hello, " + name + "!" fails
         const regex = /'[^']*'|"[^"]*"|[^,]+/g;
         const matches = args.match(regex);
         if (matches) {

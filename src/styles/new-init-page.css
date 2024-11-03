@@ -170,6 +170,7 @@ a {
         "c4 c5 c6";
 
     gap: 15px;
+    overflow: auto;
 
 }
 

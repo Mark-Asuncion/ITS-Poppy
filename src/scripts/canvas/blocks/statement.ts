@@ -4,6 +4,7 @@ import { BaseDiagram } from "../basediagram";
 import { TextChangedEvent, TextKeyUpEvent } from "../basetext";
 import { createDiagramFrom, findNodeType } from "../utils";
 import { DiagramGroup } from "../diagramgroup";
+import { Poppy } from "../../../poppy/poppy";
 
 export class Statement extends BaseDiagram {
     constructor(content: string = "") {
@@ -37,19 +38,19 @@ export class Statement extends BaseDiagram {
             return;
         }
         const content = e.value;
-        let varMatch = content.match(/(.*)=(.*)/);
-        if (varMatch != null && varMatch.length == 3) {
-            let ncontent = varMatch[1].trim() + " = " + varMatch[2].trim();
-            (this.components[0]! as TextBox).text.text(ncontent);
-            (this.components[0]! as TextBox).adjustWidth(ncontent);
-            (this.components[0]! as TextBox).setColors();
-        }
+        // let varMatch = content.match(/(\w*)=(\w*)/);
+        // if (varMatch != null && varMatch.length == 3) {
+        //     let ncontent = varMatch[1].trim() + " = " + varMatch[2].trim();
+        //     (this.components[0]! as TextBox).text.text(ncontent);
+        //     (this.components[0]! as TextBox).adjustWidth(ncontent);
+        //     (this.components[0]! as TextBox).setColors();
+        // }
         // console.log("content: ", content);
         const type = findNodeType(content);
         if (type === "statement") {
             return;
         }
-        console.log(type, content);
+//        console.log(type, content);
 
         const diagram = createDiagramFrom(type, content);
         // console.log(diagram);
@@ -81,11 +82,11 @@ export class Statement extends BaseDiagram {
         if (e.key === "Enter") {
 
             let node: Statement;
-            let t = (this.components[0] as TextBox).text.text();
-            console.log(t);
-            if (t.length > 0) {
-                return;
-            }
+//             let t = (this.components[0] as TextBox).text.text();
+//            console.log(t);
+//             if (t.length > 0) {
+//                 return;
+//             }
             if (indexPos < p.nodes.length-1) {
                 node = createDiagramFrom("statement");
                 p.nodes.splice(indexPos+1,0,node);
@@ -97,11 +98,13 @@ export class Statement extends BaseDiagram {
                 p.addDiagram(node);
                 p.refresh();
             }
+            if (Poppy.onDiagramDrop)
+                Poppy.onDiagramDrop();
 
             node.focus();
         }
         else if (e.key === "Backspace" && indexPos !== 0) {
-            console.log(`${ e.value }`, typeof(e.value), e.value?.length);
+//            console.log(`${ e.value }`, typeof(e.value), e.value?.length);
             if (e.value != undefined && e.value.length === 0) {
                 const nodeToDes = p.nodes[indexPos];
                 nodeToDes.removeFocus();
@@ -113,6 +116,8 @@ export class Statement extends BaseDiagram {
                 if (indexPos > 0) {
                     p.nodes[indexPos-1].focus();
                 }
+                if (Poppy.onDelete)
+                    Poppy.onDelete();
             }
         }
     }
@@ -132,5 +137,12 @@ export class Statement extends BaseDiagram {
             i++;
         }
         return ind + (this.components[0] as TextBox).getContent();
+    }
+
+    setTextValue(v: string) {
+        let tb = (this.components[0] as TextBox);
+        tb.text.text(v);
+        tb.adjustWidth(v);
+        tb.setColors();
     }
 }

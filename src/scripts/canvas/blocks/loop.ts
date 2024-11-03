@@ -142,7 +142,7 @@ export class For extends BaseDiagram {
 export class While extends BaseDiagram {
     constructor(content: string = "") {
         super({
-            name: "while",
+            name: "While",
             diagramType: "block",
             theme: Theme.Diagram.Loop
         });

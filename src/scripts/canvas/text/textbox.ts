@@ -107,7 +107,7 @@ export class TextBox extends BaseText {
                 input.blur();
             }
             else if (e.key == "Escape") {
-                input.value = text.text();
+                // input.value = text.text();
                 input.blur();
             }
         });
