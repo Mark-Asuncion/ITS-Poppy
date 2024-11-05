@@ -4,6 +4,7 @@ use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 use std::fs::{read_dir, ReadDir, create_dir_all};
 use std::path::PathBuf;
+use std::os::windows::process::CommandExt;
 use std::process::Command;
 use std::env;
 use std::io::{self, Read, Write};
@@ -202,6 +203,7 @@ pub async fn lint(gs: State<'_, GlobalState>, app_handle: AppHandle) -> Result<V
 
     let output = Command::new("cmd")
         .args(&args)
+        .creation_flags(0x08000000)
         .output();
 
     if let Err(e) = output {
@@ -318,6 +320,7 @@ pub fn analyze_line(line: String, app_handle: AppHandle) -> Result<Vec<LineCodeT
         .to_string();
     let output = Command::new("python")
         .args(&[&rs_path_str, &line])
+        .creation_flags(0x08000000)
         .output();
 
     if let Err(e) = output {
