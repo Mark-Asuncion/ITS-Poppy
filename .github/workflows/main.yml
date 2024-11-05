@@ -48,11 +48,11 @@ jobs:
       # Compress the bundle folder to a ZIP file
       - name: Compress Build Output
         run: |
-          powershell Compress-Archive -Path src-tauri/target/release/bundle -DestinationPath Teacher-Poppy.zip
+          powershell Compress-Archive -Path src-tauri/target/release/ -DestinationPath Teacher-Poppy.zip
 
       # Upload the ZIP file as an artifact
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: Teacher Poppy ZIP
+          name: Teacher Poppy
           path: Teacher-Poppy.zip
