@@ -9,7 +9,7 @@ const contentsContainer = document.querySelector("#projects-list")! as HTMLDivEl
 const sidebarMenus = [
     document.querySelector("#sdprojects")! as HTMLDivElement,
     document.querySelector("#sdlearn")! as HTMLDivElement,
-    document.querySelector("#sdaboutus")! as HTMLDivElement
+    // document.querySelector("#sdaboutus")! as HTMLDivElement
 ];
 
 sidebarMenus[0].parentElement!.addEventListener("click", (e) => {
@@ -17,21 +17,21 @@ sidebarMenus[0].parentElement!.addEventListener("click", (e) => {
         !sidebarMenus[0].classList.contains("highlight")) {
         sidebarMenus[0].classList.add("highlight");
         sidebarMenus[1].classList.remove("highlight");
-        sidebarMenus[2].classList.remove("highlight");
+        // sidebarMenus[2].classList.remove("highlight");
     }
     else if (sidebarMenus[1].contains(e.target as Node) &&
         !sidebarMenus[1].classList.contains("highlight")) {
         sidebarMenus[1].classList.add("highlight");
         sidebarMenus[0].classList.remove("highlight");
-        sidebarMenus[2].classList.remove("highlight");
+        // sidebarMenus[2].classList.remove("highlight");
     }
 
-    else if (sidebarMenus[2].contains(e.target as Node) &&
-        !sidebarMenus[2].classList.contains("highlight")) {
-        sidebarMenus[2].classList.add("highlight");
-        sidebarMenus[0].classList.remove("highlight");
-        sidebarMenus[1].classList.remove("highlight");
-    }
+    // else if (sidebarMenus[2].contains(e.target as Node) &&
+    //     !sidebarMenus[2].classList.contains("highlight")) {
+    //     sidebarMenus[2].classList.add("highlight");
+    //     sidebarMenus[0].classList.remove("highlight");
+    //     sidebarMenus[1].classList.remove("highlight");
+    // }
 
     contentsContainer.innerHTML = "";
     listContents(contentsContainer);

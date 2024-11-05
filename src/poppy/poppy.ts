@@ -196,6 +196,9 @@ export class Poppy {
                 Poppy.tutorial = new PostTest();
                 break;
         }
+        if (Poppy.tutorial != null) {
+            Lint.autoOpen = false;
+        }
     }
 
     static qDialogFirst(dialog: PoppyDialog) {
