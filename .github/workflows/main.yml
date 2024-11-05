@@ -45,3 +45,14 @@ jobs:
       # Build the Tauri app
       - name: Build Tauri App
         run: cargo tauri build
+      # Compress the bundle folder to a ZIP file
+      - name: Compress Build Output
+        run: |
+          powershell Compress-Archive -Path src-tauri/target/release/bundle -DestinationPath Teacher-Poppy.zip
+
+      # Upload the ZIP file as an artifact
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Teacher Poppy ZIP
+          path: Teacher-Poppy.zip
