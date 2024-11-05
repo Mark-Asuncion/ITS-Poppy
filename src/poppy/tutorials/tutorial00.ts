@@ -13,7 +13,7 @@ export class Tutorial00 extends Tutorial {
         switch(this.cursor) {
             case 0: {
                 Poppy.display({
-                    message: "Welcome! we're going to learn how to use the application",
+                    message: `Welcome! I'm <span class="accent">Poppy</span>, and I'll be guiding you through learning <span class="accent">Python</span>. Let's start with creating a simple program printing <span class="secondary">'Hello, World!'</span>`,
                     dialogType: DialogType.NEXT,
                     cb: (() => this.cursor = 1).bind(this)
                 });
@@ -103,7 +103,7 @@ export class Tutorial00 extends Tutorial {
             }
             case 7:
                 Poppy.display({
-                    message: `The diagram changed its look. This is called a <span class="accent">function diagram</span>.`,
+                    message: `The diagram has changed its appearance, and now it's displaying in a new format. This type of view is known as a <span class="accent">function diagram</span>. As the name suggest it represents a statement calling a function`,
                     dialogType: DialogType.NEXT,
                     cb: (() => {
                         this.cursor = 8;

@@ -15,6 +15,12 @@ export class Tutorial01 extends Tutorial {
                 Poppy.display({
                     message: "Welcome! Now we’re going to learn about <span class=\"accent\">variables</span> in Python. Variables can store data of different types, and different types can do different things.",
                     dialogType: DialogType.NEXT,
+                    onDisplay: () => {
+                        Poppy.targetPos = {
+                            x: Poppy.pos.x,
+                            y: Poppy.pos.y - 100
+                        }
+                    },
                     cb: (() => this.cursor=1).bind(this)
                 });
                 break;
@@ -33,7 +39,7 @@ export class Tutorial01 extends Tutorial {
                 break;
             case 2:
                 Poppy.display({
-                    message: `In python we don't have to specify what type a variable holds, we can just assign any type of value and python will handle it`,
+                    message: `In <span class="accent">Python</span>, we <span class="accent">don't specify variable types</span>; we assign values directly, and Python manages the type. Since Python is <span class="accent">Dynamically Typed</span>, it won’t catch type mismatches in operations—so be cautious!`,
                     dialogType: DialogType.NEXT,
                     cb: (() => this.cursor=3).bind(this)
                 });
