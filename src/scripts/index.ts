@@ -68,8 +68,7 @@ rmProjectBtn.addEventListener("click", (e) => {
     console.log("remove: ", rmProject);
     if (rmProject) {
         del_project(rmProject.path);
-        contentsContainer.innerHTML = "";
-        listContents(contentsContainer);
+        window.location.reload();
     }
 });
 
@@ -79,7 +78,7 @@ function createProjectInfoElement(info: ProjectInfo, isTutorial = false, tutoria
     root.classList.add("border-light");
 
     let innerHtml = `<h4 class="p-2">${info.projectName}</h4>`;
-    innerHtml += `<div id="removeBtn" class="proj-settings d-flex align-items-start justify-content-end p-2"> <i class="fa-solid btn-close" data-bs-toggle="modal" data-bs-target="#removeModal"></i> </div>`;
+    innerHtml += `<div id="removeBtn" class="proj-settings d-flex align-items-start justify-content-end p-2"> <i class="fa-solid btn-close"></i> </div>`;
     innerHtml += `<div class="path"><small class="text-muted">${info.path}</small></div>`;
     root.innerHTML = innerHtml;
     const rmBtn = root.querySelector("#removeBtn")!;
@@ -104,6 +103,8 @@ function createProjectInfoElement(info: ProjectInfo, isTutorial = false, tutoria
     rmBtn.addEventListener("click", (e) => {
         e.preventDefault();
         rmProject = info;
+        del_project(rmProject.path);
+        window.location.reload();
     });
     return root;
 }
